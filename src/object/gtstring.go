@@ -8,3 +8,11 @@ type GtString struct {
 func (gts *GtString) Length() int {
 	return len(gts.origin)
 }
+
+func (gts *GtString) SetValue(str string) {
+	gts.origin = []byte(str)
+}
+
+func (gts *GtString) ToString() string {
+	return string(gts.origin)
+}
