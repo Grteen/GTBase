@@ -43,6 +43,12 @@ func (ph *PageHeader) CalOffsetOfIndex() int64 {
 	return int64(ph.PageIndex()) * PageSize
 }
 
+func CreatePageHeader(idx int32) PageHeader {
+	var result PageHeader
+	result.SetPageIndex(idx)
+	return result
+}
+
 func InitPageFile() {
 	if _, err := os.Stat(PageFilePathToDo); os.IsNotExist(err) {
 		_, errc := os.Create(PageFilePathToDo)
