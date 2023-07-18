@@ -26,8 +26,16 @@ type PageHeader struct {
 	pageIndex int32
 }
 
+func (ph *PageHeader) PageIndex() int32 {
+	return ph.pageIndex
+}
+
+func (ph *PageHeader) SetPageIndex(idx int32) {
+	ph.pageIndex = idx
+}
+
 func (ph *PageHeader) CalOffsetOfIndex() int64 {
-	return int64(ph.pageIndex) * PageSize
+	return int64(ph.PageIndex()) * PageSize
 }
 
 func InitPageFile() {
