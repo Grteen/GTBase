@@ -22,6 +22,10 @@ type PageHeader struct {
 	pageIndex int32
 }
 
+func (ph *PageHeader) CalOffsetOfIndex() int64 {
+	return int64(ph.pageIndex) * PageSize
+}
+
 func InitPageFile() {
 	if _, err := os.Stat(PageFilePathToDo); os.IsNotExist(err) {
 		_, errc := os.Create(PageFilePathToDo)
@@ -40,5 +44,14 @@ func InitPageFile() {
 
 // write the page back to the disk
 func WritePage(page *Page) {
+	file, err := os.Open(PageFilePathToDo)
+	if err != nil {
+		log.Fatalf("WritePage can't open PageFile because %s\n", err)
+	}
+	defer file.Close()
 
+	_, err = file.WriteAt(page.src, 1)
+	if err != nil {
+		log.Fatalf("WritePage can't write because %s\n", err)
+	}
 }
