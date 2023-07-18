@@ -1,6 +1,7 @@
 package page
 
 import (
+	"io"
 	"log"
 	"os"
 )
@@ -19,6 +20,10 @@ type Page struct {
 
 func (p *Page) Src() []byte {
 	return p.src
+}
+
+func (p *Page) SetSrc(bts []byte) {
+	p.src = bts
 }
 
 // PageHeader is the header info of a Page
@@ -48,11 +53,26 @@ func InitPageFile() {
 }
 
 // read the page from disk according to the pageIndex
-// func ReadPage(ph PageHeader) *Page {
+func ReadPage(ph PageHeader) *Page {
+	var pageOffset int64 = ph.CalOffsetOfIndex()
+	file, err := os.Open(PageFilePathToDo)
+	if err != nil {
+		log.Fatalf("ReadPage can't open PageFile because %s\n", err)
+	}
+	defer file.Close()
 
-// 	// var pageOffset int64 = int64(ph.pageIndex) * PageSize
+	return &Page{pageHeader: ph, src: readOnePageOfBytes(file, pageOffset)}
+}
 
-// }
+func readOnePageOfBytes(f *os.File, offset int64) []byte {
+	result := make([]byte, PageSize)
+	_, err := f.ReadAt(result, offset)
+	if err != nil && err != io.ErrUnexpectedEOF {
+		log.Fatalf("readOnePageOfBytes can't read because %s\n", err)
+	}
+
+	return result
+}
 
 // write the page back to the disk
 func WritePage(page *Page) {
