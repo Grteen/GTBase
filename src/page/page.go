@@ -50,7 +50,7 @@ func WritePage(page *Page) {
 	}
 	defer file.Close()
 
-	_, err = file.WriteAt(page.src, 1)
+	_, err = file.WriteAt(page.src, page.pageHeader.CalOffsetOfIndex())
 	if err != nil {
 		log.Fatalf("WritePage can't write because %s\n", err)
 	}
