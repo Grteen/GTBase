@@ -17,6 +17,12 @@ func (gts *GtString) ToString() string {
 	return string(gts.origin)
 }
 
+func (gts *GtString) ToByte() []byte {
+	result := make([]byte, 0)
+	copy(result, gts.origin)
+	return result
+}
+
 func CreateGtString(str string) *GtString {
 	gts := &GtString{}
 	gts.SetValue(str)
