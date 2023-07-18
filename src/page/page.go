@@ -17,6 +17,10 @@ type Page struct {
 	src        []byte
 }
 
+func (p *Page) Src() []byte {
+	return p.src
+}
+
 // PageHeader is the header info of a Page
 type PageHeader struct {
 	pageIndex int32
@@ -35,7 +39,7 @@ func InitPageFile() {
 	}
 }
 
-// // read the page from disk according to the pageIndex
+// read the page from disk according to the pageIndex
 // func ReadPage(ph PageHeader) *Page {
 
 // 	// var pageOffset int64 = int64(ph.pageIndex) * PageSize
@@ -50,7 +54,7 @@ func WritePage(page *Page) {
 	}
 	defer file.Close()
 
-	_, err = file.WriteAt(page.src, page.pageHeader.CalOffsetOfIndex())
+	_, err = file.WriteAt(page.Src(), page.pageHeader.CalOffsetOfIndex())
 	if err != nil {
 		log.Fatalf("WritePage can't write because %s\n", err)
 	}
