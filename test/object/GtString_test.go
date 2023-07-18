@@ -17,7 +17,7 @@ func TestGtStringLength(t *testing.T) {
 	for _, d := range data {
 		testTarget := object.CreateGtString(d.arg)
 		if testTarget.Length() != d.res {
-			t.Errorf("Length() should return %d but got %d", d.res, testTarget.Length())
+			t.Errorf("GtString.Length() should return %d but got %d", d.res, testTarget.Length())
 		}
 	}
 }
