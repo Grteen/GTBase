@@ -16,6 +16,12 @@ func TestInitPageFile(t *testing.T) {
 	}
 }
 
+func TestReadWritePage(t *testing.T) {
+	testReadWritePageInSingleIndex(t, 0)
+	testReadWritePageInSingleIndex(t, 1)
+	testReadWritePageInSingleIndex(t, 2)
+}
+
 func readWritePageCreateData() [][]byte {
 	result := make([][]byte, 0)
 	data := []string{"Hello World", "abc"}
@@ -31,8 +37,8 @@ func readWritePageCreateData() [][]byte {
 	return result
 }
 
-func TestReadWritePage(t *testing.T) {
-	ph := page.CreatePageHeader(0)
+func testReadWritePageInSingleIndex(t *testing.T, idx int) {
+	ph := page.CreatePageHeader(int32(idx))
 	pg := page.ReadPage(&ph)
 
 	data := readWritePageCreateData()
@@ -47,5 +53,4 @@ func TestReadWritePage(t *testing.T) {
 			t.Errorf("WritePage should write %s but ReadPage reads %s", d, spg.Src())
 		}
 	}
-
 }
