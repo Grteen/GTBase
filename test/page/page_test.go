@@ -3,8 +3,9 @@ package page
 import (
 	"GtBase/src/page"
 	"os"
-	"reflect"
 	"testing"
+
+	"GtBase/utils"
 )
 
 func TestInitPageFile(t *testing.T) {
@@ -42,7 +43,7 @@ func TestReadWritePage(t *testing.T) {
 
 		spg := page.ReadPage(&ph)
 
-		if !reflect.DeepEqual(spg, d) {
+		if !utils.EqualByteSlice(spg.Src(), d) {
 			t.Errorf("WritePage should write %s but ReadPage reads %s", d, spg.Src())
 		}
 	}

@@ -76,6 +76,7 @@ func InitPageFile() {
 
 // read the page from disk according to the pageIndex
 func ReadPage(ph *PageHeader) *Page {
+	// TODO: should read page from pageCache First
 	var pageOffset int64 = ph.CalOffsetOfIndex()
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
