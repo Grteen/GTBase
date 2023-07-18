@@ -14,7 +14,7 @@ const (
 // Page is the basic unit store in disk and in xxx.pf file
 // It is always 16KB
 type Page struct {
-	pageHeader PageHeader
+	pageHeader *PageHeader
 	src        []byte
 }
 
@@ -24,6 +24,17 @@ func (p *Page) Src() []byte {
 
 func (p *Page) SetSrc(bts []byte) {
 	p.src = bts
+}
+
+func (p *Page) SetPageHeader(ph *PageHeader) {
+	p.pageHeader = ph
+}
+
+func CreatePage(ph *PageHeader, src []byte) *Page {
+	result := &Page{}
+	result.SetPageHeader(ph)
+	result.SetSrc(src)
+	return result
 }
 
 // PageHeader is the header info of a Page
@@ -59,7 +70,7 @@ func InitPageFile() {
 }
 
 // read the page from disk according to the pageIndex
-func ReadPage(ph PageHeader) *Page {
+func ReadPage(ph *PageHeader) *Page {
 	var pageOffset int64 = ph.CalOffsetOfIndex()
 	file, err := os.Open(PageFilePathToDo)
 	if err != nil {
