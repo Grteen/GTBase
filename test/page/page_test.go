@@ -15,8 +15,6 @@ func TestInitPageFile(t *testing.T) {
 	filePath.WriteString(page.TempFileNameToDo)
 
 	if _, err := os.Stat(filePath.String()); os.IsNotExist(err) {
-		if err != nil {
-			t.Errorf("InitPageFile() should create the %s but it didn't", filePath.String())
-		}
+		t.Errorf("InitPageFile() should create the %s but it didn't", filePath.String())
 	}
 }
