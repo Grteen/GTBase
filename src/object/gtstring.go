@@ -16,3 +16,9 @@ func (gts *GtString) SetValue(str string) {
 func (gts *GtString) ToString() string {
 	return string(gts.origin)
 }
+
+func CreateGtString(str string) *GtString {
+	gts := &GtString{}
+	gts.SetValue(str)
+	return gts
+}
