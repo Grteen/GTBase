@@ -78,7 +78,7 @@ func ReadPage(ph *PageHeader) *Page {
 	}
 	defer file.Close()
 
-	return &Page{pageHeader: ph, src: readOnePageOfBytes(file, pageOffset)}
+	return CreatePage(ph, readOnePageOfBytes(file, pageOffset))
 }
 
 func readOnePageOfBytes(f *os.File, offset int64) []byte {
