@@ -3,12 +3,10 @@ package page
 import (
 	"log"
 	"os"
-	"strings"
 )
 
 const (
-	TempFileNameToDo string = "ttt.pf"
-	FilePath         string = "./temp/"
+	PageFilePathToDo string = "./temp/gt.pf"
 	PageSize         int64  = 16384
 )
 
@@ -25,21 +23,22 @@ type PageHeader struct {
 }
 
 func InitPageFile() {
-	var filePath strings.Builder
-	filePath.WriteString(FilePath)
-	filePath.WriteString(TempFileNameToDo)
-
-	if _, err := os.Stat(filePath.String()); os.IsNotExist(err) {
-		_, errc := os.Create(filePath.String())
+	if _, err := os.Stat(PageFilePathToDo); os.IsNotExist(err) {
+		_, errc := os.Create(PageFilePathToDo)
 		if errc != nil {
 			log.Fatalf("InitPageFile can't create the PageFile because %s\n", err)
 		}
 	}
 }
 
-// read the page from disk according to the pageIndex
+// // read the page from disk according to the pageIndex
 // func ReadPage(ph PageHeader) *Page {
 
 // 	// var pageOffset int64 = int64(ph.pageIndex) * PageSize
 
 // }
+
+// write the page back to the disk
+func WritePage(page *Page) {
+
+}
