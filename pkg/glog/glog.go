@@ -21,7 +21,12 @@ func Log(format string, a ...any) {
 	builder.WriteString("%v %v:%v ")
 	builder.WriteString(format)
 
-	fmt.Println(fmt.Sprintf(builder.String(), time.Now(), file, line, a))
+	if len(a) > 0 {
+		fmt.Println(fmt.Sprintf(builder.String(), time.Now(), file, line, a))
+		return
+	}
+
+	fmt.Println(fmt.Sprintf(builder.String(), time.Now(), file, line))
 }
 
 func Error(format string, a ...any) error {
@@ -34,7 +39,11 @@ func Error(format string, a ...any) error {
 	builder.WriteString("%v:%v ")
 	builder.WriteString(format)
 
-	return fmt.Errorf(fmt.Sprintf(builder.String(), file, line, a))
+	if len(a) > 0 {
+		return fmt.Errorf(fmt.Sprintf(builder.String(), file, line, a))
+	}
+
+	return fmt.Errorf(fmt.Sprintf(builder.String(), file, line))
 }
 
 func InitGlog() *log.Logger {
