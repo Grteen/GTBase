@@ -55,6 +55,10 @@ func (ph *PageHeader) CalOffsetOfIndex() int64 {
 	return int64(ph.PageIndex()) * PageSize
 }
 
+func CalOffsetOfIndex(idx int32) int64 {
+	return int64(idx) * PageSize
+}
+
 func CreatePageHeader(idx int32) PageHeader {
 	var result PageHeader
 	result.SetPageIndex(idx)
