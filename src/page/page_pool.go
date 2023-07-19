@@ -89,3 +89,27 @@ func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
 
 	return result, nil
 }
+
+func FlushPage(idx int32) error {
+	pg, ok := GetPagePool().GetPage(idx)
+	if !ok {
+		return glog.Error("FlushPage can't flush because page%v not in PagePool", idx)
+	}
+
+}
+
+// write the page back to the disk
+func WritePage(page *Page) error {
+	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
+	if err != nil {
+		return glog.Error("WritePage can't open PageFile because %s\n", err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteAt(page.Src(), CalOffsetOfIndex(page.pageHeader.PageIndex()))
+	if err != nil {
+		return glog.Error("WritePage can't write because %s\n", err)
+	}
+
+	return nil
+}
