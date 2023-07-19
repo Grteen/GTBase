@@ -40,6 +40,7 @@ func CreatePage(ph *PageHeader, src []byte) *Page {
 // PageHeader is the header info of a Page
 type PageHeader struct {
 	pageIndex int32
+	dirty     bool
 }
 
 func (ph *PageHeader) PageIndex() int32 {
@@ -76,7 +77,7 @@ func InitPageFile() {
 
 // read the page from disk according to the pageIndex
 func ReadPage(ph *PageHeader) *Page {
-	// TODO: should read page from pageCache First
+	// TODO: should read page from PagePool First
 	var pageOffset int64 = ph.CalOffsetOfIndex()
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {

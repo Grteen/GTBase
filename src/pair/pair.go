@@ -32,14 +32,11 @@ func (p *Pair) ToByte() []byte {
 	result := make([]byte, 0, totalLength)
 
 	result = append(result, valByte...)
-	// result = binary.AppendVarint(result, int64(len(valByte)))
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(len(valByte)))...)
 
 	result = append(result, keyByte...)
-	// result = binary.AppendVarint(result, int64(len(keyByte)))
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(len(keyByte)))...)
 
-	// result = binary.AppendVarint(result, int64(p.flag))
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(p.flag))...)
 
 	result = append(result, ofByte...)
