@@ -1,4 +1,4 @@
-package nextset
+package nextwrite
 
 import "sync"
 
@@ -23,7 +23,7 @@ type NextWriteFactory struct {
 var instance *NextWriteFactory
 var once sync.Once
 
-func getNextWriteFactory() *NextWriteFactory {
+func GetNextWriteFactory() *NextWriteFactory {
 	once.Do(func() {
 		// TODO init it's nextWrite
 		instance = &NextWriteFactory{}
