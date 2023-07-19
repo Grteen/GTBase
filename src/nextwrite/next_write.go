@@ -36,17 +36,44 @@ var once sync.Once
 func GetNextWriteFactory() *NextWriteFactory {
 	once.Do(func() {
 		// TODO init it's nextWrite
-		instance = &NextWriteFactory{}
+		instance = &NextWriteFactory{commandNumber: -1}
 	})
 
 	return instance
 }
 
+// getCMN will get the current commandNumber and atomically increase it
 // func (nwf *NextWriteFactory) getCMN() int32 {
 // 	nwf.cmnLock.Lock()
 // 	defer nwf.cmnLock.Unlock()
 
 // }
+
+func (nwf *NextWriteFactory) checkCMNandInit() error {
+	if !nwf.checkCMNInit() {
+		return nwf.initCMN()
+	}
+
+	return nil
+}
+
+func (nwf *NextWriteFactory) checkCMNInit() bool {
+	if nwf.commandNumber == -1 {
+		return false
+	}
+
+	return true
+}
+
+func (nwf *NextWriteFactory) initCMN() error {
+	cmn, err := nwf.readCMN()
+	if err != nil {
+		return err
+	}
+
+	nwf.commandNumber = cmn
+	return nil
+}
 
 func (nwf *NextWriteFactory) readCMN() (int32, error) {
 	file, err := os.Open(CMNPathToDo)
