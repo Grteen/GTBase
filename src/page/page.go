@@ -51,10 +51,6 @@ func (ph *PageHeader) SetPageIndex(idx int32) {
 	ph.pageIndex = idx
 }
 
-func (ph *PageHeader) CalOffsetOfIndex() int64 {
-	return int64(ph.PageIndex()) * PageSize
-}
-
 func CalOffsetOfIndex(idx int32) int64 {
 	return int64(idx) * PageSize
 }
@@ -82,7 +78,7 @@ func InitPageFile() {
 // read the page from disk according to the pageIndex
 func ReadPage(ph *PageHeader) *Page {
 	// TODO: should read page from PagePool First
-	var pageOffset int64 = ph.CalOffsetOfIndex()
+	var pageOffset int64 = CalOffsetOfIndex(ph.PageIndex())
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
 		log.Fatalf("ReadPage can't open PageFile because %s\n", err)
@@ -110,7 +106,7 @@ func WritePage(page *Page) {
 	}
 	defer file.Close()
 
-	_, err = file.WriteAt(page.Src(), page.pageHeader.CalOffsetOfIndex())
+	_, err = file.WriteAt(page.Src(), CalOffsetOfIndex(page.pageHeader.PageIndex()))
 	if err != nil {
 		log.Fatalf("WritePage can't write because %s\n", err)
 	}
