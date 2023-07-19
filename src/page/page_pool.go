@@ -19,6 +19,10 @@ func (pool *PagePool) GetPage(idx int32) (*Page, bool) {
 	return p, ok
 }
 
+func (pool *PagePool) CachePage(p *Page) {
+	pool.caches[p.pageHeader.PageIndex()] = p
+}
+
 func CreatePagePool() *PagePool {
 	return &PagePool{caches: map[int32]*Page{}}
 }
