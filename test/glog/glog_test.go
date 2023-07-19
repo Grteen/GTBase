@@ -5,10 +5,8 @@ import (
 	"testing"
 )
 
-func TestGlogSingleton(t *testing.T) {
-	glog1 := glog.Glog()
-	glog2 := glog.Glog()
-	if glog1 != glog2 {
-		t.Errorf("glog.Glog()'s address should be same but got %p and %p", glog1, glog2)
-	}
+func TestLog(t *testing.T) {
+	glog.Log("this is a test")
+	var str string = "good"
+	glog.Log("this is a %v test", str)
 }
