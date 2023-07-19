@@ -3,7 +3,6 @@ package pair
 import (
 	"GtBase/src/object"
 	"GtBase/utils"
-	"encoding/binary"
 )
 
 // Pair is used as the record
@@ -63,13 +62,9 @@ func (of *OverFlow) OverFlowInfo() (int32, int32) {
 
 func (of *OverFlow) ToByte() []byte {
 	result := make([]byte, 0, 8)
-	idxByte := make([]byte, 4)
-	offByte := make([]byte, 4)
 
-	binary.PutVarint(idxByte, int64(of.overFlowIndex))
-	binary.PutVarint(offByte, int64(of.overFlowOffset))
-	result = append(result, idxByte...)
-	result = append(result, offByte...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(of.overFlowIndex)...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(of.overFlowOffset)...)
 
 	return result
 }
