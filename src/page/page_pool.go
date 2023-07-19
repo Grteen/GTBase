@@ -16,6 +16,10 @@ type PagePool struct {
 // read the page from disk according to the pageIndex
 func ReadPage(idx int32) *Page {
 	// TODO: should read page from PagePool First
+	return readPageFromDisk(idx)
+}
+
+func readPageFromDisk(idx int32) *Page {
 	var pageOffset int64 = CalOffsetOfIndex(idx)
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
