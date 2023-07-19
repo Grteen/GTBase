@@ -14,8 +14,13 @@ type PagePool struct {
 	caches map[int32]*Page
 }
 
+func (pool *PagePool) GetPage(idx int32) (*Page, bool) {
+	p, ok := pool.caches[idx]
+	return p, ok
+}
+
 func CreatePagePool() *PagePool {
-	return &PagePool{}
+	return &PagePool{caches: map[int32]*Page{}}
 }
 
 var instance *PagePool
