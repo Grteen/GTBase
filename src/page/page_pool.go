@@ -44,7 +44,9 @@ func ReadPage(idx int32) *Page {
 		return p
 	}
 
-	return readPageFromDisk(idx)
+	pd := readPageFromDisk(idx)
+	GetPagePool().CachePage(pd)
+	return pd
 }
 
 func readPageFromCache(idx int32) *Page {
