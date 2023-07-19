@@ -1,7 +1,7 @@
 package page
 
 import (
-	"GtBase/pkg/glog"
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -38,21 +38,21 @@ func GetPagePool() *PagePool {
 }
 
 // read the page from disk according to the pageIndex
-func ReadPage(idx int32) *Page {
+func ReadPage(idx int32) (*Page, error) {
 	p := readPageFromCache(idx)
 	if p != nil {
-		return p
+		return p, nil
 	}
 
-	pd := readPageFromDisk(idx)
+	pd, err := readPageFromDisk(idx)
 
-	if pd == nil {
-		return nil
+	if err != nil {
+		return nil, err
 	}
 
 	GetPagePool().CachePage(pd)
 
-	return pd
+	return pd, nil
 }
 
 func readPageFromCache(idx int32) *Page {
@@ -64,22 +64,20 @@ func readPageFromCache(idx int32) *Page {
 	return p
 }
 
-func readPageFromDisk(idx int32) *Page {
+func readPageFromDisk(idx int32) (*Page, error) {
 	var pageOffset int64 = CalOffsetOfIndex(idx)
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
-		glog.Log("ReadPage can't open PageFile because %s\n", err)
-		return nil
+		return nil, fmt.Errorf("ReadPage can't open PageFile because %s\n", err)
 	}
 	defer file.Close()
 
 	src, err := readOnePageOfBytes(file, pageOffset)
 	if err != nil {
-		glog.Log("readOnePageOfBytes can't read because %s\n", err)
-		return nil
+		return nil, fmt.Errorf("readOnePageOfBytes can't read because %s\n", err)
 	}
 
-	return CreatePage(idx, src)
+	return CreatePage(idx, src), nil
 }
 
 func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
