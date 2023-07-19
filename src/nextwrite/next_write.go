@@ -2,7 +2,9 @@ package nextwrite
 
 import (
 	"GtBase/pkg/glog"
+	"GtBase/utils"
 	"encoding/binary"
+	"log"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -29,18 +31,6 @@ type NextWriteFactory struct {
 	nextWrite     NextWrite
 	nwLock        sync.Mutex
 	cmnLock       sync.Mutex
-}
-
-var instance *NextWriteFactory
-var once sync.Once
-
-func GetNextWriteFactory() *NextWriteFactory {
-	once.Do(func() {
-		// TODO init it's nextWrite
-		instance = &NextWriteFactory{commandNumber: -1}
-	})
-
-	return instance
 }
 
 // getCMN will get the current commandNumber and atomically increase it
@@ -78,16 +68,16 @@ func (nwf *NextWriteFactory) initCMN() error {
 }
 
 func (nwf *NextWriteFactory) readCMN() (int32, error) {
-	file, err := os.Open(CMNPathToDo)
+	file, err := os.OpenFile(CMNPathToDo, os.O_RDWR, 0777)
 	if err != nil {
-		return -1, glog.Error("ReadCMNFile can't open file %v because %v", CMNPathToDo, err)
+		return -1, glog.Error("ReadCMNFile can't open file %s because %s", CMNPathToDo, err.Error())
 	}
 	defer file.Close()
 
 	var result int32
 	errr := binary.Read(file, binary.LittleEndian, &result)
 	if errr != nil {
-		return -1, glog.Error("ReadCMNFile can't read file %v because %v", CMNPathToDo, errr)
+		return -1, glog.Error("ReadCMNFile can't read file %s because %s", CMNPathToDo, errr.Error())
 	}
 
 	return result, nil
@@ -106,4 +96,39 @@ func (nwf *NextWriteFactory) writeCMN() error {
 	}
 
 	return nil
+}
+
+var instance *NextWriteFactory
+var once sync.Once
+
+func GetNextWriteFactory() *NextWriteFactory {
+	once.Do(func() {
+		// TODO init it's nextWrite
+		instance = &NextWriteFactory{commandNumber: -1}
+	})
+
+	return instance
+}
+
+func GetCMN() (int32, error) {
+	return GetNextWriteFactory().getCMN()
+}
+
+func InitCMNFile() {
+	if _, err := os.Stat(CMNPathToDo); os.IsNotExist(err) {
+		file, errc := os.Create(CMNPathToDo)
+		if errc != nil {
+			log.Fatalf("InitCMNFile can't create the CMNFILE because %s\n", err)
+		}
+
+		errm := os.Chmod(CMNPathToDo, 0777)
+		if errm != nil {
+			log.Fatalf("InitCMNFile can't chmod because of %s\n", errm)
+		}
+
+		errw := binary.Write(file, binary.LittleEndian, utils.Encodeint32ToBytesSmallEnd(0))
+		if errw != nil {
+			log.Fatalf("writeCMNFile can't write file %v because %v", CMNPathToDo, errw)
+		}
+	}
 }
