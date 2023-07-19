@@ -35,13 +35,22 @@ func GetPagePool() *PagePool {
 
 // read the page from disk according to the pageIndex
 func ReadPage(idx int32) *Page {
-	// TODO: should read page from PagePool First
+	p := readPageFromCache(idx)
+	if p != nil {
+		return p
+	}
+
 	return readPageFromDisk(idx)
 }
 
-// func readPageFromCache(idx int32) *Page {
+func readPageFromCache(idx int32) *Page {
+	p, ok := GetPagePool().GetPage(idx)
+	if !ok {
+		return nil
+	}
 
-// }
+	return p
+}
 
 func readPageFromDisk(idx int32) *Page {
 	var pageOffset int64 = CalOffsetOfIndex(idx)
