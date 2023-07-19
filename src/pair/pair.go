@@ -21,14 +21,18 @@ func (p *Pair) Value() object.Object {
 	return p.value
 }
 
+// value value-length  key key-length flag overflowIndex overflowOffset
 func (p *Pair) ToByte() []byte {
 	keyByte := p.key.ToByte()
 	valByte := p.value.ToByte()
 	ofByte := p.overFlow.ToByte()
 
-	result := make([]byte, len(keyByte)+len(valByte)+len(ofByte)+1)
-	result = append(result, keyByte...)
+	result := make([]byte, len(valByte)+4+len(keyByte)+4+1+len(ofByte))
 	result = append(result, valByte...)
+	result = binary.AppendVarint(result, int64(len(valByte)))
+	result = append(result, keyByte...)
+	result = binary.AppendVarint(result, int64(len(keyByte)))
+	result = binary.AppendVarint(result, int64(p.flag))
 	result = append(result, ofByte...)
 
 	return result
