@@ -12,6 +12,6 @@ func Encodeint32ToBytesSmallEnd(x int32) []byte {
 	return bytes
 }
 
-func BytesSmallEndToEncodeint32(x []byte) int32 {
+func EncodeBytesSmallEndToint32(x []byte) int32 {
 	return int32(binary.LittleEndian.Uint32(x))
 }
