@@ -60,9 +60,7 @@ func CalOffsetOfIndex(idx int32) int64 {
 }
 
 func CreatePageHeader(idx int32) PageHeader {
-	var result PageHeader
-	result.SetPageIndex(idx)
-	return result
+	return PageHeader{pageIndex: idx, dirty: false}
 }
 
 func InitPageFile() {
