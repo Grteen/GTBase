@@ -1,7 +1,7 @@
 package page
 
 import (
-	"fmt"
+	"GtBase/pkg/glog"
 	"io"
 	"os"
 	"sync"
@@ -68,13 +68,13 @@ func readPageFromDisk(idx int32) (*Page, error) {
 	var pageOffset int64 = CalOffsetOfIndex(idx)
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
-		return nil, fmt.Errorf("ReadPage can't open PageFile because %s\n", err)
+		return nil, glog.Error("ReadPage can't open PageFile because %s\n", err)
 	}
 	defer file.Close()
 
 	src, err := readOnePageOfBytes(file, pageOffset)
 	if err != nil {
-		return nil, fmt.Errorf("readOnePageOfBytes can't read because %s\n", err)
+		return nil, glog.Error("readOnePageOfBytes can't read because %s\n", err)
 	}
 
 	return CreatePage(idx, src), nil
