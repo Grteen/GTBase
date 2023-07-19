@@ -27,12 +27,18 @@ func (p *Pair) ToByte() []byte {
 	valByte := p.value.ToByte()
 	ofByte := p.overFlow.ToByte()
 
-	result := make([]byte, len(valByte)+4+len(keyByte)+4+1+len(ofByte))
+	totalLength := 4 + len(valByte) + 4 + len(keyByte) + 1 + len(ofByte)
+
+	result := make([]byte, 0, totalLength)
+
 	result = append(result, valByte...)
 	result = binary.AppendVarint(result, int64(len(valByte)))
+
 	result = append(result, keyByte...)
 	result = binary.AppendVarint(result, int64(len(keyByte)))
+
 	result = binary.AppendVarint(result, int64(p.flag))
+
 	result = append(result, ofByte...)
 
 	return result
