@@ -29,6 +29,10 @@ func (p *Page) SetPageHeader(ph *PageHeader) {
 	p.pageHeader = ph
 }
 
+func (p *Page) Dirty() {
+	p.pageHeader.dirty = true
+}
+
 func CreatePage(idx int32, src []byte) *Page {
 	result := &Page{}
 	ph := CreatePageHeader(idx)
