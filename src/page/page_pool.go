@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sync"
 )
 
 // PagePool caches all pages
@@ -13,11 +14,29 @@ type PagePool struct {
 	caches map[int32]*Page
 }
 
+func CreatePagePool() *PagePool {
+	return &PagePool{}
+}
+
+var instance *PagePool
+var once sync.Once
+
+func GetPagePool() *PagePool {
+	once.Do(func() {
+		instance = CreatePagePool()
+	})
+	return instance
+}
+
 // read the page from disk according to the pageIndex
 func ReadPage(idx int32) *Page {
 	// TODO: should read page from PagePool First
 	return readPageFromDisk(idx)
 }
+
+// func readPageFromCache(idx int32) *Page {
+
+// }
 
 func readPageFromDisk(idx int32) *Page {
 	var pageOffset int64 = CalOffsetOfIndex(idx)
