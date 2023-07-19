@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"os"
 	"sync"
+	"sync/atomic"
 )
 
 // NextWrite tell the Next Write Command where to write
@@ -43,26 +44,27 @@ func GetNextWriteFactory() *NextWriteFactory {
 }
 
 // getCMN will get the current commandNumber and atomically increase it
-// func (nwf *NextWriteFactory) getCMN() int32 {
-// 	nwf.cmnLock.Lock()
-// 	defer nwf.cmnLock.Unlock()
+func (nwf *NextWriteFactory) getCMN() (int32, error) {
+	nwf.cmnLock.Lock()
+	defer nwf.cmnLock.Unlock()
 
-// }
+	err := nwf.checkCMNandInit()
+	if err != nil {
+		return -1, err
+	}
+
+	result := nwf.commandNumber
+	atomic.AddInt32(&nwf.commandNumber, 1)
+
+	return result, nil
+}
 
 func (nwf *NextWriteFactory) checkCMNandInit() error {
-	if !nwf.checkCMNInit() {
+	if nwf.commandNumber == -1 {
 		return nwf.initCMN()
 	}
 
 	return nil
-}
-
-func (nwf *NextWriteFactory) checkCMNInit() bool {
-	if nwf.commandNumber == -1 {
-		return false
-	}
-
-	return true
 }
 
 func (nwf *NextWriteFactory) initCMN() error {
