@@ -27,7 +27,7 @@ func (p *Pair) ToByte() []byte {
 	valByte := p.value.ToByte()
 	ofByte := p.overFlow.ToByte()
 
-	totalLength := 4 + len(valByte) + 4 + len(keyByte) + 1 + len(ofByte)
+	totalLength := len(valByte) + 4 + len(keyByte) + 4 + 1 + len(ofByte)
 
 	result := make([]byte, 0, totalLength)
 
