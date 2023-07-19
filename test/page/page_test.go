@@ -39,7 +39,7 @@ func readWritePageCreateData() [][]byte {
 
 func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 	ph := page.CreatePageHeader(int32(idx))
-	pg := page.ReadPage(&ph)
+	pg := page.ReadPage(ph.PageIndex())
 
 	data := readWritePageCreateData()
 
@@ -47,7 +47,7 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 		pg.SetSrc(d)
 		page.WritePage(pg)
 
-		spg := page.ReadPage(&ph)
+		spg := page.ReadPage(ph.PageIndex())
 
 		if !utils.EqualByteSlice(spg.Src(), d) {
 			t.Errorf("WritePage should write %s but ReadPage reads %s", d, spg.Src())
