@@ -24,10 +24,10 @@ const (
 // NextWriteFactory assign CMN to all write command
 // and assign NextWrite to all Set command
 type NextWriteFactory struct {
-	// commandNumber int32
-	nextWrite NextWrite
-	nwLock    sync.Mutex
-	cmnLock   sync.Mutex
+	commandNumber int32
+	nextWrite     NextWrite
+	nwLock        sync.Mutex
+	cmnLock       sync.Mutex
 }
 
 var instance *NextWriteFactory
@@ -48,10 +48,10 @@ func GetNextWriteFactory() *NextWriteFactory {
 
 // }
 
-func (nwf *NextWriteFactory) readCMNFile() (int32, error) {
+func (nwf *NextWriteFactory) readCMN() (int32, error) {
 	file, err := os.Open(CMNPathToDo)
 	if err != nil {
-		return -1, glog.Error("ReadCMNFile can't read file %v because %v", CMNPathToDo, err)
+		return -1, glog.Error("ReadCMNFile can't open file %v because %v", CMNPathToDo, err)
 	}
 	defer file.Close()
 
@@ -62,4 +62,19 @@ func (nwf *NextWriteFactory) readCMNFile() (int32, error) {
 	}
 
 	return result, nil
+}
+
+func (nwf *NextWriteFactory) writeCMN() error {
+	file, err := os.OpenFile(CMNPathToDo, os.O_WRONLY|os.O_CREATE, 0777)
+	if err != nil {
+		return glog.Error("writeCMNFile can't open file %v because %v", CMNPathToDo, err)
+	}
+	defer file.Close()
+
+	errw := binary.Write(file, binary.LittleEndian, nwf.commandNumber)
+	if errw != nil {
+		return glog.Error("writeCMNFile can't write file %v because %v", CMNPathToDo, errw)
+	}
+
+	return nil
 }
