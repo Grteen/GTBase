@@ -76,15 +76,19 @@ func InitPageFile() {
 }
 
 // write the page back to the disk
-func WritePage(page *Page) {
+func WritePage(page *Page) error {
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
+		return err
 		log.Fatalf("WritePage can't open PageFile because %s\n", err)
 	}
 	defer file.Close()
 
 	_, err = file.WriteAt(page.Src(), CalOffsetOfIndex(page.pageHeader.PageIndex()))
 	if err != nil {
+		return err
 		log.Fatalf("WritePage can't write because %s\n", err)
 	}
+
+	return nil
 }
