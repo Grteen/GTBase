@@ -1,7 +1,9 @@
 package pair
 
 import (
+	"GtBase/src/nextwrite"
 	"GtBase/src/object"
+	"GtBase/src/page"
 	"GtBase/src/pair"
 	"GtBase/utils"
 	"encoding/binary"
@@ -59,4 +61,38 @@ func TestBinaryAppend(t *testing.T) {
 	result = binary.AppendVarint(result, int64(len(str)))
 
 	fmt.Println(result)
+}
+
+func TestWriteInPage(t *testing.T) {
+	page.DeletePageFile()
+	page.InitPageFile()
+	data := createTestPairToByteData()
+
+	for i := 0; i < len(data); i++ {
+		d := data[i]
+
+		p := pair.CreatePair(d.key, d.val, d.flag, pair.CreateOverFlow(d.overFlowIndex, d.overFlowOffset))
+		bts := p.ToByte()
+		nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(bts)))
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		idx, off := nw.NextWriteInfo()
+		p.WriteInPage(idx, off)
+
+		pg, errr := page.ReadPage(idx)
+		if errr != nil {
+			t.Errorf(err.Error())
+		}
+
+		got := make([]byte, 0)
+		for j := 0; j < i; j++ {
+			got = append(got, data[0].res...)
+		}
+
+		if !utils.EqualByteSliceOnlyInMinLen(pg.Src(), got) {
+			t.Errorf("ReadPage should got %v but got %v", pg.Src()[:len(p.ToByte())], got)
+		}
+	}
 }
