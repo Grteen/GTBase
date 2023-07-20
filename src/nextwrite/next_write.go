@@ -162,3 +162,7 @@ func (nwf *NextWriteFactory) initNextWriteIndexAndOffset(fileSize int64) {
 	pageOffset := 0
 	nwf.nextWrite = *CreateNextWrite(pageIndex, int32(pageOffset))
 }
+
+func (nwf *NextWriteFactory) GetNextWrite() *NextWrite {
+	return CreateNextWrite(nwf.nextWrite.pageIndex, nwf.nextWrite.pageOffset)
+}

@@ -35,3 +35,11 @@ func TestReadWriteCMN(t *testing.T) {
 		}
 	}
 }
+
+func TestInitNextWrite(t *testing.T) {
+	fa := nextwrite.GetNextWriteFactory()
+	err := fa.InitNextWrite()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+}
