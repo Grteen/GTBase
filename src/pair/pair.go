@@ -2,6 +2,7 @@ package pair
 
 import (
 	"GtBase/src/object"
+	"GtBase/src/page"
 	"GtBase/utils"
 )
 
@@ -45,7 +46,7 @@ func (p *Pair) ToByte() []byte {
 }
 
 func (p *Pair) WriteInPage(idx, off int32) {
-
+	page.WriteBytesToPageMemory(idx, off, p.ToByte())
 }
 
 func CreatePair(key, value object.Object, flag int8, of OverFlow) *Pair {
