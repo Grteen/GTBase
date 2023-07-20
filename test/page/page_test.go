@@ -49,7 +49,7 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 
 	for _, d := range data {
 		pg.SetSrc(d)
-		page.WritePage(pg)
+		page.FlushPage(int32(idx))
 
 		spg, err := page.ReadPage(ph.PageIndex())
 		if err != nil {

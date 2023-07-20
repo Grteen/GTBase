@@ -44,6 +44,10 @@ func (p *Pair) ToByte() []byte {
 	return result
 }
 
+func (p *Pair) WriteInPage(idx, off int32) {
+
+}
+
 func CreatePair(key, value object.Object, flag int8, of OverFlow) *Pair {
 	return &Pair{key: key, value: value, flag: flag, overFlow: of}
 }

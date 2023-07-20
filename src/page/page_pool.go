@@ -91,8 +91,8 @@ func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
 }
 
 func FlushPage(idx int32) error {
-	pg, ok := GetPagePool().GetPage(idx)
-	if !ok {
+	pg := readPageFromCache(idx)
+	if pg == nil {
 		return glog.Error("FlushPage can't flush because page%v not in PagePool", idx)
 	}
 
@@ -100,11 +100,11 @@ func FlushPage(idx int32) error {
 		return glog.Error("FlushPage don't need to flush because page%v not dirty", idx)
 	}
 
-	return WritePage(pg)
+	return writePage(pg)
 }
 
 // write the page back to the disk
-func WritePage(page *Page) error {
+func writePage(page *Page) error {
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
 		return glog.Error("WritePage can't open PageFile because %s\n", err)
@@ -118,3 +118,8 @@ func WritePage(page *Page) error {
 
 	return nil
 }
+
+// Dirty the target page too
+// func WriteBytesToPageMemory(idx, off int32) {
+// 	pg, ok := GetPagePool()
+// }
