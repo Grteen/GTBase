@@ -110,24 +110,28 @@ func (p *Page) flushPage() error {
 		return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
 	}
 
-	return writePage(p)
+	return p.writePage()
 }
 
 // write the page back to the disk
 // also clean the page
-func writePage(page *Page) error {
-	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
+func (p *Page) writePage() error {
+	return writePage(p, PageFilePathToDo)
+}
+
+func writePage(pg *Page, filePath string) error {
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0777)
 	if err != nil {
 		return glog.Error("WritePage can't open PageFile because %s\n", err)
 	}
 	defer file.Close()
 
-	_, err = file.WriteAt(page.Src(), CalOffsetOfIndex(page.GetIndex()))
+	_, err = file.WriteAt(pg.Src(), CalOffsetOfIndex(pg.GetIndex()))
 	if err != nil {
 		return glog.Error("WritePage can't write because %s\n", err)
 	}
 
-	page.CleanPage()
+	pg.CleanPage()
 
 	return nil
 }
