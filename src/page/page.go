@@ -33,6 +33,10 @@ func (p *Page) DirtyPage() {
 	p.pageHeader.dirty = true
 }
 
+func (p *Page) CleanPage() {
+	p.pageHeader.dirty = false
+}
+
 func (p *Page) Dirty() bool {
 	return p.pageHeader.dirty
 }
