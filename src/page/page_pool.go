@@ -39,13 +39,13 @@ func GetPagePool() *PagePool {
 
 // read the page from cache first
 // if it not exist, read page from disk and cache it
-func ReadPage(idx int32) (*Page, error) {
+func readPage(idx int32, filePath string) (*Page, error) {
 	p := readPageFromCache(idx)
 	if p != nil {
 		return p, nil
 	}
 
-	pd, err := readPageFromDisk(idx)
+	pd, err := readPageFromDisk(idx, filePath)
 
 	if err != nil {
 		return nil, err
@@ -54,6 +54,10 @@ func ReadPage(idx int32) (*Page, error) {
 	GetPagePool().CachePage(pd)
 
 	return pd, nil
+}
+
+func ReadPage(idx int32) (*Page, error) {
+	return readPage(idx, PageFilePathToDo)
 }
 
 func readPageFromCache(idx int32) *Page {
@@ -65,9 +69,9 @@ func readPageFromCache(idx int32) *Page {
 	return p
 }
 
-func readPageFromDisk(idx int32) (*Page, error) {
+func readPageFromDisk(idx int32, filePath string) (*Page, error) {
 	var pageOffset int64 = CalOffsetOfIndex(idx)
-	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0777)
 	if err != nil {
 		return nil, glog.Error("ReadPage can't open PageFile because %s\n", err)
 	}
