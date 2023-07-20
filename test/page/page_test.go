@@ -62,9 +62,20 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 }
 
 func TestWritePage(t *testing.T) {
-	pg, err := page.ReadPage(0)
-	if err != nil {
-		t.Errorf(err.Error())
+	data := []struct {
+		write []byte
+		res   []byte
+	}{
+		{[]byte("First Write "), []byte("First Write")},
+		{[]byte("Second Write "), []byte("First Write Second Write")},
+		{[]byte("Hello World"), []byte("First Write Second Write Hello World")},
 	}
 
+	for _, d := range data {
+		pg, err := page.ReadPage(0)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		pg.WriteBytes(0, d.write)
+	}
 }

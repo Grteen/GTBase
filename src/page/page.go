@@ -29,15 +29,21 @@ func (p *Page) SetPageHeader(ph *PageHeader) {
 	p.pageHeader = ph
 }
 
-func (p *Page) Dirty() {
+func (p *Page) DirtyPage() {
 	p.pageHeader.dirty = true
 }
 
+func (p *Page) Dirty() bool {
+	return p.pageHeader.dirty
+}
+
+// also Dirty the Page
 func (p *Page) WriteBytes(off int32, bts []byte) {
 	// ToDo should ensure the consistency
 	for i := 0; i < len(bts); i++ {
 		p.src[i] = bts[i]
 	}
+	p.DirtyPage()
 }
 
 func CreatePage(idx int32, src []byte) *Page {
