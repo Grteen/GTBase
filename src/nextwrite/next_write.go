@@ -181,7 +181,6 @@ func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) {
 func GetNextWrite(off int32) *NextWrite {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
-
 	GetNextWriteFactory().checkRestSizeAndChange(off)
 	return GetNextWriteFactory().getNextWrite()
 }

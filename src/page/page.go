@@ -76,3 +76,12 @@ func InitPageFile() {
 		}
 	}
 }
+
+func DeletePageFile() {
+	if _, err := os.Stat(PageFilePathToDo); os.IsExist(err) {
+		errr := os.Remove(PageFilePathToDo)
+		if errr != nil {
+			log.Fatalf("DeletePageFile can't remove the PageFile because %s\n", errr)
+		}
+	}
+}

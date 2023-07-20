@@ -85,3 +85,31 @@ func TestIncreaseNextWrite(t *testing.T) {
 		t.Errorf("should got error but none")
 	}
 }
+
+func TestGetNextWrite(t *testing.T) {
+	page.InitPageFile()
+	err := nextwrite.InitNextWrite()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	data := []struct {
+		off    int32
+		residx int32
+		resoff int32
+	}{
+		{10, 0, 0},
+		{20, 0, 10},
+		{10000, 0, 30},
+		{70, 0, 10030},
+		{10000, 1, 0},
+	}
+
+	for _, d := range data {
+		idx, off := nextwrite.GetNextWrite(d.off).NextWriteInfo()
+		if idx != d.residx || off != d.resoff {
+			t.Errorf("GetNextWrite should got %v idx %v off but got %v idx %v off", d.residx, d.resoff, idx, off)
+		}
+		nextwrite.IncreaseNextWrite(d.off)
+	}
+}
