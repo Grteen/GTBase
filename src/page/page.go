@@ -33,6 +33,13 @@ func (p *Page) Dirty() {
 	p.pageHeader.dirty = true
 }
 
+func (p *Page) WriteBytes(off int32, bts []byte) {
+	// ToDo should ensure the consistency
+	for i := 0; i < len(bts); i++ {
+		p.src[i] = bts[i]
+	}
+}
+
 func CreatePage(idx int32, src []byte) *Page {
 	result := &Page{}
 	ph := CreatePageHeader(idx)

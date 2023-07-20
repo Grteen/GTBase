@@ -37,7 +37,8 @@ func GetPagePool() *PagePool {
 	return instance
 }
 
-// read the page from disk according to the pageIndex
+// read the page from cache first
+// if it not exist, read page from disk and cache it
 func ReadPage(idx int32) (*Page, error) {
 	p := readPageFromCache(idx)
 	if p != nil {
@@ -120,6 +121,11 @@ func writePage(page *Page) error {
 }
 
 // Dirty the target page too
-// func WriteBytesToPageMemory(idx, off int32) {
-// 	pg, ok := GetPagePool()
-// }
+func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
+	pg, err := ReadPage(idx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
