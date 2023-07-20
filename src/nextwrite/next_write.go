@@ -186,7 +186,7 @@ func (nwf *NextWriteFactory) increaseNextWrite(off int32) error {
 	return nil
 }
 
-func increaseNextWrite(off int32) error {
+func IncreaseNextWrite(off int32) error {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
 
