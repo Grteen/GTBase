@@ -168,10 +168,21 @@ func (nwf *NextWriteFactory) getNextWrite() *NextWrite {
 	return CreateNextWrite(nwf.nextWrite.pageIndex, nwf.nextWrite.pageOffset)
 }
 
-func GetNextWrite() *NextWrite {
+// if last page's size don't satisfy the size will write in
+// return a new page index to it
+func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) {
+	nw := nwf.getNextWrite()
+	idx, offInPage := nw.NextWriteInfo()
+	if offInPage+off > int32(page.PageSize) {
+		nwf.nextWrite = *CreateNextWrite(idx+1, 0)
+	}
+}
+
+func GetNextWrite(off int32) *NextWrite {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
-	// TODO need to check whether the page meets the memory size
+
+	GetNextWriteFactory().checkRestSizeAndChange(off)
 	return GetNextWriteFactory().getNextWrite()
 }
 

@@ -43,7 +43,7 @@ func TestInitNextWrite(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	nw := nextwrite.GetNextWrite()
+	nw := nextwrite.GetNextWrite(0)
 	idx, off := nw.NextWriteInfo()
 	if idx != 3 || off != 0 {
 		t.Errorf("TEMP ERROR")
@@ -72,11 +72,16 @@ func TestIncreaseNextWrite(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		nw := nextwrite.GetNextWrite()
+		nw := nextwrite.GetNextWrite(0)
 		_, off := nw.NextWriteInfo()
 
 		if off != d.res {
 			t.Errorf("IncreaseNextWrite should increase offset to %v but got %v", d.res, off)
 		}
+	}
+
+	err2 := nextwrite.IncreaseNextWrite(1000000)
+	if err2 == nil {
+		t.Errorf("should got error but none")
 	}
 }
