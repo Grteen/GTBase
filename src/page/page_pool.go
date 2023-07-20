@@ -113,12 +113,6 @@ func (p *Page) flushPage() error {
 	return p.writePage()
 }
 
-// write the page back to the disk
-// also clean the page
-func (p *Page) writePage() error {
-	return writePage(p, PageFilePathToDo)
-}
-
 func writePage(pg *Page, filePath string) error {
 	file, err := os.OpenFile(filePath, os.O_RDWR, 0777)
 	if err != nil {

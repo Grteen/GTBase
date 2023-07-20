@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	PageFilePathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.pf"
-	PageSize         int64  = 16384
+	PageFilePathToDo       string = "E:/Code/GTCDN/GTbase/temp/gt.pf"
+	BucketPageFilePathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.bf"
+	PageSize               int64  = 16384
 )
 
 // Page is the basic unit store in disk and in xxx.pf file
@@ -15,6 +16,7 @@ const (
 type Page struct {
 	pageHeader *PageHeader
 	src        []byte
+	flushPath  string
 }
 
 func (p *Page) Src() []byte {
@@ -45,6 +47,10 @@ func (p *Page) GetIndex() int32 {
 	return p.pageHeader.PageIndex()
 }
 
+func (p *Page) GetFlushPath() string {
+	return p.flushPath
+}
+
 // also Dirty the Page
 func (p *Page) WriteBytes(off int32, bts []byte) {
 	// ToDo should ensure the consistency
@@ -54,11 +60,23 @@ func (p *Page) WriteBytes(off int32, bts []byte) {
 	p.DirtyPage()
 }
 
+// write the page back to the disk
+// also clean the page
+func (p *Page) writePage() error {
+	return writePage(p, p.flushPath)
+}
+
 func CreatePage(idx int32, src []byte) *Page {
-	result := &Page{}
+	return createPage(idx, src, PageFilePathToDo)
+}
+
+func CreateBucketPage(idx int32, src []byte) *Page {
+	return createPage(idx, src, BucketPageFilePathToDo)
+}
+
+func createPage(idx int32, src []byte, flushPath string) *Page {
 	ph := CreatePageHeader(idx)
-	result.SetPageHeader(&ph)
-	result.SetSrc(src)
+	result := &Page{pageHeader: &ph, src: src, flushPath: flushPath}
 	return result
 }
 
