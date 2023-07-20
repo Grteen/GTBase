@@ -169,5 +169,26 @@ func (nwf *NextWriteFactory) getNextWrite() *NextWrite {
 }
 
 func GetNextWrite() *NextWrite {
+	GetNextWriteFactory().nwLock.Lock()
+	defer GetNextWriteFactory().nwLock.Unlock()
+	// TODO need to check whether the page meets the memory size
 	return GetNextWriteFactory().getNextWrite()
+}
+
+// GetNextWrite ensure that the size of the write does not exceed the size of the page
+func (nwf *NextWriteFactory) increaseNextWrite(off int32) error {
+	idx, oldOff := nwf.nextWrite.NextWriteInfo()
+	if oldOff+off > int32(page.PageSize) {
+		return glog.Error("increaseNextWrite write %v bytes but page rest %v bytes", off, page.PageSize-int64(oldOff))
+	}
+
+	nwf.nextWrite = *CreateNextWrite(idx, oldOff+off)
+	return nil
+}
+
+func increaseNextWrite(off int32) error {
+	GetNextWriteFactory().nwLock.Lock()
+	defer GetNextWriteFactory().nwLock.Unlock()
+
+	return GetNextWriteFactory().increaseNextWrite(off)
 }

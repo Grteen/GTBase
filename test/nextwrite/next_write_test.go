@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestInitPageFile(t *testing.T) {
+func TestInitCMNFile(t *testing.T) {
 	nextwrite.InitCMNFile()
 
 	if _, err := os.Stat(nextwrite.CMNPathToDo); os.IsNotExist(err) {
