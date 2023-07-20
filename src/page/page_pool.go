@@ -114,7 +114,7 @@ func writePage(page *Page) error {
 	}
 	defer file.Close()
 
-	_, err = file.WriteAt(page.Src(), CalOffsetOfIndex(page.pageHeader.PageIndex()))
+	_, err = file.WriteAt(page.Src(), CalOffsetOfIndex(page.GetIndex()))
 	if err != nil {
 		return glog.Error("WritePage can't write because %s\n", err)
 	}
