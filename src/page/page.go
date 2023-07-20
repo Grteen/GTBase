@@ -45,7 +45,7 @@ func (p *Page) Dirty() bool {
 func (p *Page) WriteBytes(off int32, bts []byte) {
 	// ToDo should ensure the consistency
 	for i := 0; i < len(bts); i++ {
-		p.src[i] = bts[i]
+		p.src[i+int(off)] = bts[i]
 	}
 	p.DirtyPage()
 }

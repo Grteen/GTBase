@@ -125,11 +125,11 @@ func writePage(page *Page) error {
 }
 
 // Dirty the target page too
-func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
-	pg, err := ReadPage(idx)
-	if err != nil {
-		return err
-	}
+// func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
+// 	pg, err := ReadPage(idx)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
