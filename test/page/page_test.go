@@ -1,7 +1,6 @@
 package page
 
 import (
-	"GtBase/pkg/glog"
 	"GtBase/src/page"
 	"os"
 	"testing"
@@ -42,7 +41,7 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 	ph := page.CreatePageHeader(int32(idx))
 	pg, err := page.ReadPage(ph.PageIndex())
 	if err != nil {
-		glog.Log(err.Error())
+		t.Errorf(err.Error())
 	}
 
 	data := readWritePageCreateData()
@@ -53,11 +52,19 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 
 		spg, err := page.ReadPage(ph.PageIndex())
 		if err != nil {
-			glog.Log(err.Error())
+			t.Errorf(err.Error())
 		}
 
 		if !utils.EqualByteSlice(spg.Src(), d) {
 			t.Errorf("WritePage should write %s but ReadPage reads %s", d, spg.Src())
 		}
 	}
+}
+
+func TestWritePage(t *testing.T) {
+	pg, err := page.ReadPage(0)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 }
