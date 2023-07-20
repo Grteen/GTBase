@@ -102,11 +102,15 @@ func FlushPage(idx int32) error {
 		return glog.Error("FlushPage can't flush because page%v not in PagePool", idx)
 	}
 
-	if !pg.pageHeader.dirty {
-		return glog.Error("FlushPage don't need to flush because page%v not dirty", idx)
+	return pg.flushPage()
+}
+
+func (p *Page) flushPage() error {
+	if !p.Dirty() {
+		return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
 	}
 
-	return writePage(pg)
+	return writePage(p)
 }
 
 // write the page back to the disk
