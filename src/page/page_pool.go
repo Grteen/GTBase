@@ -124,12 +124,15 @@ func writePage(page *Page) error {
 	return nil
 }
 
+// if page not in cache, it will read page from disk
 // Dirty the target page too
-// func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
-// 	pg, err := ReadPage(idx)
-// 	if err != nil {
-// 		return err
-// 	}
+func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
+	pg, err := ReadPage(idx)
+	if err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	pg.WriteBytes(off, bts)
+
+	return nil
+}

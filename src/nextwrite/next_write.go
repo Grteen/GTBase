@@ -184,14 +184,29 @@ func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) error {
 	return nil
 }
 
-func GetNextWrite(off int32) (*NextWrite, error) {
-	GetNextWriteFactory().nwLock.Lock()
-	defer GetNextWriteFactory().nwLock.Unlock()
+func getNextWrite(off int32) (*NextWrite, error) {
 	err := GetNextWriteFactory().checkRestSizeAndChange(off)
 	if err != nil {
 		return nil, err
 	}
 	return GetNextWriteFactory().getNextWrite(), nil
+}
+
+func GetNextWriteAndIncreaseIt(off int32) (*NextWrite, error) {
+	GetNextWriteFactory().nwLock.Lock()
+	defer GetNextWriteFactory().nwLock.Unlock()
+
+	result, err := getNextWrite(off)
+	if err != nil {
+		return nil, err
+	}
+
+	erri := IncreaseNextWrite(off)
+	if erri != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 // GetNextWrite ensure that the size of the write does not exceed the size of the page
@@ -206,8 +221,5 @@ func (nwf *NextWriteFactory) increaseNextWrite(off int32) error {
 }
 
 func IncreaseNextWrite(off int32) error {
-	GetNextWriteFactory().nwLock.Lock()
-	defer GetNextWriteFactory().nwLock.Unlock()
-
 	return GetNextWriteFactory().increaseNextWrite(off)
 }
