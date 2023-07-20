@@ -87,6 +87,7 @@ func TestIncreaseNextWrite(t *testing.T) {
 }
 
 func TestGetNextWrite(t *testing.T) {
+	page.DeletePageFile()
 	page.InitPageFile()
 	err := nextwrite.InitNextWrite()
 	if err != nil {
