@@ -49,3 +49,34 @@ func TestInitNextWrite(t *testing.T) {
 		t.Errorf("TEMP ERROR")
 	}
 }
+
+func TestIncreaseNextWrite(t *testing.T) {
+	page.InitPageFile()
+	err := nextwrite.InitNextWrite()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	data := []struct {
+		off int32
+		res int32
+	}{
+		{10, 10},
+		{20, 30},
+		{105, 135},
+	}
+
+	for _, d := range data {
+		err := nextwrite.IncreaseNextWrite(d.off)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		nw := nextwrite.GetNextWrite()
+		_, off := nw.NextWriteInfo()
+
+		if off != d.res {
+			t.Errorf("IncreaseNextWrite should increase offset to %v but got %v", d.res, off)
+		}
+	}
+}
