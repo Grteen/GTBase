@@ -48,11 +48,11 @@ func ReadBucketPage(idx int32) (*Page, error) {
 }
 
 func readPage(idx int32, filePath string) (*Page, error) {
-	var idx2 = idx
+	var idxm = idx
 	if IsBucketFilePath(filePath) {
-		idx2 = -idx
+		idxm = -idx
 	}
-	p := readPageFromCache(idx2)
+	p := readPageFromCache(idxm)
 	if p != nil {
 		return p, nil
 	}
