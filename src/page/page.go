@@ -41,6 +41,10 @@ func (p *Page) Dirty() bool {
 	return p.pageHeader.dirty
 }
 
+func (p *Page) GetIndex() int32 {
+	return p.pageHeader.PageIndex()
+}
+
 // also Dirty the Page
 func (p *Page) WriteBytes(off int32, bts []byte) {
 	// ToDo should ensure the consistency
