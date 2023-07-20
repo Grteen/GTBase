@@ -144,6 +144,17 @@ func InitCMNFile() {
 	}
 }
 
+func DeleteCMNFile() {
+	if _, err := os.Stat(CMNPathToDo); os.IsNotExist(err) {
+		return
+	}
+
+	errr := os.Remove(CMNPathToDo)
+	if errr != nil {
+		log.Fatalf("DeletePageFile can't remove the CMNFile because %s\n", errr)
+	}
+}
+
 func InitNextWrite() error {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()

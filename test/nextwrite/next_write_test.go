@@ -24,6 +24,8 @@ func TestFactorySingleton(t *testing.T) {
 }
 
 func TestReadWriteCMN(t *testing.T) {
+	nextwrite.DeleteCMNFile()
+	nextwrite.InitCMNFile()
 	data := []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	for _, d := range data {
 		result, err := nextwrite.GetCMN()
