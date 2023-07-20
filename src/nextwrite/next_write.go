@@ -45,6 +45,10 @@ func (nwf *NextWriteFactory) getCMN() (int32, error) {
 
 	result := nwf.commandNumber
 	atomic.AddInt32(&nwf.commandNumber, 1)
+	errw := nwf.writeCMN()
+	if errw != nil {
+		return -1, err
+	}
 
 	return result, nil
 }
