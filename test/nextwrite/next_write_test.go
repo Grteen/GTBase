@@ -38,19 +38,22 @@ func TestReadWriteCMN(t *testing.T) {
 }
 
 func TestInitNextWrite(t *testing.T) {
+	page.DeletePageFile()
 	page.InitPageFile()
 	err := nextwrite.InitNextWrite()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+
 	nw := nextwrite.GetNextWrite(0)
 	idx, off := nw.NextWriteInfo()
-	if idx != 3 || off != 0 {
-		t.Errorf("TEMP ERROR")
+	if idx != 0 || off != 0 {
+		t.Errorf("GetNextWrite should get %v idx %v off but got %v idx %v off", 0, 0, idx, off)
 	}
 }
 
 func TestIncreaseNextWrite(t *testing.T) {
+	page.DeletePageFile()
 	page.InitPageFile()
 	err := nextwrite.InitNextWrite()
 	if err != nil {
