@@ -100,3 +100,43 @@ func TestWriteBytes(t *testing.T) {
 		t.Errorf("page should be cleaned by FlushPage but not")
 	}
 }
+
+func TestBucketWriteBytes(t *testing.T) {
+	page.DeleteBucketPageFile()
+	page.InitBucketPageFile()
+	data := []struct {
+		write []byte
+		res   []byte
+	}{
+		{[]byte(""), []byte("")},
+		{[]byte("First Write "), []byte("First Write ")},
+		{[]byte("Second Write "), []byte("First Write Second Write ")},
+		{[]byte("Hello World"), []byte("First Write Second Write Hello World")},
+	}
+
+	for i := 1; i < len(data); i++ {
+		pg, err := page.ReadBucketPage(0)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		pg.WriteBytes(int32(len(data[i-1].res)), data[i].write)
+		if pg.Dirty() != true {
+			t.Errorf("page should be dirtied by WriteBytes but not")
+		}
+
+		if !utils.EqualByteSliceOnlyInMinLen(data[i].res, pg.Src()) {
+			t.Errorf("page should be %v but it got %v", data[i].res, pg.Src()[:len(data[i].res)])
+		}
+	}
+
+	pg, err := page.ReadBucketPage(0)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	page.FlushPage(0)
+	if pg.Dirty() != false {
+		t.Errorf("page should be cleaned by FlushPage but not")
+	}
+}

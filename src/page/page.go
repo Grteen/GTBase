@@ -44,11 +44,22 @@ func (p *Page) Dirty() bool {
 }
 
 func (p *Page) GetIndex() int32 {
+	if p.IsBucket() {
+		return -p.pageHeader.PageIndex()
+	}
 	return p.pageHeader.PageIndex()
 }
 
 func (p *Page) GetFlushPath() string {
 	return p.flushPath
+}
+
+func (p *Page) IsBucket() bool {
+	return p.flushPath == BucketPageFilePathToDo
+}
+
+func (p *Page) SetFlushPath(flushPath string) {
+	p.flushPath = flushPath
 }
 
 // also Dirty the Page
@@ -66,15 +77,7 @@ func (p *Page) writePage() error {
 	return writePage(p, p.flushPath)
 }
 
-func CreatePage(idx int32, src []byte) *Page {
-	return createPage(idx, src, PageFilePathToDo)
-}
-
-func CreateBucketPage(idx int32, src []byte) *Page {
-	return createPage(idx, src, BucketPageFilePathToDo)
-}
-
-func createPage(idx int32, src []byte, flushPath string) *Page {
+func CreatePage(idx int32, src []byte, flushPath string) *Page {
 	ph := CreatePageHeader(idx)
 	result := &Page{pageHeader: &ph, src: src, flushPath: flushPath}
 	return result
@@ -134,7 +137,7 @@ func DeleteBucketPageFile() {
 
 func deletePageFile(filePath string) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		log.Fatalf("PageFile not exist")
+		return
 	}
 
 	errr := os.Remove(filePath)

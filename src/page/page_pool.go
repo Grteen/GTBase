@@ -20,7 +20,7 @@ func (pool *PagePool) GetPage(idx int32) (*Page, bool) {
 }
 
 func (pool *PagePool) CachePage(p *Page) {
-	pool.caches[p.pageHeader.PageIndex()] = p
+	pool.caches[p.GetIndex()] = p
 }
 
 func CreatePagePool() *PagePool {
@@ -39,6 +39,14 @@ func GetPagePool() *PagePool {
 
 // read the page from cache first
 // if it not exist, read page from disk and cache it
+func ReadPage(idx int32) (*Page, error) {
+	return readPage(idx, PageFilePathToDo)
+}
+
+func ReadBucketPage(idx int32) (*Page, error) {
+	return readPage(idx, BucketPageFilePathToDo)
+}
+
 func readPage(idx int32, filePath string) (*Page, error) {
 	p := readPageFromCache(idx)
 	if p != nil {
@@ -54,10 +62,6 @@ func readPage(idx int32, filePath string) (*Page, error) {
 	GetPagePool().CachePage(pd)
 
 	return pd, nil
-}
-
-func ReadPage(idx int32) (*Page, error) {
-	return readPage(idx, PageFilePathToDo)
 }
 
 func readPageFromCache(idx int32) *Page {
@@ -82,7 +86,7 @@ func readPageFromDisk(idx int32, filePath string) (*Page, error) {
 		return nil, glog.Error("readOnePageOfBytes can't read because %s\n", err)
 	}
 
-	return CreatePage(idx, src), nil
+	return CreatePage(idx, src, filePath), nil
 }
 
 func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
