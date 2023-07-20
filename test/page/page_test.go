@@ -61,7 +61,7 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 	}
 }
 
-func TestWritePage(t *testing.T) {
+func TestWriteBytes(t *testing.T) {
 	page.DeletePageFile()
 	page.InitPageFile()
 	data := []struct {
