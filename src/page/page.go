@@ -91,6 +91,10 @@ func (p *Page) writePage() error {
 	return nil
 }
 
+func IsBucketFilePath(filePath string) bool {
+	return filePath == BucketPageFilePathToDo
+}
+
 func CreatePage(idx int32, src []byte, flushPath string) *Page {
 	ph := CreatePageHeader(idx)
 	result := &Page{pageHeader: &ph, src: src, flushPath: flushPath}
