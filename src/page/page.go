@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	PageFilePathToDo string = "./temp/gt.pf"
+	PageFilePathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.pf"
 	PageSize         int64  = 16384
 )
 

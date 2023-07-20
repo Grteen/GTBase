@@ -2,6 +2,7 @@ package nextwrite
 
 import (
 	"GtBase/src/nextwrite"
+	"GtBase/src/page"
 	"os"
 	"testing"
 )
@@ -37,9 +38,15 @@ func TestReadWriteCMN(t *testing.T) {
 }
 
 func TestInitNextWrite(t *testing.T) {
+	page.InitPageFile()
 	fa := nextwrite.GetNextWriteFactory()
 	err := fa.InitNextWrite()
 	if err != nil {
 		t.Errorf(err.Error())
+	}
+	nw := fa.GetNextWrite()
+	idx, off := nw.NextWriteInfo()
+	if idx != 3 || off != 0 {
+		t.Errorf("TEMP ERROR")
 	}
 }
