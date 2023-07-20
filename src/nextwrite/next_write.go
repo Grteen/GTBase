@@ -2,6 +2,7 @@ package nextwrite
 
 import (
 	"GtBase/pkg/glog"
+	"GtBase/src/page"
 	"GtBase/utils"
 	"encoding/binary"
 	"log"
@@ -18,6 +19,10 @@ type NextWrite struct {
 
 func (nw *NextWrite) NextWriteInfo() (int32, int32) {
 	return nw.pageIndex, nw.pageOffset
+}
+
+func CreateNextWrite(pageIndex, pageOffset int32) *NextWrite {
+	return &NextWrite{pageIndex: pageIndex, pageOffset: pageOffset}
 }
 
 const (
@@ -44,6 +49,8 @@ func (nwf *NextWriteFactory) getCMN() (int32, error) {
 	}
 
 	result := nwf.commandNumber
+	// TODO
+	// when writeCMN error file and commandNumber may be inconsistency ?
 	atomic.AddInt32(&nwf.commandNumber, 1)
 	errw := nwf.writeCMN()
 	if errw != nil {
@@ -135,4 +142,23 @@ func InitCMNFile() {
 			log.Fatalf("writeCMNFile can't write file %v because %v", CMNPathToDo, errw)
 		}
 	}
+}
+
+func (nwf *NextWriteFactory) InitNextWrite() error {
+	nwf.nwLock.Lock()
+	defer nwf.nwLock.Unlock()
+	fileInfo, err := os.Stat(page.PageFilePathToDo)
+	if err != nil {
+		return glog.Error("InitNextWrite can't Stat file %v becasuse %v", page.PageFilePathToDo, err)
+	}
+
+	fileSize := fileInfo.Size()
+	nwf.initNextWriteIndexAndOffset(fileSize)
+	return nil
+}
+
+func (nwf *NextWriteFactory) initNextWriteIndexAndOffset(fileSize int64) {
+	pageIndex := int32(fileSize / page.PageSize)
+	pageOffset := 0
+	nwf.nextWrite = *CreateNextWrite(pageIndex, int32(pageOffset))
 }
