@@ -117,23 +117,6 @@ func (p *Page) flushPage() error {
 	return p.writePage()
 }
 
-func writePage(pg *Page, filePath string) error {
-	file, err := os.OpenFile(filePath, os.O_RDWR, 0777)
-	if err != nil {
-		return glog.Error("WritePage can't open PageFile because %s\n", err)
-	}
-	defer file.Close()
-
-	_, err = file.WriteAt(pg.Src(), CalOffsetOfIndex(pg.GetIndex()))
-	if err != nil {
-		return glog.Error("WritePage can't write because %s\n", err)
-	}
-
-	pg.CleanPage()
-
-	return nil
-}
-
 // if page not in cache, it will read page from disk
 // Dirty the target page too
 func WriteBytesToPageMemory(idx, off int32, bts []byte) error {

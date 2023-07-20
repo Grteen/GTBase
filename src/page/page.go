@@ -1,6 +1,7 @@
 package page
 
 import (
+	"GtBase/pkg/glog"
 	"log"
 	"os"
 )
@@ -74,7 +75,20 @@ func (p *Page) WriteBytes(off int32, bts []byte) {
 // write the page back to the disk
 // also clean the page
 func (p *Page) writePage() error {
-	return writePage(p, p.flushPath)
+	file, err := os.OpenFile(p.GetFlushPath(), os.O_RDWR, 0777)
+	if err != nil {
+		return glog.Error("WritePage can't open PageFile because %s\n", err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteAt(p.Src(), CalOffsetOfIndex(p.GetIndex()))
+	if err != nil {
+		return glog.Error("WritePage can't write because %s\n", err)
+	}
+
+	p.CleanPage()
+
+	return nil
 }
 
 func CreatePage(idx int32, src []byte, flushPath string) *Page {
