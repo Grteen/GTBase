@@ -48,7 +48,7 @@ func testReadWritePageInSingleIndex(t *testing.T, idx int) {
 
 	for _, d := range data {
 		pg.SetSrc(d)
-		page.FlushPage(int32(idx))
+		pg.FlushPage()
 
 		spg, err := page.ReadPage(ph.PageIndex())
 		if err != nil {
@@ -95,7 +95,7 @@ func TestWriteBytes(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	page.FlushPage(0)
+	pg.FlushPage()
 	if pg.Dirty() != false {
 		t.Errorf("page should be cleaned by FlushPage but not")
 	}
@@ -135,7 +135,7 @@ func TestBucketWriteBytes(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	page.FlushPage(0)
+	pg.FlushPage()
 	if pg.Dirty() != false {
 		t.Errorf("page should be cleaned by FlushPage but not")
 	}

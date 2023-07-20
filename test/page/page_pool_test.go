@@ -23,7 +23,7 @@ func TestReadFlush(t *testing.T) {
 		}
 		pg.SetSrc([]byte(d))
 		pg.DirtyPage()
-		errf := page.FlushPage(0)
+		errf := pg.FlushPage()
 		if errf != nil {
 			t.Errorf(errf.Error())
 		}

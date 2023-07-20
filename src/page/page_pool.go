@@ -100,16 +100,16 @@ func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
 }
 
 // also clean the page
-func FlushPage(idx int32) error {
-	pg := readPageFromCache(idx)
-	if pg == nil {
-		return glog.Error("FlushPage can't flush because page%v not in PagePool", idx)
-	}
+// func FlushPage(idx int32) error {
+// 	pg := readPageFromCache(idx)
+// 	if pg == nil {
+// 		return glog.Error("FlushPage can't flush because page%v not in PagePool", idx)
+// 	}
 
-	return pg.flushPage()
-}
+// 	return pg.flushPage()
+// }
 
-func (p *Page) flushPage() error {
+func (p *Page) FlushPage() error {
 	if !p.Dirty() {
 		return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
 	}
