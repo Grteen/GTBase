@@ -39,12 +39,11 @@ func TestReadWriteCMN(t *testing.T) {
 
 func TestInitNextWrite(t *testing.T) {
 	page.InitPageFile()
-	fa := nextwrite.GetNextWriteFactory()
-	err := fa.InitNextWrite()
+	err := nextwrite.InitNextWrite()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	nw := fa.GetNextWrite()
+	nw := nextwrite.GetNextWrite()
 	idx, off := nw.NextWriteInfo()
 	if idx != 3 || off != 0 {
 		t.Errorf("TEMP ERROR")

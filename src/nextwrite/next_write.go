@@ -26,7 +26,7 @@ func CreateNextWrite(pageIndex, pageOffset int32) *NextWrite {
 }
 
 const (
-	CMNPathToDo string = "./temp/gt.cmn"
+	CMNPathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.cmn"
 )
 
 // NextWriteFactory assign CMN to all write command
@@ -144,25 +144,30 @@ func InitCMNFile() {
 	}
 }
 
-func (nwf *NextWriteFactory) InitNextWrite() error {
-	nwf.nwLock.Lock()
-	defer nwf.nwLock.Unlock()
+func InitNextWrite() error {
+	GetNextWriteFactory().nwLock.Lock()
+	defer GetNextWriteFactory().nwLock.Unlock()
 	fileInfo, err := os.Stat(page.PageFilePathToDo)
 	if err != nil {
 		return glog.Error("InitNextWrite can't Stat file %v becasuse %v", page.PageFilePathToDo, err)
 	}
 
 	fileSize := fileInfo.Size()
-	nwf.initNextWriteIndexAndOffset(fileSize)
+	GetNextWriteFactory().initNextWriteIndexAndOffset(fileSize)
 	return nil
 }
 
+// InitNextWrite must initialize a new page no matter what the last page is
 func (nwf *NextWriteFactory) initNextWriteIndexAndOffset(fileSize int64) {
 	pageIndex := int32(fileSize / page.PageSize)
 	pageOffset := 0
 	nwf.nextWrite = *CreateNextWrite(pageIndex, int32(pageOffset))
 }
 
-func (nwf *NextWriteFactory) GetNextWrite() *NextWrite {
+func (nwf *NextWriteFactory) getNextWrite() *NextWrite {
 	return CreateNextWrite(nwf.nextWrite.pageIndex, nwf.nextWrite.pageOffset)
+}
+
+func GetNextWrite() *NextWrite {
+	return GetNextWriteFactory().getNextWrite()
 }
