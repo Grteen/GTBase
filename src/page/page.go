@@ -103,13 +103,21 @@ func CreatePageHeader(idx int32) PageHeader {
 }
 
 func InitPageFile() {
-	if _, err := os.Stat(PageFilePathToDo); os.IsNotExist(err) {
-		_, errc := os.Create(PageFilePathToDo)
+	initPageFile(PageFilePathToDo)
+}
+
+func InitBucketPageFile() {
+	initPageFile(BucketPageFilePathToDo)
+}
+
+func initPageFile(filePath string) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		_, errc := os.Create(filePath)
 		if errc != nil {
 			log.Fatalf("InitPageFile can't create the PageFile because %s\n", err)
 		}
 
-		errm := os.Chmod(PageFilePathToDo, 0777)
+		errm := os.Chmod(filePath, 0777)
 		if errm != nil {
 			log.Fatalf("InitPageFile can't chmod because of %s\n", errm)
 		}
@@ -117,11 +125,19 @@ func InitPageFile() {
 }
 
 func DeletePageFile() {
-	if _, err := os.Stat(PageFilePathToDo); os.IsNotExist(err) {
+	deletePageFile(PageFilePathToDo)
+}
+
+func DeleteBucketPageFile() {
+	deletePageFile(BucketPageFilePathToDo)
+}
+
+func deletePageFile(filePath string) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		log.Fatalf("PageFile not exist")
 	}
 
-	errr := os.Remove(PageFilePathToDo)
+	errr := os.Remove(filePath)
 	if errr != nil {
 		log.Fatalf("DeletePageFile can't remove the PageFile because %s\n", errr)
 	}
