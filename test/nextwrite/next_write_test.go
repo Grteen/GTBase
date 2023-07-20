@@ -45,7 +45,10 @@ func TestInitNextWrite(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	nw := nextwrite.GetNextWrite(0)
+	nw, err := nextwrite.GetNextWrite(0)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	idx, off := nw.NextWriteInfo()
 	if idx != 0 || off != 0 {
 		t.Errorf("GetNextWrite should get %v idx %v off but got %v idx %v off", 0, 0, idx, off)
@@ -75,7 +78,10 @@ func TestIncreaseNextWrite(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		nw := nextwrite.GetNextWrite(0)
+		nw, err := nextwrite.GetNextWrite(0)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		_, off := nw.NextWriteInfo()
 
 		if off != d.res {
@@ -110,7 +116,11 @@ func TestGetNextWrite(t *testing.T) {
 	}
 
 	for _, d := range data {
-		idx, off := nextwrite.GetNextWrite(d.off).NextWriteInfo()
+		nw, err := nextwrite.GetNextWrite(d.off)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		idx, off := nw.NextWriteInfo()
 		if idx != d.residx || off != d.resoff {
 			t.Errorf("GetNextWrite should got %v idx %v off but got %v idx %v off", d.residx, d.resoff, idx, off)
 		}

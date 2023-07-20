@@ -170,19 +170,28 @@ func (nwf *NextWriteFactory) getNextWrite() *NextWrite {
 
 // if last page's size don't satisfy the size will write in
 // return a new page index to it
-func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) {
-	nw := nwf.getNextWrite()
-	idx, offInPage := nw.NextWriteInfo()
+// if size to write is bigger than PageSize
+// refuse it and return an error
+func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) error {
+	if off > int32(page.PageSize) {
+		return glog.Error("The Size to Write %v bytes is bigger than %v", off, page.PageSize)
+	}
+	idx, offInPage := nwf.getNextWrite().NextWriteInfo()
 	if offInPage+off > int32(page.PageSize) {
 		nwf.nextWrite = *CreateNextWrite(idx+1, 0)
 	}
+
+	return nil
 }
 
-func GetNextWrite(off int32) *NextWrite {
+func GetNextWrite(off int32) (*NextWrite, error) {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
-	GetNextWriteFactory().checkRestSizeAndChange(off)
-	return GetNextWriteFactory().getNextWrite()
+	err := GetNextWriteFactory().checkRestSizeAndChange(off)
+	if err != nil {
+		return nil, err
+	}
+	return GetNextWriteFactory().getNextWrite(), nil
 }
 
 // GetNextWrite ensure that the size of the write does not exceed the size of the page
