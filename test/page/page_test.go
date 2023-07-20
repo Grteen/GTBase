@@ -66,16 +66,21 @@ func TestWritePage(t *testing.T) {
 		write []byte
 		res   []byte
 	}{
+		{[]byte(""), []byte("")},
 		{[]byte("First Write "), []byte("First Write")},
 		{[]byte("Second Write "), []byte("First Write Second Write")},
 		{[]byte("Hello World"), []byte("First Write Second Write Hello World")},
 	}
 
-	for _, d := range data {
+	for i := 1; i < len(data); i++ {
 		pg, err := page.ReadPage(0)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
-		pg.WriteBytes(0, d.write)
+
+		pg.WriteBytes(int32(len(data[i-1].write)), data[i].write)
+		if pg.Dirty() != true {
+			t.Errorf("page should be dirtied by WriteBytes but not")
+		}
 	}
 }

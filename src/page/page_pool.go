@@ -91,6 +91,7 @@ func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
 	return result, nil
 }
 
+// also clean the page
 func FlushPage(idx int32) error {
 	pg := readPageFromCache(idx)
 	if pg == nil {
@@ -105,6 +106,7 @@ func FlushPage(idx int32) error {
 }
 
 // write the page back to the disk
+// also clean the page
 func writePage(page *Page) error {
 	file, err := os.OpenFile(PageFilePathToDo, os.O_RDWR, 0777)
 	if err != nil {
@@ -116,6 +118,8 @@ func writePage(page *Page) error {
 	if err != nil {
 		return glog.Error("WritePage can't write because %s\n", err)
 	}
+
+	page.CleanPage()
 
 	return nil
 }
