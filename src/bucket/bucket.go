@@ -35,18 +35,15 @@ func (b *Bucket) ToByte() []byte {
 }
 
 // Bucket.WriteInPage should call index in negative
-func (b *Bucket) writeInPage(idx, off int32) {
-	page.WriteBytesToPageMemory(idx, off, b.ToByte())
-}
-
 func (b *Bucket) WriteInPage() {
-	b.writeInPage(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage())
+	page.WriteBytesToPageMemory(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
 }
 
 func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucket {
 	return &Bucket{bh, firstRecordIdx, firstRecordOff}
 }
 
+// find this key's hash's first record
 func FindFirstRecord(key object.Object) (int32, int32, error) {
 	hashBucketIndex := utils.FirstHash(key.ToByte())
 	bucketIndex := utils.SecondHash(hashBucketIndex)
