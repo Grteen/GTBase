@@ -1,15 +1,9 @@
 package bucket
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/src/page"
 	"GtBase/utils"
-)
-
-const (
-	BucketByteLength     int32 = 8
-	HashBucketHasBuckets int32 = 256
-	HashBucketSize       int32 = HashBucketHasBuckets * BucketByteLength
-	PageHasHashBuckets   int32 = int32(page.PageSize) / HashBucketSize
 )
 
 // Bucket is used to store the first record's index and offset in page
@@ -32,7 +26,7 @@ func (b *Bucket) BucketHeader() *BucketHeader {
 }
 
 func (b *Bucket) ToByte() []byte {
-	result := make([]byte, 0, BucketByteLength)
+	result := make([]byte, 0, constants.BucketByteLength)
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(b.firstIndex)...)
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(b.firstOffset)...)
 
@@ -66,11 +60,11 @@ func (bh *BucketHeader) SecondHashValue() int32 {
 }
 
 func (bh *BucketHeader) CalIndexOfBucketPage() int32 {
-	return int32(bh.firstHashValue/PageHasHashBuckets) + 1
+	return int32(bh.firstHashValue/constants.PageHasHashBuckets) + 1
 }
 
 func (bh *BucketHeader) CalOffsetOfBucketPage() int32 {
-	return (bh.firstHashValue%PageHasHashBuckets)*HashBucketSize + bh.secondHashValue*BucketByteLength
+	return (bh.firstHashValue%constants.PageHasHashBuckets)*constants.HashBucketSize + bh.secondHashValue*constants.BucketByteLength
 }
 
 func CreateBucketHeader(first, second int32) *BucketHeader {

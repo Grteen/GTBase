@@ -1,8 +1,8 @@
 package nextwrite
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
-	"GtBase/src/page"
 	"GtBase/utils"
 	"encoding/binary"
 	"log"
@@ -158,9 +158,9 @@ func DeleteCMNFile() {
 func InitNextWrite() error {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
-	fileInfo, err := os.Stat(page.PageFilePathToDo)
+	fileInfo, err := os.Stat(constants.PageFilePathToDo)
 	if err != nil {
-		return glog.Error("InitNextWrite can't Stat file %v becasuse %v", page.PageFilePathToDo, err)
+		return glog.Error("InitNextWrite can't Stat file %v becasuse %v", constants.PageFilePathToDo, err)
 	}
 
 	fileSize := fileInfo.Size()
@@ -170,7 +170,7 @@ func InitNextWrite() error {
 
 // InitNextWrite must initialize a new page no matter what the last page is
 func (nwf *NextWriteFactory) initNextWriteIndexAndOffset(fileSize int64) {
-	pageIndex := int32(fileSize / page.PageSize)
+	pageIndex := int32(fileSize / constants.PageSize)
 	pageOffset := 0
 	nwf.nextWrite = *CreateNextWrite(pageIndex, int32(pageOffset))
 }
@@ -184,11 +184,11 @@ func (nwf *NextWriteFactory) getNextWrite() *NextWrite {
 // if size to write is bigger than PageSize
 // refuse it and return an error
 func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) error {
-	if off > int32(page.PageSize) {
-		return glog.Error("The Size to Write %v bytes is bigger than %v", off, page.PageSize)
+	if off > int32(constants.PageSize) {
+		return glog.Error("The Size to Write %v bytes is bigger than %v", off, constants.PageSize)
 	}
 	idx, offInPage := nwf.getNextWrite().NextWriteInfo()
-	if offInPage+off > int32(page.PageSize) {
+	if offInPage+off > int32(constants.PageSize) {
 		nwf.nextWrite = *CreateNextWrite(idx+1, 0)
 	}
 
@@ -225,8 +225,8 @@ func GetNextWriteAndIncreaseIt(off int32) (*NextWrite, error) {
 // GetNextWrite ensure that the size of the write does not exceed the size of the page
 func (nwf *NextWriteFactory) increaseNextWrite(off int32) error {
 	idx, oldOff := nwf.nextWrite.NextWriteInfo()
-	if oldOff+off > int32(page.PageSize) {
-		return glog.Error("increaseNextWrite write %v bytes but page rest %v bytes", off, page.PageSize-int64(oldOff))
+	if oldOff+off > int32(constants.PageSize) {
+		return glog.Error("increaseNextWrite write %v bytes but page rest %v bytes", off, constants.PageSize-int64(oldOff))
 	}
 
 	nwf.nextWrite = *CreateNextWrite(idx, oldOff+off)

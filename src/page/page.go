@@ -1,17 +1,14 @@
 package page
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
 	"log"
 	"math"
 	"os"
 )
 
-const (
-	PageFilePathToDo       string = "E:/Code/GTCDN/GTbase/temp/gt.pf"
-	BucketPageFilePathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.bf"
-	PageSize               int64  = 16384
-)
+const ()
 
 // Page is the basic unit store in disk and in xxx.pf file
 // It is always 16KB
@@ -54,7 +51,7 @@ func (p *Page) GetFlushPath() string {
 }
 
 func (p *Page) IsBucket() bool {
-	return p.flushPath == BucketPageFilePathToDo
+	return p.flushPath == constants.BucketPageFilePathToDo
 }
 
 func (p *Page) SetFlushPath(flushPath string) {
@@ -90,7 +87,7 @@ func (p *Page) writePage() error {
 }
 
 func IsBucketFilePath(filePath string) bool {
-	return filePath == BucketPageFilePathToDo
+	return filePath == constants.BucketPageFilePathToDo
 }
 
 func CreatePage(idx int32, src []byte, flushPath string) *Page {
@@ -114,7 +111,7 @@ func (ph *PageHeader) SetPageIndex(idx int32) {
 }
 
 func CalOffsetOfIndex(idx int32) int64 {
-	return int64(math.Abs(float64(idx))) * PageSize
+	return int64(math.Abs(float64(idx))) * constants.PageSize
 }
 
 func CreatePageHeader(idx int32) PageHeader {
@@ -122,11 +119,11 @@ func CreatePageHeader(idx int32) PageHeader {
 }
 
 func InitPageFile() {
-	initPageFile(PageFilePathToDo)
+	initPageFile(constants.PageFilePathToDo)
 }
 
 func InitBucketPageFile() {
-	initPageFile(BucketPageFilePathToDo)
+	initPageFile(constants.BucketPageFilePathToDo)
 }
 
 func initPageFile(filePath string) {
@@ -144,11 +141,11 @@ func initPageFile(filePath string) {
 }
 
 func DeletePageFile() {
-	deletePageFile(PageFilePathToDo)
+	deletePageFile(constants.PageFilePathToDo)
 }
 
 func DeleteBucketPageFile() {
-	deletePageFile(BucketPageFilePathToDo)
+	deletePageFile(constants.BucketPageFilePathToDo)
 }
 
 func deletePageFile(filePath string) {

@@ -1,6 +1,7 @@
 package page
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/src/page"
 	"os"
 	"testing"
@@ -11,8 +12,8 @@ import (
 func TestInitPageFile(t *testing.T) {
 	page.InitPageFile()
 
-	if _, err := os.Stat(page.PageFilePathToDo); os.IsNotExist(err) {
-		t.Errorf("InitPageFile() should create the %s but it didn't", page.PageFilePathToDo)
+	if _, err := os.Stat(constants.PageFilePathToDo); os.IsNotExist(err) {
+		t.Errorf("InitPageFile() should create the %s but it didn't", constants.PageFilePathToDo)
 	}
 }
 
@@ -27,7 +28,7 @@ func readWritePageCreateData() [][]byte {
 	data := []string{"Hello World", "abc"}
 
 	for _, d := range data {
-		t := make([]byte, page.PageSize)
+		t := make([]byte, constants.PageSize)
 		for i := 0; i < len(d); i++ {
 			t[i] = d[i]
 		}

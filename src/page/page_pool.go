@@ -1,6 +1,7 @@
 package page
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
 	"io"
 	"os"
@@ -41,9 +42,9 @@ func GetPagePool() *PagePool {
 // if it not exist, read page from disk and cache it
 func ReadPage(idx int32) (*Page, error) {
 	if idx < 0 {
-		return readPage(-idx, BucketPageFilePathToDo)
+		return readPage(-idx, constants.BucketPageFilePathToDo)
 	}
-	return readPage(idx, PageFilePathToDo)
+	return readPage(idx, constants.PageFilePathToDo)
 }
 
 // func ReadBucketPage(idx int32) (*Page, error) {
@@ -104,7 +105,7 @@ func readPageFromDisk(idx int32, filePath string) (*Page, error) {
 }
 
 func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
-	result := make([]byte, PageSize)
+	result := make([]byte, constants.PageSize)
 	_, err := f.ReadAt(result, offset)
 	if err != nil && err != io.ErrUnexpectedEOF && err != io.EOF {
 		return nil, err
