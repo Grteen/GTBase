@@ -27,6 +27,10 @@ func (b *Bucket) FirstOffset() int32 {
 	return b.firstOffset
 }
 
+func (b *Bucket) BucketHeader() *BucketHeader {
+	return b.bh
+}
+
 func (b *Bucket) ToByte() []byte {
 	result := make([]byte, 0, BucketByteLength)
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(b.firstIndex)...)
@@ -41,7 +45,7 @@ func (b *Bucket) writeInPage(idx, off int32) {
 }
 
 func (b *Bucket) WriteInPage() {
-
+	b.writeInPage(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage())
 }
 
 func CreateBucket(bh *BucketHeader, idx, off int32) *Bucket {
