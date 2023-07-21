@@ -32,3 +32,7 @@ func CreateGtString(str string) *GtString {
 	gts.SetValue(str)
 	return gts
 }
+
+func CreateGtStringByBytes(bts []byte) *GtString {
+	return &GtString{bts}
+}
