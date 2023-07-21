@@ -14,6 +14,7 @@ func TestBucketToByte(t *testing.T) {
 	}{
 		{0, 0, []byte{0, 0, 0, 0, 0, 0, 0, 0}},
 		{1, 26, []byte{1, 0, 0, 0, 26, 0, 0, 0}},
+		{2, 257, []byte{2, 0, 0, 0, 1, 1, 0, 0}},
 	}
 
 	for _, d := range data {
