@@ -41,14 +41,14 @@ func GetPagePool() *PagePool {
 // if it not exist, read page from disk and cache it
 func ReadPage(idx int32) (*Page, error) {
 	if idx < 0 {
-		return readPage(idx, BucketPageFilePathToDo)
+		return readPage(-idx, BucketPageFilePathToDo)
 	}
 	return readPage(idx, PageFilePathToDo)
 }
 
-func ReadBucketPage(idx int32) (*Page, error) {
-	return readPage(idx, BucketPageFilePathToDo)
-}
+// func ReadBucketPage(idx int32) (*Page, error) {
+// 	return readPage(idx, BucketPageFilePathToDo)
+// }
 
 func readPage(idx int32, filePath string) (*Page, error) {
 	var idxm = idx

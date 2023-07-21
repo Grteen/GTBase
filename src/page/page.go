@@ -3,6 +3,7 @@ package page
 import (
 	"GtBase/pkg/glog"
 	"log"
+	"math"
 	"os"
 )
 
@@ -116,7 +117,7 @@ func (ph *PageHeader) SetPageIndex(idx int32) {
 }
 
 func CalOffsetOfIndex(idx int32) int64 {
-	return int64(idx) * PageSize
+	return int64(math.Abs(float64(idx))) * PageSize
 }
 
 func CreatePageHeader(idx int32) PageHeader {

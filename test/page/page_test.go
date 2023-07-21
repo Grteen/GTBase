@@ -124,7 +124,7 @@ func TestBucketWriteBytes(t *testing.T) {
 	}
 
 	for i := 1; i < len(data); i++ {
-		pg, err := page.ReadBucketPage(1)
+		pg, err := page.ReadPage(-1)
 		p, ok := page.GetPagePool().GetPage(-1)
 		if !ok {
 			t.Errorf("GetPagePool should get index %v but not", -1)
@@ -148,7 +148,7 @@ func TestBucketWriteBytes(t *testing.T) {
 		}
 	}
 
-	pg, err := page.ReadBucketPage(0)
+	pg, err := page.ReadPage(-1)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
