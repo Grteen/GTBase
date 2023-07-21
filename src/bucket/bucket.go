@@ -71,7 +71,7 @@ func findFirstRecord(hashBucketIndex, bucketIndex int32) (int32, int32, error) {
 		return -1, -1, err
 	}
 
-	bts := pg.SrcSlice(bh.CalOffsetOfBucketPage(), constants.BucketByteLength)
+	bts := pg.SrcSlice(bh.CalOffsetOfBucketPage(), bh.CalOffsetOfBucketPage()+constants.BucketByteLength)
 
 	idxbts := bts[:constants.BucketByteLength/2]
 	offbts := bts[constants.BucketByteLength/2 : constants.BucketByteLength]

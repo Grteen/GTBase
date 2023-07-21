@@ -2,7 +2,10 @@ package bucket
 
 import (
 	"GtBase/src/bucket"
+	"GtBase/src/nextwrite"
+	"GtBase/src/object"
 	"GtBase/src/page"
+	"GtBase/src/pair"
 	"GtBase/utils"
 	"testing"
 )
@@ -92,6 +95,52 @@ func TestWriteInPage(t *testing.T) {
 
 		if !utils.EqualByteSlice(pg.Src()[s:e], b.ToByte()) {
 			t.Errorf("ReadPage should got %v but got %v", b.ToByte(), pg.Src()[s:e])
+		}
+	}
+}
+
+func TestFindFirstRecord(t *testing.T) {
+	page.DeleteBucketPageFile()
+	page.DeletePageFile()
+	page.InitBucketPageFile()
+	page.InitPageFile()
+
+	data := []struct {
+		key string
+		val string
+	}{
+		{"Key", "Value"},
+		{"Hello", "World"},
+	}
+
+	for _, d := range data {
+		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), 0, pair.CreateOverFlow(0, 0))
+		nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(p.ToByte())))
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		idx, off := nw.NextWriteInfo()
+
+		b := bucket.CreateBucketByKey(p.Key(), idx, off)
+
+		p.WriteInPage(idx, off)
+		b.WriteInPage()
+
+		idxf, offf, errf := bucket.FindFirstRecord(p.Key())
+		if errf != nil {
+			t.Errorf(errf.Error())
+		}
+
+		pg, errr := page.ReadPage(idxf)
+		if errr != nil {
+			t.Errorf(errr.Error())
+		}
+
+		bts := pg.SrcSlice(offf, offf+int32(len(p.ToByte())))
+
+		if !utils.EqualByteSlice(bts, p.ToByte()) {
+			t.Errorf("SrcSlice should got %v but got %v", p.ToByte(), bts)
 		}
 	}
 }
