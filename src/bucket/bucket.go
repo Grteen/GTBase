@@ -6,7 +6,10 @@ import (
 )
 
 const (
-	BucketByteLength int32 = 8
+	BucketByteLength     int32 = 8
+	HashBucketHasBuckets int32 = 256
+	HashBucketSize       int32 = HashBucketHasBuckets * BucketByteLength
+	PageHasHashBuckets   int32 = int32(page.PageSize) / HashBucketSize
 )
 
 // Bucket is used to store the first record's index and offset in page
@@ -33,8 +36,12 @@ func (b *Bucket) ToByte() []byte {
 }
 
 // Bucket.WriteInPage should call index in negative
-func (b *Bucket) WriteInPage(idx, off int32) {
+func (b *Bucket) writeInPage(idx, off int32) {
 	page.WriteBytesToPageMemory(idx, off, b.ToByte())
+}
+
+func (b *Bucket) WriteInPage() {
+
 }
 
 func CreateBucket(bh *BucketHeader, idx, off int32) *Bucket {
@@ -52,6 +59,14 @@ func (bh *BucketHeader) FirstHashValue() int32 {
 
 func (bh *BucketHeader) SecondHashValue() int32 {
 	return bh.secondHashValue
+}
+
+func (bh *BucketHeader) CalIndexOfBucketPage() int32 {
+	return int32(bh.firstHashValue / PageHasHashBuckets)
+}
+
+func (bh *BucketHeader) CalOffsetOfBucketPage() int32 {
+	return (bh.firstHashValue%PageHasHashBuckets)*HashBucketSize + bh.secondHashValue*BucketByteLength
 }
 
 func CreateBucketHeader(first, second int32) *BucketHeader {
