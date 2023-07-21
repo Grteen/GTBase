@@ -1,10 +1,10 @@
 package pair
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/src/object"
 	"GtBase/src/page"
 	"GtBase/utils"
-	"fmt"
 )
 
 // Pair is used as the record
@@ -21,6 +21,15 @@ func (p *Pair) Key() object.Object {
 
 func (p *Pair) Value() object.Object {
 	return p.value
+}
+
+func (p *Pair) Flag() int8 {
+	return p.flag
+}
+
+func (p *Pair) OverFlow() *OverFlow {
+	overFlow := CreateOverFlow(p.overFlow.OverFlowInfo())
+	return &overFlow
 }
 
 // value value-length  key key-length flag overflowIndex overflowOffset
@@ -50,13 +59,41 @@ func (p *Pair) WriteInPage(idx, off int32) {
 	page.WriteBytesToPageMemory(idx, off, p.ToByte())
 }
 
+// MidOffset points to place between flag and overFlowIndex
+func (p *Pair) CalMidOffset(basicOff int32) int32 {
+	return basicOff + int32(len(p.value.ToByte())) + constants.PairValLengthSize + int32(len(p.key.ToByte())) +
+		constants.PairKeyLengthSize + constants.PairFlagSize
+}
+
 func CreatePair(key, value object.Object, flag int8, of OverFlow) *Pair {
 	return &Pair{key: key, value: value, flag: flag, overFlow: of}
 }
 
+func ReadPair(pg *page.Page, midOff int32) *Pair {
+	temp := midOff
+
+	flag := pg.ReadFlag(temp)
+	temp -= 1
+
+	keyLen := pg.ReadKeyLength(temp)
+	temp -= 4
+
+	key := pg.ReadKey(temp, keyLen)
+	temp -= keyLen
+
+	valLen := pg.ReadValLength(temp)
+	temp -= 4
+
+	val := pg.ReadVal(temp, valLen)
+
+	temp = midOff
+
+	overflowIdx, overflowOff := pg.ReadOverFlow(temp)
+	return CreatePair(key, val, flag, CreateOverFlow(overflowIdx, overflowOff))
+}
+
 func IsDelete(flag int8) bool {
 	flag &= 1
-	fmt.Println(flag)
 	if flag == 1 {
 		return true
 	}
@@ -84,4 +121,8 @@ func (of *OverFlow) ToByte() []byte {
 
 func CreateOverFlow(idx, off int32) OverFlow {
 	return OverFlow{overFlowIndex: idx, overFlowOffset: off}
+}
+
+func CreateNullOverFlow() OverFlow {
+	return OverFlow{0, 0}
 }

@@ -34,7 +34,6 @@ func (b *Bucket) ToByte() []byte {
 	return result
 }
 
-// Bucket.WriteInPage should call index in negative
 func (b *Bucket) WriteInPage() {
 	page.WriteBytesToPageMemory(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/spaolacci/murmur3"
 )
 
+// target is the key's []byte
 func FirstHash(target []byte) int32 {
 	return int32(murmur3.Sum64(target) % uint64(constants.HashBucketNumber))
 }
