@@ -8,6 +8,7 @@ const (
 
 // Bucket is used to store the first record's index and offset in page
 type Bucket struct {
+	bh          *BucketHeader
 	firstIndex  int32
 	firstOffset int32
 }
@@ -28,8 +29,8 @@ func (b *Bucket) ToByte() []byte {
 	return result
 }
 
-func CreateBucket(idx, off int32) *Bucket {
-	return &Bucket{idx, off}
+func CreateBucket(bh *BucketHeader, idx, off int32) *Bucket {
+	return &Bucket{bh, idx, off}
 }
 
 type BucketHeader struct {
@@ -43,4 +44,8 @@ func (bh *BucketHeader) FirstHashValue() int32 {
 
 func (bh *BucketHeader) SecondHashValue() int32 {
 	return bh.secondHashValue
+}
+
+func CreateBucketHeader(first, second int32) *BucketHeader {
+	return &BucketHeader{first, second}
 }

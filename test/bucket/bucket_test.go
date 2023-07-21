@@ -18,7 +18,7 @@ func TestBucketToByte(t *testing.T) {
 	}
 
 	for _, d := range data {
-		b := bucket.CreateBucket(d.idx, d.off)
+		b := bucket.CreateBucket(nil, d.idx, d.off)
 		if !utils.EqualByteSlice(d.res, b.ToByte()) {
 			t.Errorf("ToByte should got %v but got %v", d.res, b.ToByte())
 		}
