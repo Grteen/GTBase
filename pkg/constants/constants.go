@@ -9,4 +9,6 @@ const (
 	HashBucketHasBuckets int32 = 256
 	HashBucketSize       int32 = HashBucketHasBuckets * BucketByteLength
 	PageHasHashBuckets   int32 = int32(PageSize) / HashBucketSize
+
+	HashBucketNumber int32 = 256
 )
