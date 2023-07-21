@@ -164,6 +164,7 @@ func TestBucketWriteBytes(t *testing.T) {
 }
 
 func TestReadPair(t *testing.T) {
+
 	data := []struct {
 		key         string
 		val         string
@@ -172,6 +173,7 @@ func TestReadPair(t *testing.T) {
 		overFlowOff int32
 	}{
 		{"Key", "Hello", 1, 1, 5},
+		{"Set", "Msg", 0, 15, 16383},
 	}
 
 	for _, d := range data {
@@ -189,7 +191,7 @@ func TestReadPair(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		midoff := 4 + len(d.key) + 4 + len(d.val) + 1
+		midoff := int(off) + 4 + len(d.key) + 4 + len(d.val) + 1
 		temp := midoff
 
 		flag := pg.ReadFlag(int32(midoff))

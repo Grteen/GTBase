@@ -38,7 +38,7 @@ func (p *Pair) ToByte() []byte {
 	result = append(result, keyByte...)
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(len(keyByte)))...)
 
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(p.flag))...)
+	result = append(result, byte(p.flag))
 
 	result = append(result, ofByte...)
 
