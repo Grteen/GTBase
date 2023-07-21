@@ -164,6 +164,68 @@ func TestBucketWriteBytes(t *testing.T) {
 }
 
 func TestReadPair(t *testing.T) {
-	p := pair.CreatePair(object.CreateGtString("Key"), object.CreateGtString("Hello"), 1, pair.CreateOverFlow(1, 5))
-	nw := nextwrite.GetNextWriteAndIncreaseIt(len(p.ToByte()))
+	data := []struct {
+		key         string
+		val         string
+		flag        int8
+		overFlowIdx int32
+		overFlowOff int32
+	}{
+		{"Key", "Hello", 1, 1, 5},
+	}
+
+	for _, d := range data {
+		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), d.flag, pair.CreateOverFlow(d.overFlowIdx, d.overFlowOff))
+		nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(p.ToByte())))
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		idx, off := nw.NextWriteInfo()
+		p.WriteInPage(idx, off)
+
+		pg, errr := page.ReadPage(idx)
+		if errr != nil {
+			t.Errorf(err.Error())
+		}
+
+		midoff := 4 + len(d.key) + 4 + len(d.val) + 1
+		temp := midoff
+
+		flag := pg.ReadFlag(int32(midoff))
+		if flag != d.flag {
+			t.Errorf("ReadFlag should got %v but got %v", d.flag, flag)
+		}
+		midoff -= 1
+
+		keyLen := pg.ReadKeyLength(int32(midoff))
+		if keyLen != int32(len(d.key)) {
+			t.Errorf("ReadKeyLength should got %v but got %v", len(d.key), keyLen)
+		}
+		midoff -= 4
+
+		key := pg.ReadKey(int32(midoff), keyLen)
+		if key.ToString() != d.key {
+			t.Errorf("ReadKey should got %v but got %v", d.key, key.ToString())
+		}
+		midoff -= int(keyLen)
+
+		valLen := pg.ReadValLength(int32(midoff))
+		if valLen != int32(len(d.val)) {
+			t.Errorf("ReadValLength should got %v but got %v", len(d.val), valLen)
+		}
+		midoff -= 4
+
+		val := pg.ReadVal(int32(midoff), valLen)
+		if val.ToString() != d.val {
+			t.Errorf("ReadVal should got %v but got %v", d.val, val)
+		}
+
+		midoff = temp
+
+		overflowIdx, overflowOff := pg.ReadOverFlow(int32(midoff))
+		if overflowIdx != d.overFlowIdx || overflowOff != d.overFlowOff {
+			t.Errorf("ReadOverFlow should got %v idx %v off but got %v idx %v off", d.overFlowIdx, d.overFlowOff, overflowIdx, overflowOff)
+		}
+	}
 }

@@ -17,5 +17,5 @@ func EncodeBytesSmallEndToint32(x []byte) int32 {
 }
 
 func EncodeBytesSmallEndToInt8(x []byte) int8 {
-	return int8(binary.LittleEndian.Uint32(x))
+	return int8(x[0])
 }
