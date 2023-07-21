@@ -43,6 +43,13 @@ func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucke
 	return &Bucket{bh, firstRecordIdx, firstRecordOff}
 }
 
+func CreateBucketByKey(key object.Object, firstRecordIdx, firstRecordOff int32) *Bucket {
+	hashBucketIndex := utils.FirstHash(key.ToByte())
+	bucketIndex := utils.SecondHash(hashBucketIndex)
+
+	return CreateBucket(CreateBucketHeader(hashBucketIndex, bucketIndex), firstRecordIdx, firstRecordOff)
+}
+
 // find this key's hash's first record
 func FindFirstRecord(key object.Object) (int32, int32, error) {
 	hashBucketIndex := utils.FirstHash(key.ToByte())
