@@ -1,6 +1,9 @@
 package bucket
 
-import "GtBase/utils"
+import (
+	"GtBase/src/page"
+	"GtBase/utils"
+)
 
 const (
 	BucketByteLength int32 = 8
@@ -27,6 +30,11 @@ func (b *Bucket) ToByte() []byte {
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(b.firstOffset)...)
 
 	return result
+}
+
+// Bucket.WriteInPage should call index in negative
+func (b *Bucket) WriteInPage(idx, off int32) {
+	page.WriteBytesToPageMemory(idx, off, b.ToByte())
 }
 
 func CreateBucket(bh *BucketHeader, idx, off int32) *Bucket {
