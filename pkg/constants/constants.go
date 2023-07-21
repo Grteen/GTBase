@@ -11,4 +11,10 @@ const (
 	PageHasHashBuckets   int32 = int32(PageSize) / HashBucketSize
 
 	HashBucketNumber int32 = 256
+
+	PairFlagSize           int32 = 1
+	PairKeyLengthSize      int32 = 4
+	PairValLengthSize      int32 = 4
+	PairOverFlowIndexSize  int32 = 4
+	PairOverFlowOffsetSize int32 = 4
 )

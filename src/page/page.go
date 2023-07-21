@@ -62,6 +62,10 @@ func (p *Page) SrcSlice(start, end int32) []byte {
 	return p.src[start:end]
 }
 
+func (p *Page) SrcSliceLength(start, length int32) []byte {
+	return p.src[start : start+length]
+}
+
 // also Dirty the Page
 func (p *Page) WriteBytes(off int32, bts []byte) {
 	// ToDo should ensure the consistency
@@ -89,6 +93,12 @@ func (p *Page) writePage() error {
 
 	return nil
 }
+
+func (p *Page) ReadFlag(off int32) int8 {
+	return p.SrcSliceLength(off-constants.PairFlagSize, constants.PairFlagSize)
+}
+
+func (p *Page) ReadKeyLength(off int32)
 
 func IsBucketFilePath(filePath string) bool {
 	return filePath == constants.BucketPageFilePathToDo
