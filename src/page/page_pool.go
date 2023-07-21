@@ -47,6 +47,12 @@ func ReadPage(idx int32) (*Page, error) {
 	return readPage(idx, constants.PageFilePathToDo)
 }
 
+// read the page from cache first
+// if it not exist, read page from disk and cache it
+func ReadBucketPage(idx int32) (*Page, error) {
+	return readPage(idx, constants.BucketPageFilePathToDo)
+}
+
 // func ReadBucketPage(idx int32) (*Page, error) {
 // 	return readPage(idx, BucketPageFilePathToDo)
 // }

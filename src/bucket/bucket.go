@@ -62,7 +62,7 @@ func FindFirstRecord(key object.Object) (int32, int32, error) {
 func findFirstRecord(hashBucketIndex, bucketIndex int32) (int32, int32, error) {
 	bh := CreateBucketHeader(hashBucketIndex, bucketIndex)
 
-	pg, err := page.ReadPage(-bh.CalIndexOfBucketPage())
+	pg, err := page.ReadBucketPage(bh.CalIndexOfBucketPage())
 	if err != nil {
 		return -1, -1, err
 	}

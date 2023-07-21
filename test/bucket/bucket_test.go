@@ -48,7 +48,7 @@ func TestWriteInPage(t *testing.T) {
 		b := bucket.CreateBucket(bucket.CreateBucketHeader(d.firstHashValue, d.secondHashValue), d.idx, d.off)
 		b.WriteInPage()
 
-		pg, err := page.ReadPage(-b.BucketHeader().CalIndexOfBucketPage())
+		pg, err := page.ReadBucketPage(b.BucketHeader().CalIndexOfBucketPage())
 		if err != nil {
 			t.Errorf(err.Error())
 		}
@@ -82,7 +82,7 @@ func TestWriteInPage(t *testing.T) {
 		b := bucket.CreateBucket(bucket.CreateBucketHeader(d.firstHashValue, d.secondHashValue), d.idx, d.off)
 		b.WriteInPage()
 
-		pg, err := page.ReadPage(-b.BucketHeader().CalIndexOfBucketPage())
+		pg, err := page.ReadBucketPage(b.BucketHeader().CalIndexOfBucketPage())
 		if err != nil {
 			t.Errorf(err.Error())
 		}
