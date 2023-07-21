@@ -58,6 +58,10 @@ func (p *Page) SetFlushPath(flushPath string) {
 	p.flushPath = flushPath
 }
 
+func (p *Page) SrcSlice(start, end int32) []byte {
+	return p.src[start:end]
+}
+
 // also Dirty the Page
 func (p *Page) WriteBytes(off int32, bts []byte) {
 	// ToDo should ensure the consistency

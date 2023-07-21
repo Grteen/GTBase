@@ -2,6 +2,7 @@ package bucket
 
 import (
 	"GtBase/pkg/constants"
+	"GtBase/src/object"
 	"GtBase/src/page"
 	"GtBase/utils"
 )
@@ -44,6 +45,22 @@ func (b *Bucket) WriteInPage() {
 
 func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucket {
 	return &Bucket{bh, firstRecordIdx, firstRecordOff}
+}
+
+func FindFirstRecord(key object.Object) (int32, int32) {
+	hashBucketIndex := utils.FirstHash(key.ToByte())
+	bucketIndex := utils.SecondHash(hashBucketIndex)
+
+	return findFirstRecord(hashBucketIndex, bucketIndex)
+}
+
+func findFirstRecord(hashBucketIndex, bucketIndex int32) (int32, int32, error) {
+	bh := CreateBucketHeader(hashBucketIndex, bucketIndex)
+
+	pg, err := page.ReadPage(bh.CalIndexOfBucketPage())
+	if err != nil {
+		return -1, -1, err
+	}
 }
 
 type BucketHeader struct {
