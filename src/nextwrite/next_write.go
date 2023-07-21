@@ -205,16 +205,16 @@ func getNextWrite(off int32) (*NextWrite, error) {
 
 // Get the NextWrite and increase is locked
 // so page don't need to lock except the delete command because every set command has different offset and index
-func GetNextWriteAndIncreaseIt(off int32) (*NextWrite, error) {
+func GetNextWriteAndIncreaseIt(btsLength int32) (*NextWrite, error) {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
 
-	result, err := getNextWrite(off)
+	result, err := getNextWrite(btsLength)
 	if err != nil {
 		return nil, err
 	}
 
-	erri := IncreaseNextWrite(off)
+	erri := IncreaseNextWrite(btsLength)
 	if erri != nil {
 		return nil, err
 	}

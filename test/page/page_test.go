@@ -2,7 +2,10 @@ package page
 
 import (
 	"GtBase/pkg/constants"
+	"GtBase/src/nextwrite"
+	"GtBase/src/object"
 	"GtBase/src/page"
+	"GtBase/src/pair"
 	"os"
 	"testing"
 
@@ -158,4 +161,9 @@ func TestBucketWriteBytes(t *testing.T) {
 	if pg.Dirty() != false {
 		t.Errorf("page should be cleaned by FlushPage but not")
 	}
+}
+
+func TestReadPair(t *testing.T) {
+	p := pair.CreatePair(object.CreateGtString("Key"), object.CreateGtString("Hello"), 1, pair.CreateOverFlow(1, 5))
+	nw := nextwrite.GetNextWriteAndIncreaseIt(len(p.ToByte()))
 }
