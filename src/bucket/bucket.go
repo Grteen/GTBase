@@ -28,6 +28,10 @@ func (b *Bucket) ToByte() []byte {
 	return result
 }
 
+func CreateBucket(idx, off int32) *Bucket {
+	return &Bucket{idx, off}
+}
+
 type BucketHeader struct {
 	firstHashValue  int32
 	secondHashValue int32
