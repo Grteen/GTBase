@@ -46,9 +46,6 @@ func (p *Page) Dirty() bool {
 }
 
 func (p *Page) GetIndex() int32 {
-	if p.IsBucket() {
-		return -p.pageHeader.PageIndex()
-	}
 	return p.pageHeader.PageIndex()
 }
 

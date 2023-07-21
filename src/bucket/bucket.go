@@ -48,8 +48,8 @@ func (b *Bucket) WriteInPage() {
 	b.writeInPage(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage())
 }
 
-func CreateBucket(bh *BucketHeader, idx, off int32) *Bucket {
-	return &Bucket{bh, idx, off}
+func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucket {
+	return &Bucket{bh, firstRecordIdx, firstRecordOff}
 }
 
 type BucketHeader struct {
@@ -66,7 +66,7 @@ func (bh *BucketHeader) SecondHashValue() int32 {
 }
 
 func (bh *BucketHeader) CalIndexOfBucketPage() int32 {
-	return int32(bh.firstHashValue / PageHasHashBuckets)
+	return int32(bh.firstHashValue/PageHasHashBuckets) + 1
 }
 
 func (bh *BucketHeader) CalOffsetOfBucketPage() int32 {

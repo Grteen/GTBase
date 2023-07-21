@@ -52,16 +52,18 @@ func ReadPage(idx int32) (*Page, error) {
 
 func readPage(idx int32, filePath string) (*Page, error) {
 	var idxm = idx
+	var idxd = idx
 	if IsBucketFilePath(filePath) {
 		idxm = -idx
+		idxd = idx - 1
 	}
+
 	p := readPageFromCache(idxm)
 	if p != nil {
 		return p, nil
 	}
 
-	pd, err := readPageFromDisk(idx, filePath)
-
+	pd, err := readPageFromDisk(idxd, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +95,12 @@ func readPageFromDisk(idx int32, filePath string) (*Page, error) {
 		return nil, glog.Error("readOnePageOfBytes can't read because %s\n", err)
 	}
 
-	return CreatePage(idx, src, filePath), nil
+	var cacheIdx = idx
+	if IsBucketFilePath(filePath) {
+		cacheIdx = -idx - 1
+	}
+
+	return CreatePage(cacheIdx, src, filePath), nil
 }
 
 func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {

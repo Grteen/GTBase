@@ -88,7 +88,7 @@ func TestWriteInPage(t *testing.T) {
 
 		got := make([]byte, 0)
 		for j := 0; j < i; j++ {
-			got = append(got, data[0].res...)
+			got = append(got, data[j].res...)
 		}
 
 		if !utils.EqualByteSliceOnlyInMinLen(pg.Src(), got) {
