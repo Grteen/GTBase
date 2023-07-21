@@ -96,3 +96,21 @@ func TestWriteInPage(t *testing.T) {
 		}
 	}
 }
+
+func TestIsDelete(t *testing.T) {
+	data := []struct {
+		arg int8
+		res bool
+	}{
+		{0, false},
+		{1, true},
+		{2, false},
+		{3, true},
+	}
+
+	for _, d := range data {
+		if pair.IsDelete(d.arg) != d.res {
+			t.Errorf("IsDelete %v should got %v but got %v", d.arg, d.res, pair.IsDelete(d.arg))
+		}
+	}
+}

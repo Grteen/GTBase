@@ -4,6 +4,7 @@ import (
 	"GtBase/src/object"
 	"GtBase/src/page"
 	"GtBase/utils"
+	"fmt"
 )
 
 // Pair is used as the record
@@ -51,6 +52,16 @@ func (p *Pair) WriteInPage(idx, off int32) {
 
 func CreatePair(key, value object.Object, flag int8, of OverFlow) *Pair {
 	return &Pair{key: key, value: value, flag: flag, overFlow: of}
+}
+
+func IsDelete(flag int8) bool {
+	flag &= 1
+	fmt.Println(flag)
+	if flag == 1 {
+		return true
+	}
+
+	return false
 }
 
 type OverFlow struct {
