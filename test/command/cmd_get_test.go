@@ -3,7 +3,6 @@ package command
 import (
 	"GtBase/src/command"
 	"GtBase/src/object"
-	"GtBase/src/pair"
 	"testing"
 )
 
@@ -18,8 +17,7 @@ func TestGet(t *testing.T) {
 	}
 
 	for _, d := range data {
-		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), 0, pair.CreateNullOverFlow())
-		err := command.Set(p)
+		err := command.Set(object.CreateGtString(d.key), object.CreateGtString(d.val))
 		if err != nil {
 			t.Errorf(err.Error())
 		}

@@ -4,11 +4,17 @@ import (
 	"GtBase/pkg/glog"
 	"GtBase/src/bucket"
 	"GtBase/src/nextwrite"
+	"GtBase/src/object"
 	"GtBase/src/pair"
 	"GtBase/utils"
 )
 
-func Set(p *pair.Pair) error {
+func Set(key object.Object, val object.Object) error {
+	p := pair.CreatePair(key, val, 0, pair.CreateNullOverFlow())
+	return set(p)
+}
+
+func set(p *pair.Pair) error {
 	firstRecordIdx, firstRecordOff, err := bucket.FindFirstRecord(p.Key())
 	if err != nil {
 		return err
