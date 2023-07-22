@@ -163,6 +163,73 @@ func TestBucketWriteBytes(t *testing.T) {
 	}
 }
 
+func TestBucketFlush(t *testing.T) {
+	page.DeleteBucketPageFile()
+	page.InitBucketPageFile()
+	data := []struct {
+		write []byte
+		res   []byte
+	}{
+		{[]byte(""), []byte("")},
+		{[]byte("First Write "), []byte("First Write ")},
+		{[]byte("Second Write "), []byte("First Write Second Write ")},
+		{[]byte("Hello World"), []byte("First Write Second Write Hello World")},
+	}
+
+	for i := 1; i < len(data); i++ {
+		pg, err := page.ReadPage(-1)
+		p, ok := page.GetPagePool().GetPage(-1)
+		if !ok {
+			t.Errorf("GetPagePool should get index %v but not", -1)
+		}
+
+		if pg != p {
+			t.Errorf("GetPagePool().GetPage() should be same as page.ReadBucketPage but not")
+		}
+
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		pg.WriteBytes(int32(len(data[i-1].res)), data[i].write)
+		if pg.Dirty() != true {
+			t.Errorf("page should be dirtied by WriteBytes but not")
+		}
+
+		if !utils.EqualByteSliceOnlyInMinLen(data[i].res, pg.Src()) {
+			t.Errorf("page should be %v but it got %v", data[i].res, pg.Src()[:len(data[i].res)])
+		}
+	}
+
+	pg, err := page.ReadPage(-1)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	pg.FlushPage()
+	if pg.Dirty() != false {
+		t.Errorf("page should be cleaned by FlushPage but not")
+	}
+
+	file, err := os.OpenFile(constants.BucketPageFilePathToDo, os.O_RDWR, 0777)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer file.Close()
+
+	bts := make([]byte, constants.PageSize*2)
+	n, errr := file.Read(bts)
+	if errr != nil {
+		t.Errorf(errr.Error())
+	}
+
+	if n != int(constants.PageSize) {
+		t.Errorf("Read should got %v bytes but got %v byts", constants.PageSize, n)
+	}
+
+	// fmt.Println(bts)
+}
+
 func TestReadPair(t *testing.T) {
 
 	data := []struct {

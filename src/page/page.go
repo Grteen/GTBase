@@ -160,7 +160,7 @@ func CalOffsetOfIndex(idx int32) int64 {
 	if idx < 0 {
 		idxc += 1
 	}
-	return int64(math.Abs(float64(idx))) * constants.PageSize
+	return int64(math.Abs(float64(idxc))) * constants.PageSize
 }
 
 func CreatePageHeader(idx int32) PageHeader {
