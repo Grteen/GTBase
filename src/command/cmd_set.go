@@ -8,6 +8,17 @@ import (
 	"GtBase/utils"
 )
 
+// func Set(p *pair.Pair) error {
+// 	firstRecordIdx, firstRecordOff, err := bucket.FindFirstRecord(p.Key())
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	if firstRecordIdx == 0 && firstRecordOff == 0 {
+
+// 	}
+// }
+
 func FirstSetInThisBucket(p *pair.Pair) error {
 	nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(p.ToByte())))
 	if err != nil {

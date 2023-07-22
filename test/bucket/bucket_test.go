@@ -143,4 +143,13 @@ func TestFindFirstRecord(t *testing.T) {
 			t.Errorf("SrcSlice should got %v but got %v", p.ToByte(), bts)
 		}
 	}
+
+	zeroIdx, zeroOff, err := bucket.FindFirstRecord(object.CreateGtString("Impossible"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if zeroIdx != 0 || zeroOff != 0 {
+		t.Errorf("FindFirstRecord should got 0 idx 0 off but got %v idx %v off", zeroIdx, zeroOff)
+	}
 }
