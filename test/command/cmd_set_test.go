@@ -36,7 +36,7 @@ func TestFirstSet(t *testing.T) {
 			t.Errorf(errr.Error())
 		}
 
-		pread := pair.ReadPair(pg, p.CalMidOffset(firstOff))
+		pread := pair.ReadPair(pg, firstOff)
 		if pread.Key().ToString() != p.Key().ToString() {
 			t.Errorf("ReadPair should got Key %v but got %v", p.Key().ToString(), pread.Key().ToString())
 		}
