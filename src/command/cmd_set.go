@@ -54,7 +54,7 @@ func UpdateBucket(p *pair.Pair, idx, off int32) {
 }
 
 func FindFinalRecord(firstRecordIdx, firstRecordOff int32) (*pair.Pair, *pairLoc, error) {
-	p, loc, flag, err := TraverseList(firstRecordIdx, firstRecordOff, []stopFunction{stopWhenNextIsNil})
+	p, loc, flag, err := TraverseList(firstRecordIdx, firstRecordOff, []stopStruct{{stopWhenNextIsNil, nil}})
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,20 +1,43 @@
 package command
 
-import "GtBase/src/pair"
+import (
+	"GtBase/pkg/glog"
+	"GtBase/src/pair"
+)
 
 type stopFlag int32
 
-type stopFunction func(*pair.Pair) (stopFlag, bool)
+type stopFunction func(*pair.Pair, []string) (stopFlag, bool, error)
+
+type stopStruct struct {
+	f   stopFunction
+	arg []string
+}
 
 const (
+	notTrigger    stopFlag = 0
 	nextIsNil     stopFlag = 1
 	nowKeyIsEqual stopFlag = 2
 )
 
-func stopWhenNextIsNil(p *pair.Pair) (stopFlag, bool) {
+// arg is nil
+func stopWhenNextIsNil(p *pair.Pair, arg []string) (stopFlag, bool, error) {
 	if p.OverFlow().IsNil() {
-		return nextIsNil, true
+		return nextIsNil, true, nil
 	}
 
-	return nextIsNil, false
+	return notTrigger, false, nil
+}
+
+// arg[0] is key to compare
+func stopWhenKeyEqual(p *pair.Pair, arg []string) (stopFlag, bool, error) {
+	if len(arg) != 1 {
+		return notTrigger, false, glog.Error("argument's length should be %v but got %v", 1, len(arg))
+	}
+
+	if p.Key().ToString() == arg[0] {
+		return nowKeyIsEqual, true, nil
+	}
+
+	return notTrigger, false, nil
 }
