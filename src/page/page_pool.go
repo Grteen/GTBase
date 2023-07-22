@@ -3,6 +3,7 @@ package page
 import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
+	"container/list"
 	"io"
 	"os"
 	"sync"
@@ -12,7 +13,9 @@ import (
 // every read should read PagePool first
 // if no cache in PagePool, it will read from disk and cache it
 type PagePool struct {
-	caches map[int32]*Page
+	caches        map[int32]*Page
+	dirtyList     *list.List
+	dirtyListLock sync.Mutex
 }
 
 func (pool *PagePool) GetPage(idx int32) (*Page, bool) {
@@ -24,8 +27,31 @@ func (pool *PagePool) CachePage(p *Page) {
 	pool.caches[p.GetIndex()] = p
 }
 
+func (pool *PagePool) DirtyListPush(pg *Page) {
+	pool.dirtyListLock.Lock()
+	defer pool.dirtyListLock.Unlock()
+
+	pool.dirtyList.PushBack(pg)
+}
+
+func (pool *PagePool) DirtyListGet() (*Page, error) {
+	pool.dirtyListLock.Lock()
+	defer pool.dirtyListLock.Unlock()
+
+	front := pool.dirtyList.Front()
+	if front != nil {
+		result, ok := pool.dirtyList.Remove(front).(*Page)
+		if !ok {
+			return nil, glog.Error("can't transform to *Page")
+		}
+		return result, nil
+	}
+
+	return nil, nil
+}
+
 func CreatePagePool() *PagePool {
-	return &PagePool{caches: map[int32]*Page{}}
+	return &PagePool{caches: map[int32]*Page{}, dirtyList: list.New()}
 }
 
 var instance *PagePool

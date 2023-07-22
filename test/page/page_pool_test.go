@@ -40,3 +40,21 @@ func TestReadFlush(t *testing.T) {
 		}
 	}
 }
+
+func TestDirtyList(t *testing.T) {
+	data := []*page.Page{page.CreatePage(0, nil, ""), page.CreatePage(1, nil, ""), page.CreatePage(2, nil, ""), page.CreatePage(-1, nil, "")}
+	for _, d := range data {
+		page.GetPagePool().DirtyListPush(d)
+	}
+
+	for i := 0; i < len(data); i++ {
+		res, err := page.GetPagePool().DirtyListGet()
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if res != data[i] {
+			t.Errorf("DirtyListGet not same")
+		}
+	}
+}
