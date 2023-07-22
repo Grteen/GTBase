@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGet(t *testing.T) {
+func TestDel(t *testing.T) {
 	page.DeleteBucketPageFile()
 	page.DeletePageFile()
 	page.InitBucketPageFile()
@@ -16,10 +16,11 @@ func TestGet(t *testing.T) {
 	data := []struct {
 		key string
 		val string
+		res bool
 	}{
-		{"Key", "Val"},
-		{"Hello", "World"},
-		{"Good", "Morning"},
+		{"Key", "Val", true},
+		{"Hello", "World", false},
+		{"Good", "Morning", true},
 	}
 
 	for _, d := range data {
@@ -29,10 +30,22 @@ func TestGet(t *testing.T) {
 		}
 	}
 
+	err := command.Del(object.CreateGtString(data[1].key))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	for _, d := range data {
 		val, err := command.Get(object.CreateGtString(d.key))
 		if err != nil {
 			t.Errorf(err.Error())
+		}
+
+		if !d.res {
+			if val != nil {
+				t.Errorf("Get should get nil but got %v", val.ToString())
+			}
+			continue
 		}
 
 		if val.ToString() != d.val {

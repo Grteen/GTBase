@@ -88,5 +88,5 @@ func WriteRecordAndUpdatePrevRecord(newp, prevp *pair.Pair, prevLoc *pairLoc) er
 
 func UpdatePrevRecord(prevp *pair.Pair, prevLoc *pairLoc, of *pair.OverFlow) {
 	prevp.SetOverFlow(*of)
-	prevp.WriteInPage(prevLoc.idx, prevLoc.off-prevp.CalMidOffset(prevLoc.off))
+	prevp.WriteInPage(prevLoc.idx, prevLoc.off-prevp.GetMidOffsetNotInBasic())
 }

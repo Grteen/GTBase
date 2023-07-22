@@ -27,6 +27,10 @@ func (p *Pair) Flag() int8 {
 	return p.flag
 }
 
+func (p *Pair) Delete() {
+	p.flag |= 1
+}
+
 func (p *Pair) OverFlow() *OverFlow {
 	overFlow := CreateOverFlow(p.overFlow.OverFlowInfo())
 	return &overFlow
@@ -66,6 +70,11 @@ func (p *Pair) WriteInPage(idx, off int32) {
 // MidOffset points to place between flag and overFlowIndex
 func (p *Pair) CalMidOffset(basicOff int32) int32 {
 	return basicOff + int32(len(p.value.ToByte())) + constants.PairValLengthSize + int32(len(p.key.ToByte())) +
+		constants.PairKeyLengthSize + constants.PairFlagSize
+}
+
+func (p *Pair) GetMidOffsetNotInBasic() int32 {
+	return int32(len(p.value.ToByte())) + constants.PairValLengthSize + int32(len(p.key.ToByte())) +
 		constants.PairKeyLengthSize + constants.PairFlagSize
 }
 

@@ -30,7 +30,7 @@ func Get(key object.Object) (object.Object, error) {
 		return nil, err
 	}
 
-	p, errf := FindSameKey(firstIdx, firstOff, key.ToString())
+	p, _, errf := FindSameKey(firstIdx, firstOff, key.ToString())
 	if errf != nil {
 		return nil, errf
 	}
@@ -42,17 +42,17 @@ func Get(key object.Object) (object.Object, error) {
 	return p.Value(), nil
 }
 
-func FindSameKey(firstRecordIdx, firstRecordOff int32, key string) (*pair.Pair, error) {
-	p, _, flag, errt := TraverseList(firstRecordIdx, firstRecordOff, []stopStruct{{stopWhenKeyEqual, []string{key}}})
+func FindSameKey(firstRecordIdx, firstRecordOff int32, key string) (*pair.Pair, *pairLoc, error) {
+	p, loc, flag, errt := TraverseList(firstRecordIdx, firstRecordOff, []stopStruct{{stopWhenKeyEqual, []string{key}}})
 	if errt != nil {
-		return nil, errt
+		return nil, nil, errt
 	}
 
 	if flag == nowKeyIsEqual {
-		return p, nil
+		return p, loc, nil
 	}
 
-	return nil, nil
+	return nil, nil, nil
 }
 
 // TraverseList returns the current pair when the stop function returns true
@@ -68,7 +68,7 @@ func TraverseList(recordIdx, recordOff int32, stop []stopStruct) (*pair.Pair, *p
 	for _, s := range stop {
 		flag, ok, err := s.f(p, s.arg)
 		if err != nil {
-			return nil, nil, 0, err
+			return nil, nil, notTrigger, err
 		}
 		if ok {
 			return p, CreatePairLoc(recordIdx, recordOff), flag, nil
@@ -76,6 +76,9 @@ func TraverseList(recordIdx, recordOff int32, stop []stopStruct) (*pair.Pair, *p
 	}
 
 	nextIdx, nextOff := p.OverFlow().OverFlowInfo()
+	if nextIdx == 0 && nextOff == 0 {
+		return nil, nil, notTrigger, nil
+	}
 
 	return TraverseList(nextIdx, nextOff, stop)
 }

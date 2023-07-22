@@ -35,6 +35,10 @@ func stopWhenKeyEqual(p *pair.Pair, arg []string) (stopFlag, bool, error) {
 		return notTrigger, false, glog.Error("argument's length should be %v but got %v", 1, len(arg))
 	}
 
+	if pair.IsDelete(p.Flag()) {
+		return notTrigger, false, nil
+	}
+
 	if p.Key().ToString() == arg[0] {
 		return nowKeyIsEqual, true, nil
 	}
