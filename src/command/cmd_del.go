@@ -18,6 +18,6 @@ func Del(key object.Object) error {
 
 	p.Delete()
 
-	p.WriteInPage(loc.GetIdx(), loc.GetOff()-p.GetMidOffsetNotInBasic())
+	p.WriteInPageInMid(loc.GetIdx(), loc.GetOff())
 	return nil
 }
