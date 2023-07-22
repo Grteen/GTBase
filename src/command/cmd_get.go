@@ -65,8 +65,6 @@ func TraverseList(recordIdx, recordOff int32, stop []stopStruct) (*pair.Pair, *p
 
 	p := pair.ReadPair(pg, recordOff)
 
-	// fmt.Println(p, p.Key().ToString(), p.Value().ToString())
-
 	flagResult := 0
 	for _, s := range stop {
 		flag, ok, err := s.f(p, s.arg)
