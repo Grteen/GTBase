@@ -94,9 +94,13 @@ func TestFindFinalRecord(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	p, errf := command.FindFinalRecord(firstIdx, firstOff)
+	p, loc, errf := command.FindFinalRecord(firstIdx, firstOff)
 	if errf != nil {
 		t.Errorf(errf.Error())
+	}
+
+	if loc.GetOff() != p.CalMidOffset(int32(9*len(p.ToByte()))) {
+		t.Errorf("FindFinalRecord should got %v off but got %v off", p.CalMidOffset(int32(10*len(p.ToByte()))), loc.GetOff())
 	}
 
 	pg, errr := page.ReadPage(0)

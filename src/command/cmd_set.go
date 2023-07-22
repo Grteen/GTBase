@@ -14,9 +14,16 @@ import (
 // 		return err
 // 	}
 
-// 	if firstRecordIdx == 0 && firstRecordOff == 0 {
-
+// 	if bucket.IsNilFirstRecord(firstRecordIdx, firstRecordOff) {
+// 		return FirstSetInThisBucket(p)
 // 	}
+
+// 	p, loc, errf := FindFinalRecord(firstRecordIdx, firstRecordOff)
+// 	if errf != nil {
+// 		return errf
+// 	}
+
+// 	return nil
 // }
 
 func FirstSetInThisBucket(p *pair.Pair) error {
@@ -41,15 +48,24 @@ func UpdateBucket(p *pair.Pair, idx, off int32) {
 	b.WriteInPage()
 }
 
-func FindFinalRecord(firstRecordIdx, firstRecordOff int32) (*pair.Pair, error) {
-	p, flag, err := TraverseList(firstRecordIdx, firstRecordOff, []stopFunction{stopWhenNextIsNil})
+func FindFinalRecord(firstRecordIdx, firstRecordOff int32) (*pair.Pair, *pairLoc, error) {
+	p, loc, flag, err := TraverseList(firstRecordIdx, firstRecordOff, []stopFunction{stopWhenNextIsNil})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if flag == nextIsNil {
-		return p, nil
+		return p, loc, nil
 	}
 
-	return nil, glog.Error("Flag %v not equal to any condition", flag)
+	return nil, nil, glog.Error("Flag %v not equal to any condition", flag)
 }
+
+// func WriteRecordAndUpdatePrevRecord(newp, prevp *pair.Pair) error {
+
+// }
+
+// func UpdatePrevRecord(prevp *pair.Pair, of *pair.OverFlow) {
+// 	prevp.SetOverFlow(*of)
+// 	prevp.WriteInPage()
+// }

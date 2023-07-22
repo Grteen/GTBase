@@ -81,6 +81,11 @@ func findFirstRecord(hashBucketIndex, bucketIndex int32) (int32, int32, error) {
 	return idx, off, nil
 }
 
+// FirstRecord index and offset is zero so this bucket doesn't has first record
+func IsNilFirstRecord(idx, off int32) bool {
+	return idx == 0 && off == 0
+}
+
 type BucketHeader struct {
 	firstHashValue  int32
 	secondHashValue int32
