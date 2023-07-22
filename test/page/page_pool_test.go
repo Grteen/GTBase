@@ -15,6 +15,8 @@ func TestPagePoolSingleton(t *testing.T) {
 }
 
 func TestReadFlush(t *testing.T) {
+	page.DeletePageFile()
+	page.InitPageFile()
 	data := []string{"abc", "Hello World"}
 	for _, d := range data {
 		pg, err := page.ReadPage(0)
@@ -34,7 +36,7 @@ func TestReadFlush(t *testing.T) {
 		}
 
 		if !utils.EqualByteSlice(pg2.Src(), []byte(d)) {
-			t.Errorf("FlushPage should write %v but ReadPage read %s", d, pg2.Src())
+			t.Errorf("FlushPage should write %v but ReadPage read %s", d, pg2.Src()[:len([]byte(d))])
 		}
 	}
 }

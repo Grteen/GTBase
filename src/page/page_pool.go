@@ -130,15 +130,6 @@ func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
 // 	return pg.flushPage()
 // }
 
-// also clean the page
-func (p *Page) FlushPage() error {
-	if !p.Dirty() {
-		return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
-	}
-
-	return p.writePage()
-}
-
 // if page not in cache, it will read page from disk
 // Dirty the target page too
 func WriteBytesToPageMemory(idx, off int32, bts []byte) error {

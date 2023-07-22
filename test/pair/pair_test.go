@@ -40,7 +40,7 @@ func createTestPairToByteData() []PairByteTest {
 	data[0].res = append(data[0].res, []byte{10, 0, 0, 0}...)
 	data[0].res = append(data[0].res, []byte{72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100}...)
 	data[0].res = append(data[0].res, []byte{11, 0, 0, 0}...)
-	data[0].res = append(data[0].res, []byte{0, 0, 0, 0}...)
+	data[0].res = append(data[0].res, []byte{0}...)
 	data[0].res = append(data[0].res, []byte{0, 0, 0, 0}...)
 	data[0].res = append(data[0].res, []byte{30, 0, 0, 0}...)
 
@@ -48,7 +48,7 @@ func createTestPairToByteData() []PairByteTest {
 	data[1].res = append(data[1].res, []byte{3, 0, 0, 0}...)
 	data[1].res = append(data[1].res, []byte{75, 101, 121}...)
 	data[1].res = append(data[1].res, []byte{3, 0, 0, 0}...)
-	data[1].res = append(data[1].res, []byte{1, 0, 0, 0}...)
+	data[1].res = append(data[1].res, []byte{1}...)
 	data[1].res = append(data[1].res, []byte{0, 0, 0, 0}...)
 	data[1].res = append(data[1].res, []byte{30, 0, 0, 0}...)
 	return data
@@ -87,7 +87,7 @@ func TestWriteInPage(t *testing.T) {
 		}
 
 		got := make([]byte, 0)
-		for j := 0; j < i; j++ {
+		for j := 0; j <= i; j++ {
 			got = append(got, data[j].res...)
 		}
 

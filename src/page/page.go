@@ -96,6 +96,15 @@ func (p *Page) writePage() error {
 	return nil
 }
 
+// also clean the page
+func (p *Page) FlushPage() error {
+	if !p.Dirty() {
+		return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
+	}
+
+	return p.writePage()
+}
+
 func (p *Page) ReadFlag(off int32) int8 {
 	return utils.EncodeBytesSmallEndToInt8(p.SrcSliceLength(off-constants.PairFlagSize, constants.PairFlagSize))
 }
@@ -147,6 +156,10 @@ func (ph *PageHeader) SetPageIndex(idx int32) {
 }
 
 func CalOffsetOfIndex(idx int32) int64 {
+	idxc := idx
+	if idx < 0 {
+		idxc += 1
+	}
 	return int64(math.Abs(float64(idx))) * constants.PageSize
 }
 
