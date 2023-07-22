@@ -32,8 +32,10 @@ func (p *Page) SetPageHeader(ph *PageHeader) {
 	p.pageHeader = ph
 }
 
+// Dirty the page and push it to the dirtyList
 func (p *Page) DirtyPage() {
 	p.pageHeader.dirty = true
+	GetPagePool().DirtyListPush(p, -1)
 }
 
 func (p *Page) CleanPage() {

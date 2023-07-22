@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"sync"
+	"time"
 )
 
 // PagePool caches all pages
@@ -182,6 +183,7 @@ func FlushDirtyList(ctx context.Context) {
 			}
 
 			node.GetPage().FlushPage()
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
