@@ -32,6 +32,10 @@ func (p *Pair) OverFlow() *OverFlow {
 	return &overFlow
 }
 
+func (p *Pair) SetOverFlow(of OverFlow) {
+	p.overFlow = of
+}
+
 // value value-length  key key-length flag overflowIndex overflowOffset
 func (p *Pair) ToByte() []byte {
 	keyByte := p.key.ToByte()
@@ -108,6 +112,10 @@ type OverFlow struct {
 
 func (of *OverFlow) OverFlowInfo() (int32, int32) {
 	return of.overFlowIndex, of.overFlowOffset
+}
+
+func (of *OverFlow) IsNil() bool {
+	return of.overFlowIndex == 0 && of.overFlowOffset == 0
 }
 
 func (of *OverFlow) ToByte() []byte {

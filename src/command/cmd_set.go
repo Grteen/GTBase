@@ -1,6 +1,7 @@
 package command
 
 import (
+	"GtBase/pkg/glog"
 	"GtBase/src/bucket"
 	"GtBase/src/nextwrite"
 	"GtBase/src/pair"
@@ -27,4 +28,17 @@ func UpdateBucket(p *pair.Pair, idx, off int32) {
 	b := bucket.CreateBucket(bucket.CreateBucketHeader(firstHash, secondHash), idx, p.CalMidOffset(off))
 
 	b.WriteInPage()
+}
+
+func FindFinalRecord(firstRecordIdx, firstRecordOff int32) (*pair.Pair, error) {
+	p, flag, err := TraverseList(firstRecordIdx, firstRecordOff, []stopFunction{stopWhenNextIsNil})
+	if err != nil {
+		return nil, err
+	}
+
+	if flag == nextIsNil {
+		return p, nil
+	}
+
+	return nil, glog.Error("Flag %v not equal to any condition", flag)
 }
