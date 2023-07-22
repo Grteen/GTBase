@@ -37,4 +37,19 @@ func TestAnalyzer(t *testing.T) {
 			t.Errorf("Exec should get %v but got %v", d.val, res)
 		}
 	}
+
+	cmd := make([][]byte, 0)
+	cmd = append(cmd, []byte(data[1].key))
+
+	a := server.CreateDelAnalyzer(cmd)
+	res := a.Analyze().Exec().ToString()
+	if res != constants.ServerOkReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, res)
+	}
+
+	a2 := server.CreateGetAnalyzer(cmd)
+	res = a2.Analyze().Exec().ToString()
+	if res != constants.ServerGetNilReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res)
+	}
 }
