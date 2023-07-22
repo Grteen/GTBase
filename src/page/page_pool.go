@@ -4,6 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
 	"container/list"
+	"context"
 	"io"
 	"os"
 	"sync"
@@ -27,20 +28,20 @@ func (pool *PagePool) CachePage(p *Page) {
 	pool.caches[p.GetIndex()] = p
 }
 
-func (pool *PagePool) DirtyListPush(pg *Page) {
+func (pool *PagePool) DirtyListPush(pg *Page, cmn int32) {
 	pool.dirtyListLock.Lock()
 	defer pool.dirtyListLock.Unlock()
 
-	pool.dirtyList.PushBack(pg)
+	pool.dirtyList.PushBack(CreateDirtyListNode(pg, cmn))
 }
 
-func (pool *PagePool) DirtyListGet() (*Page, error) {
+func (pool *PagePool) DirtyListGet() (*DirtyListNode, error) {
 	pool.dirtyListLock.Lock()
 	defer pool.dirtyListLock.Unlock()
 
 	front := pool.dirtyList.Front()
 	if front != nil {
-		result, ok := pool.dirtyList.Remove(front).(*Page)
+		result, ok := pool.dirtyList.Remove(front).(*DirtyListNode)
 		if !ok {
 			return nil, glog.Error("can't transform to *Page")
 		}
@@ -167,4 +168,20 @@ func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
 	pg.WriteBytes(off, bts)
 
 	return nil
+}
+
+func FlushDirtyList(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			node, err := GetPagePool().DirtyListGet()
+			if err != nil {
+				return
+			}
+
+			node.GetPage().FlushPage()
+		}
+	}
 }
