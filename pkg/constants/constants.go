@@ -17,4 +17,7 @@ const (
 	PairValLengthSize      int32 = 4
 	PairOverFlowIndexSize  int32 = 4
 	PairOverFlowOffsetSize int32 = 4
+
+	ServerGetNilReturn string = "Nil"
+	ServerOkReturn     string = "Ok"
 )

@@ -5,3 +5,7 @@ type Object interface {
 	ToString() string
 	ToByte() []byte
 }
+
+func ParseObjectType(obj []byte) Object {
+	return CreateGtString(string(obj))
+}
