@@ -159,3 +159,38 @@ func TestSet(t *testing.T) {
 		}
 	}
 }
+
+func TestSameKeySet(t *testing.T) {
+	page.DeleteBucketPageFile()
+	page.DeletePageFile()
+	page.InitBucketPageFile()
+	page.InitPageFile()
+
+	data := []struct {
+		key string
+		val string
+		res string
+	}{
+		{"Key", "Val", "Morning"},
+		{"Hello", "World", "World"},
+		{"Key", "Morning", "Morning"},
+	}
+
+	for _, d := range data {
+		err := command.Set(object.CreateGtString(d.key), object.CreateGtString(d.val))
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+	}
+
+	for _, d := range data {
+		val, err := command.Get(object.CreateGtString(d.key))
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if val.ToString() != d.res {
+			t.Errorf("Get should get %v but got %v", d.res, val.ToString())
+		}
+	}
+}

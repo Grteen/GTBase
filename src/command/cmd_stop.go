@@ -20,6 +20,12 @@ const (
 	nowKeyIsEqual stopFlag = 2
 )
 
+func HasFlag(flag stopFlag, target stopFlag) bool {
+	temp := flag
+	temp &= target
+	return temp != 0
+}
+
 // arg is nil
 func stopWhenNextIsNil(p *pair.Pair, arg []string) (stopFlag, bool, error) {
 	if p.OverFlow().IsNil() {

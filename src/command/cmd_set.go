@@ -24,7 +24,7 @@ func set(p *pair.Pair) error {
 		return FirstSetInThisBucket(p)
 	}
 
-	prevp, prevLoc, errf := FindFinalRecord(firstRecordIdx, firstRecordOff)
+	prevp, prevLoc, errf := FindFinalRecordDelSameKey(firstRecordIdx, firstRecordOff, p.Key().ToString())
 	if errf != nil {
 		return errf
 	}
@@ -65,7 +65,26 @@ func FindFinalRecord(firstRecordIdx, firstRecordOff int32) (*pair.Pair, *pairLoc
 		return nil, nil, err
 	}
 
-	if flag == nextIsNil {
+	if HasFlag(flag, nextIsNil) {
+		return p, loc, nil
+	}
+
+	return nil, nil, glog.Error("Flag %v not equal to any condition", flag)
+}
+
+func FindFinalRecordDelSameKey(firstRecordIdx, firstRecordOff int32, key string) (*pair.Pair, *pairLoc, error) {
+	p, loc, flag, err := TraverseList(firstRecordIdx, firstRecordOff, []stopStruct{{stopWhenNextIsNil, nil}, {stopWhenKeyEqual, []string{key}}})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if HasFlag(flag, nowKeyIsEqual) {
+		p.Delete()
+		p.WriteInPageInMid(loc.GetIdx(), loc.GetOff())
+		return FindFinalRecordDelSameKey(loc.GetIdx(), loc.GetOff(), key)
+	}
+
+	if HasFlag(flag, nextIsNil) {
 		return p, loc, nil
 	}
 
@@ -80,7 +99,9 @@ func WriteRecordAndUpdatePrevRecord(newp, prevp *pair.Pair, prevLoc *pairLoc) er
 
 	newp.WriteInPage(nw.NextWriteInfo())
 
-	of := pair.CreateOverFlow(nw.NextWriteInfo())
+	idx, off := nw.NextWriteInfo()
+
+	of := pair.CreateOverFlow(idx, newp.CalMidOffset(off))
 	UpdatePrevRecord(prevp, prevLoc, &of)
 
 	return nil
@@ -88,5 +109,5 @@ func WriteRecordAndUpdatePrevRecord(newp, prevp *pair.Pair, prevLoc *pairLoc) er
 
 func UpdatePrevRecord(prevp *pair.Pair, prevLoc *pairLoc, of *pair.OverFlow) {
 	prevp.SetOverFlow(*of)
-	prevp.WriteInPageInMid(prevLoc.idx, prevLoc.off)
+	prevp.WriteInPageInMid(prevLoc.GetIdx(), prevLoc.GetOff())
 }

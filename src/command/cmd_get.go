@@ -48,7 +48,7 @@ func FindSameKey(firstRecordIdx, firstRecordOff int32, key string) (*pair.Pair, 
 		return nil, nil, errt
 	}
 
-	if flag == nowKeyIsEqual {
+	if HasFlag(flag, nowKeyIsEqual) {
 		return p, loc, nil
 	}
 
@@ -65,14 +65,21 @@ func TraverseList(recordIdx, recordOff int32, stop []stopStruct) (*pair.Pair, *p
 
 	p := pair.ReadPair(pg, recordOff)
 
+	// fmt.Println(p, p.Key().ToString(), p.Value().ToString())
+
+	flagResult := 0
 	for _, s := range stop {
 		flag, ok, err := s.f(p, s.arg)
 		if err != nil {
 			return nil, nil, notTrigger, err
 		}
 		if ok {
-			return p, CreatePairLoc(recordIdx, recordOff), flag, nil
+			flagResult |= int(flag)
 		}
+	}
+
+	if flagResult != 0 {
+		return p, CreatePairLoc(recordIdx, recordOff), stopFlag(flagResult), nil
 	}
 
 	nextIdx, nextOff := p.OverFlow().OverFlowInfo()
