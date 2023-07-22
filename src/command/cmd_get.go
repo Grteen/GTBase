@@ -23,6 +23,7 @@ func CreatePairLoc(idx, off int32) *pairLoc {
 }
 
 // TraverseList returns the current pair when the stop function returns true
+// second return value it the index and offset of current pair's middle offset
 func TraverseList(recordIdx, recordOff int32, stop []stopFunction) (*pair.Pair, *pairLoc, stopFlag, error) {
 	pg, err := page.ReadPage(recordIdx)
 	if err != nil {

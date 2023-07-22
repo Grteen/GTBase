@@ -120,3 +120,43 @@ func TestFindFinalRecord(t *testing.T) {
 		}
 	}
 }
+
+func TestSet(t *testing.T) {
+	page.DeleteBucketPageFile()
+	page.DeletePageFile()
+	page.InitBucketPageFile()
+	page.InitPageFile()
+
+	data := []struct {
+		key string
+		val string
+	}{
+		{"Key", "Val"},
+		{"Hello", "World"},
+		{"Good", "Morning"},
+	}
+
+	for _, d := range data {
+		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), 0, pair.CreateNullOverFlow())
+		err := command.Set(p)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+	}
+
+	for _, d := range data {
+		firstIdx, firstOff, err := bucket.FindFirstRecord(object.CreateGtString(d.key))
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		prevp, _, errf := command.FindFinalRecord(firstIdx, firstOff)
+		if errf != nil {
+			t.Errorf(errf.Error())
+		}
+
+		if prevp.Value().ToString() != d.val || prevp.Key().ToString() != d.key {
+			t.Errorf("FindFinalRecord should got %v %v but got %v %v", d.key, d.val, prevp.Key().ToString(), prevp.Value().ToString())
+		}
+	}
+}

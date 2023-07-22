@@ -8,23 +8,28 @@ import (
 	"GtBase/utils"
 )
 
-// func Set(p *pair.Pair) error {
-// 	firstRecordIdx, firstRecordOff, err := bucket.FindFirstRecord(p.Key())
-// 	if err != nil {
-// 		return err
-// 	}
+func Set(p *pair.Pair) error {
+	firstRecordIdx, firstRecordOff, err := bucket.FindFirstRecord(p.Key())
+	if err != nil {
+		return err
+	}
 
-// 	if bucket.IsNilFirstRecord(firstRecordIdx, firstRecordOff) {
-// 		return FirstSetInThisBucket(p)
-// 	}
+	if bucket.IsNilFirstRecord(firstRecordIdx, firstRecordOff) {
+		return FirstSetInThisBucket(p)
+	}
 
-// 	p, loc, errf := FindFinalRecord(firstRecordIdx, firstRecordOff)
-// 	if errf != nil {
-// 		return errf
-// 	}
+	prevp, prevLoc, errf := FindFinalRecord(firstRecordIdx, firstRecordOff)
+	if errf != nil {
+		return errf
+	}
 
-// 	return nil
-// }
+	errw := WriteRecordAndUpdatePrevRecord(p, prevp, prevLoc)
+	if errw != nil {
+		return errw
+	}
+
+	return nil
+}
 
 func FirstSetInThisBucket(p *pair.Pair) error {
 	nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(p.ToByte())))
@@ -61,11 +66,21 @@ func FindFinalRecord(firstRecordIdx, firstRecordOff int32) (*pair.Pair, *pairLoc
 	return nil, nil, glog.Error("Flag %v not equal to any condition", flag)
 }
 
-// func WriteRecordAndUpdatePrevRecord(newp, prevp *pair.Pair) error {
+func WriteRecordAndUpdatePrevRecord(newp, prevp *pair.Pair, prevLoc *pairLoc) error {
+	nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(newp.ToByte())))
+	if err != nil {
+		return err
+	}
 
-// }
+	newp.WriteInPage(nw.NextWriteInfo())
 
-// func UpdatePrevRecord(prevp *pair.Pair, of *pair.OverFlow) {
-// 	prevp.SetOverFlow(*of)
-// 	prevp.WriteInPage()
-// }
+	of := pair.CreateOverFlow(nw.NextWriteInfo())
+	UpdatePrevRecord(prevp, prevLoc, &of)
+
+	return nil
+}
+
+func UpdatePrevRecord(prevp *pair.Pair, prevLoc *pairLoc, of *pair.OverFlow) {
+	prevp.SetOverFlow(*of)
+	prevp.WriteInPage(prevLoc.idx, prevLoc.off-prevp.CalMidOffset(prevLoc.off))
+}
