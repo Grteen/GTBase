@@ -21,14 +21,14 @@ func TestServer(t *testing.T) {
 
 	go func() {
 		s := server.CreateGtBaseServer()
-		err := s.Run(1236)
+		err := s.Run(1240)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	}()
 
 	time.Sleep(1 * time.Second)
-	conn, err := net.Dial("tcp", "127.0.0.1:1236")
+	conn, err := net.Dial("tcp", "127.0.0.1:1240")
 	if err != nil {
 		t.Errorf(err.Error())
 		return
@@ -50,4 +50,6 @@ func TestServer(t *testing.T) {
 			t.Errorf("Read should get %v but got %v", d.result, buf)
 		}
 	}
+
+	time.Sleep(2 * time.Second)
 }

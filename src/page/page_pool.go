@@ -177,13 +177,16 @@ func FlushDirtyList(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
+			time.Sleep(100 * time.Millisecond)
 			node, err := GetPagePool().DirtyListGet()
 			if err != nil {
 				return
 			}
+			if node == nil {
+				continue
+			}
 
 			node.GetPage().FlushPage()
-			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
