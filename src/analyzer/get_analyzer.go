@@ -1,10 +1,14 @@
-package server
+package analyzer
 
 import (
 	"GtBase/pkg/constants"
 	"GtBase/src/command"
 	"GtBase/src/object"
 )
+
+type Command interface {
+	Exec() object.Object
+}
 
 // GET [KEY]
 type GetAnalyzer struct {

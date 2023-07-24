@@ -8,6 +8,9 @@ import (
 )
 
 type Ioer interface {
+	Run(int)
+	Wait() ([]*Task, error)
+	AddRead(int) error
 }
 
 type Task struct {
