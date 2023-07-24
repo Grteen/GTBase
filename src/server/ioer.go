@@ -4,5 +4,4 @@ type Ioer interface {
 }
 
 type Poller struct {
-	poll *net.
 }
