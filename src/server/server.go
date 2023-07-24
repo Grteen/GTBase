@@ -1,17 +1,35 @@
 package server
 
 import (
+	"GtBase/pkg/constants"
+	"GtBase/src/analyzer"
 	"net"
+	"sync"
 	"syscall"
 )
 
 type GtBaseServer struct {
-	clients map[int]*GtBaseClient
-	ioer    Ioer
+	clients  map[int]*GtBaseClient
+	clock    sync.Mutex
+	ioer     Ioer
+	listenFd int
 }
 
 func (s *GtBaseServer) addClient(client *GtBaseClient) {
+	s.clock.Lock()
+	defer s.clock.Unlock()
 	s.clients[client.GetFd()] = client
+}
+
+func (s *GtBaseServer) getClient(fd int) *GtBaseClient {
+	s.clock.Lock()
+	defer s.clock.Unlock()
+	result, ok := s.clients[fd]
+	if !ok {
+		return nil
+	}
+
+	return result
 }
 
 func (s *GtBaseServer) Run(port int) error {
@@ -20,9 +38,56 @@ func (s *GtBaseServer) Run(port int) error {
 		return err
 	}
 
+	s.listenFd = listenFd
 	s.ioer.Run(listenFd)
 
+	for {
+		tasks, err := s.ioer.Wait()
+		if err != nil {
+			return err
+		}
+		s.assignTask(tasks)
+	}
+}
+
+func (s *GtBaseServer) handleAccept(listenFd int) error {
+	nfd, _, err := syscall.Accept(listenFd)
+	if err != nil {
+		return err
+	}
+
+	erra := s.ioer.AddRead(nfd)
+	if erra != nil {
+		return erra
+	}
+	s.addClient(CreateGtBaseClient(nfd))
 	return nil
+}
+
+func (s *GtBaseServer) handleCommand(client *GtBaseClient) error {
+	bts, err := client.Read()
+	if err != nil {
+		return err
+	}
+
+	result := analyzer.CreateCommandAssign(bts).Assign().Analyze().Exec().ToByte()
+
+	errw := client.Write(result)
+	if errw != nil {
+		return errw
+	}
+
+	return nil
+}
+
+func (s *GtBaseServer) assignTask(tasks []*Task) {
+	for _, t := range tasks {
+		if t.EventType() == constants.IoerAccept {
+			s.handleAccept(s.listenFd)
+		} else if t.EventType() == constants.IoerRead {
+			s.handleCommand(s.getClient(int(t.EventFd())))
+		}
+	}
 }
 
 func listenAndGetFd(port int) (int, error) {
@@ -39,25 +104,14 @@ func listenAndGetFd(port int) (int, error) {
 		return -1, errb
 	}
 
-	syscall.Listen(listenSock, 0)
+	errl := syscall.Listen(listenSock, 0)
+	if errl != nil {
+		return -1, errl
+	}
 
 	return listenSock, nil
 }
 
-func (s *GtBaseServer) handleAccept(listenFd int) error {
-	nfd, _, err := syscall.Accept(listenFd)
-	if err != nil {
-		return err
-	}
-
-	s.addClient(CreateGtBaseClient(nfd))
-	return nil
+func CreateGtBaseServer() *GtBaseServer {
+	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*GtBaseClient)}
 }
-
-// func (s *GtBaseClient) handleCommand(client *GtBaseClient) error {
-// 	bts, err := client.Read()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// }

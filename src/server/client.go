@@ -1,6 +1,8 @@
 package server
 
-import "syscall"
+import (
+	"syscall"
+)
 
 type GtBaseClient struct {
 	fd int

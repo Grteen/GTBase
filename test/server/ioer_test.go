@@ -29,12 +29,12 @@ func TestEpoller(t *testing.T) {
 	poller.Run(listenSock)
 
 	go func() {
-		conn, err := net.Dial("tcp", "127.0.0.1:1234")
+		_, err := net.Dial("tcp", "127.0.0.1:1234")
 		if err != nil {
 			t.Errorf(err.Error())
 			return
 		}
-		defer conn.Close()
+		// defer conn.Close()
 	}()
 
 	tasks, err := poller.Wait()

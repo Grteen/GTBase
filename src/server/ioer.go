@@ -2,7 +2,6 @@ package server
 
 import (
 	"GtBase/pkg/constants"
-	"fmt"
 	"log"
 	"syscall"
 )
@@ -60,7 +59,6 @@ func (p *EPoller) Run(listenFd int) {
 func (p *EPoller) Wait() ([]*Task, error) {
 	result := make([]*Task, 0, 10)
 	events := make([]syscall.EpollEvent, 10)
-
 	n, err := syscall.EpollWait(p.epollFd, events, -1)
 	if err != nil {
 		return nil, err
@@ -68,7 +66,6 @@ func (p *EPoller) Wait() ([]*Task, error) {
 
 	for i := 0; i < n; i++ {
 		event := events[i]
-		fmt.Println(event.Events)
 		if event.Events&syscall.EPOLLIN != 0 {
 			if int(event.Fd) == p.listenFd {
 				result = append(result, CreateTask(int(event.Fd), constants.IoerAccept))
