@@ -1,6 +1,7 @@
 package server
 
 import (
+	"GtBase/src/page"
 	"GtBase/src/server"
 	"GtBase/utils"
 	"net"
@@ -9,6 +10,10 @@ import (
 )
 
 func TestServer(t *testing.T) {
+	page.DeletePageFile()
+	page.DeleteBucketPageFile()
+	page.InitBucketPageFile()
+	page.InitPageFile()
 	data := []struct {
 		command []byte
 		result  []byte
@@ -21,14 +26,14 @@ func TestServer(t *testing.T) {
 
 	go func() {
 		s := server.CreateGtBaseServer()
-		err := s.Run(1240)
+		err := s.Run(1235)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	}()
 
 	time.Sleep(1 * time.Second)
-	conn, err := net.Dial("tcp", "127.0.0.1:1240")
+	conn, err := net.Dial("tcp", "127.0.0.1:1235")
 	if err != nil {
 		t.Errorf(err.Error())
 		return
