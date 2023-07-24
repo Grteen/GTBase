@@ -1,0 +1,34 @@
+package analyzer
+
+import (
+	"GtBase/pkg/constants"
+	"GtBase/src/analyzer"
+	"testing"
+)
+
+func TestAssign(t *testing.T) {
+	ok := analyzer.CreateCommandAssign([]byte("Set key val")).Assign().Analyze().Exec().ToString()
+	if ok != constants.ServerOkReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
+	}
+
+	res := analyzer.CreateCommandAssign([]byte("Get key")).Assign().Analyze().Exec().ToString()
+	if res != "val" {
+		t.Errorf("Exec should get %v but got %v", "val", res)
+	}
+
+	res = analyzer.CreateCommandAssign([]byte("Get Impossible")).Assign().Analyze().Exec().ToString()
+	if res != constants.ServerGetNilReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res)
+	}
+
+	ok = analyzer.CreateCommandAssign([]byte("Del key")).Assign().Analyze().Exec().ToString()
+	if ok != constants.ServerOkReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
+	}
+
+	res = analyzer.CreateCommandAssign([]byte("Get key")).Assign().Analyze().Exec().ToString()
+	if res != constants.ServerGetNilReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res)
+	}
+}

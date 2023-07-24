@@ -6,10 +6,6 @@ import (
 	"GtBase/src/object"
 )
 
-type Command interface {
-	Exec() object.Object
-}
-
 // GET [KEY]
 type GetAnalyzer struct {
 	parts [][]byte

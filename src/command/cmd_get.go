@@ -30,6 +30,10 @@ func Get(key object.Object) (object.Object, error) {
 		return nil, err
 	}
 
+	if firstIdx == 0 && firstOff == 0 {
+		return nil, nil
+	}
+
 	p, _, errf := FindSameKey(firstIdx, firstOff, key.ToString())
 	if errf != nil {
 		return nil, errf
