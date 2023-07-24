@@ -1,8 +1,9 @@
 package constants
 
 const (
-	PageFilePathToDo       string = "E:/Code/GTCDN/GTbase/temp/gt.pf"
-	BucketPageFilePathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.bf"
+	PageFilePathToDo       string = "/root/GtBase/temp/gt.pf"
+	BucketPageFilePathToDo string = "/root/GtBase/temp/gt.bf"
+	CMNPathToDo            string = "/root/GtBase/temp/gt.cmn"
 	PageSize               int64  = 16384
 
 	BucketByteLength     int32 = 8
@@ -20,4 +21,7 @@ const (
 
 	ServerGetNilReturn string = "Nil"
 	ServerOkReturn     string = "Ok"
+
+	IoerRead   int32 = 1
+	IoerAccept int32 = 2
 )

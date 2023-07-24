@@ -1,6 +1,7 @@
 package nextwrite
 
 import (
+	"GtBase/pkg/constants"
 	"GtBase/src/nextwrite"
 	"GtBase/src/page"
 	"os"
@@ -10,8 +11,8 @@ import (
 func TestInitCMNFile(t *testing.T) {
 	nextwrite.InitCMNFile()
 
-	if _, err := os.Stat(nextwrite.CMNPathToDo); os.IsNotExist(err) {
-		t.Errorf("InitCMNFile() should create the %s but it didn't", nextwrite.CMNPathToDo)
+	if _, err := os.Stat(constants.CMNPathToDo); os.IsNotExist(err) {
+		t.Errorf("InitCMNFile() should create the %s but it didn't", constants.CMNPathToDo)
 	}
 }
 

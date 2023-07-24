@@ -25,10 +25,6 @@ func CreateNextWrite(pageIndex, pageOffset int32) *NextWrite {
 	return &NextWrite{pageIndex: pageIndex, pageOffset: pageOffset}
 }
 
-const (
-	CMNPathToDo string = "E:/Code/GTCDN/GTbase/temp/gt.cmn"
-)
-
 // NextWriteFactory assign CMN to all write command
 // and assign NextWrite to all Set command
 type NextWriteFactory struct {
@@ -79,31 +75,31 @@ func (nwf *NextWriteFactory) initCMN() error {
 }
 
 func (nwf *NextWriteFactory) readCMN() (int32, error) {
-	file, err := os.OpenFile(CMNPathToDo, os.O_RDWR, 0777)
+	file, err := os.OpenFile(constants.CMNPathToDo, os.O_RDWR, 0777)
 	if err != nil {
-		return -1, glog.Error("ReadCMNFile can't open file %s because %s", CMNPathToDo, err.Error())
+		return -1, glog.Error("ReadCMNFile can't open file %s because %s", constants.CMNPathToDo, err.Error())
 	}
 	defer file.Close()
 
 	var result int32
 	errr := binary.Read(file, binary.LittleEndian, &result)
 	if errr != nil {
-		return -1, glog.Error("ReadCMNFile can't read file %s because %s", CMNPathToDo, errr.Error())
+		return -1, glog.Error("ReadCMNFile can't read file %s because %s", constants.CMNPathToDo, errr.Error())
 	}
 
 	return result, nil
 }
 
 func (nwf *NextWriteFactory) writeCMN() error {
-	file, err := os.OpenFile(CMNPathToDo, os.O_WRONLY|os.O_CREATE, 0777)
+	file, err := os.OpenFile(constants.CMNPathToDo, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
-		return glog.Error("writeCMNFile can't open file %v because %v", CMNPathToDo, err)
+		return glog.Error("writeCMNFile can't open file %v because %v", constants.CMNPathToDo, err)
 	}
 	defer file.Close()
 
 	errw := binary.Write(file, binary.LittleEndian, nwf.commandNumber)
 	if errw != nil {
-		return glog.Error("writeCMNFile can't write file %v because %v", CMNPathToDo, errw)
+		return glog.Error("writeCMNFile can't write file %v because %v", constants.CMNPathToDo, errw)
 	}
 
 	return nil
@@ -126,30 +122,30 @@ func GetCMN() (int32, error) {
 }
 
 func InitCMNFile() {
-	if _, err := os.Stat(CMNPathToDo); os.IsNotExist(err) {
-		file, errc := os.Create(CMNPathToDo)
+	if _, err := os.Stat(constants.CMNPathToDo); os.IsNotExist(err) {
+		file, errc := os.Create(constants.CMNPathToDo)
 		if errc != nil {
 			log.Fatalf("InitCMNFile can't create the CMNFILE because %s\n", err)
 		}
 
-		errm := os.Chmod(CMNPathToDo, 0777)
+		errm := os.Chmod(constants.CMNPathToDo, 0777)
 		if errm != nil {
 			log.Fatalf("InitCMNFile can't chmod because of %s\n", errm)
 		}
 
 		errw := binary.Write(file, binary.LittleEndian, utils.Encodeint32ToBytesSmallEnd(0))
 		if errw != nil {
-			log.Fatalf("writeCMNFile can't write file %v because %v", CMNPathToDo, errw)
+			log.Fatalf("writeCMNFile can't write file %v because %v", constants.CMNPathToDo, errw)
 		}
 	}
 }
 
 func DeleteCMNFile() {
-	if _, err := os.Stat(CMNPathToDo); os.IsNotExist(err) {
+	if _, err := os.Stat(constants.CMNPathToDo); os.IsNotExist(err) {
 		return
 	}
 
-	errr := os.Remove(CMNPathToDo)
+	errr := os.Remove(constants.CMNPathToDo)
 	if errr != nil {
 		log.Fatalf("DeletePageFile can't remove the CMNFile because %s\n", errr)
 	}
