@@ -21,7 +21,7 @@ func (a *DelAnalyzer) getKey(nowIdx int32, c *DelCommand) {
 	c.key = object.ParseObjectType(a.parts[nowIdx])
 }
 
-func CreateDelAnalyzer(parts [][]byte) *DelAnalyzer {
+func CreateDelAnalyzer(parts [][]byte) Analyzer {
 	return &DelAnalyzer{parts: parts}
 }
 

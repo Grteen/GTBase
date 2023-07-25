@@ -2,12 +2,20 @@ package analyzer
 
 import (
 	"GtBase/pkg/constants"
-	"GtBase/utils"
 	"bytes"
 )
 
 type CommandAssign struct {
-	bts []byte
+	bts  []byte
+	dict map[string]func([][]byte) Analyzer
+}
+
+func (c *CommandAssign) InitDict() {
+	c.dict = map[string]func([][]byte) Analyzer{
+		constants.SetCommand: CreateSetAnalyzer,
+		constants.GetCommand: CreateGetAnalyzer,
+		constants.DelCommand: CreateDelAnalyzer,
+	}
 }
 
 func (c *CommandAssign) splitCommand() [][]byte {
@@ -18,17 +26,16 @@ func (c *CommandAssign) Assign() Analyzer {
 	split := c.splitCommand()
 	cmd := split[0]
 
-	if utils.EqualByteSlice(cmd, []byte(constants.GetCommand)) {
-		return CreateGetAnalyzer(split[1:])
-	} else if utils.EqualByteSlice(cmd, []byte(constants.SetCommand)) {
-		return CreateSetAnalyzer(split[1:])
-	} else if utils.EqualByteSlice(cmd, []byte(constants.DelCommand)) {
-		return CreateDelAnalyzer(split[1:])
-	} else {
-		return nil
+	f, ok := c.dict[string(cmd)]
+	if !ok {
+
 	}
+
+	return f(split[1:])
 }
 
 func CreateCommandAssign(bts []byte) *CommandAssign {
-	return &CommandAssign{bts: bts}
+	result := &CommandAssign{bts: bts}
+	result.InitDict()
+	return result
 }

@@ -21,7 +21,7 @@ func (a *GetAnalyzer) getKey(nowIdx int32, c *GetCommand) {
 	c.key = object.ParseObjectType(a.parts[nowIdx])
 }
 
-func CreateGetAnalyzer(parts [][]byte) *GetAnalyzer {
+func CreateGetAnalyzer(parts [][]byte) Analyzer {
 	return &GetAnalyzer{parts: parts}
 }
 

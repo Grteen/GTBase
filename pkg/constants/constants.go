@@ -19,8 +19,9 @@ const (
 	PairOverFlowIndexSize  int32 = 4
 	PairOverFlowOffsetSize int32 = 4
 
-	ServerGetNilReturn string = "Nil"
-	ServerOkReturn     string = "Ok"
+	ServerGetNilReturn         string = "Nil"
+	ServerOkReturn             string = "Ok"
+	ServerUnknownCommandFormat string = "Unknown Command %v"
 
 	IoerRead   int32 = 1
 	IoerAccept int32 = 2

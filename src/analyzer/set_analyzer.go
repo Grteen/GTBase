@@ -26,7 +26,7 @@ func (a *SetAnalyzer) getVal(nowIdx int32, c *SetCommand) {
 	c.val = object.ParseObjectType(a.parts[nowIdx])
 }
 
-func CreateSetAnalyzer(parts [][]byte) *SetAnalyzer {
+func CreateSetAnalyzer(parts [][]byte) Analyzer {
 	return &SetAnalyzer{parts: parts}
 }
 
