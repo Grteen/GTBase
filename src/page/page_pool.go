@@ -34,9 +34,15 @@ func (pool *PagePool) CachePage(p *Page) {
 	defer pool.cacheLock.Unlock()
 	pool.caches[p.GetIndex()] = p
 
-	delpage := pool.lruList.Put(p.GetIndex())
-	if delpage != nil {
-		delete(pool.caches, *delpage)
+	delpageIdx := pool.lruList.Put(p.GetIndex())
+	if delpageIdx != nil {
+		delpg, ok := pool.GetPage(*delpageIdx)
+		if !ok {
+			return
+		}
+		go delpg.FlushPage()
+
+		delete(pool.caches, *delpageIdx)
 	}
 }
 

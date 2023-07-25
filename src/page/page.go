@@ -100,10 +100,9 @@ func (p *Page) writePage() error {
 
 // also clean the page
 func (p *Page) FlushPage() error {
-	if !p.Dirty() {
-		return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
-	}
-
+	// if !p.Dirty() {
+	// 	return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
+	// }
 	return p.writePage()
 }
 
