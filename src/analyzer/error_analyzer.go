@@ -30,3 +30,15 @@ func (c *UnknownCommandCommand) Exec() object.Object {
 func CreateUnknownCommandCommand(cmd []byte) *UnknownCommandCommand {
 	return &UnknownCommandCommand{cmd: cmd}
 }
+
+type ErrorArgCommand struct {
+	// cmd []byte
+}
+
+func (c *ErrorArgCommand) Exec() object.Object {
+	return object.CreateGtString(constants.ServerErrorArg)
+}
+
+func CreateErrorArgCommand() *ErrorArgCommand {
+	return &ErrorArgCommand{}
+}

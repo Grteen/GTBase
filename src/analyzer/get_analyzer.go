@@ -12,13 +12,16 @@ type GetAnalyzer struct {
 }
 
 func (a *GetAnalyzer) Analyze() Command {
-	result := CreateGetCommand()
-	a.getKey(0, result)
-	return result
+	cmd := CreateGetCommand()
+	return a.getKey(0, cmd)
 }
 
-func (a *GetAnalyzer) getKey(nowIdx int32, c *GetCommand) {
+func (a *GetAnalyzer) getKey(nowIdx int32, c *GetCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
 	c.key = object.ParseObjectType(a.parts[nowIdx])
+	return c
 }
 
 func CreateGetAnalyzer(parts [][]byte) Analyzer {

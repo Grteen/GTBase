@@ -22,6 +22,7 @@ const (
 	ServerGetNilReturn         string = "Nil"
 	ServerOkReturn             string = "Ok"
 	ServerUnknownCommandFormat string = "Unknown Command %v"
+	ServerErrorArg             string = "Invalid Argument"
 
 	IoerRead   int32 = 1
 	IoerAccept int32 = 2
