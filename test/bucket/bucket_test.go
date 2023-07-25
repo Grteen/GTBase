@@ -127,7 +127,7 @@ func TestFindFirstRecord(t *testing.T) {
 		p.WriteInPage(idx, off)
 		b.WriteInPage()
 
-		idxf, offf, errf := bucket.FindFirstRecord(p.Key())
+		idxf, offf, errf := bucket.FindFirstRecordRLock(p.Key())
 		if errf != nil {
 			t.Errorf(errf.Error())
 		}
@@ -144,7 +144,7 @@ func TestFindFirstRecord(t *testing.T) {
 		}
 	}
 
-	zeroIdx, zeroOff, err := bucket.FindFirstRecord(object.CreateGtString("Impossible"))
+	zeroIdx, zeroOff, err := bucket.FindFirstRecordRLock(object.CreateGtString("Impossible"))
 	if err != nil {
 		t.Errorf(err.Error())
 	}

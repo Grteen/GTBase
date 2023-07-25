@@ -32,7 +32,7 @@ func TestFirstSet(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		firstIdx, firstOff, errf := bucket.FindFirstRecord(object.CreateGtString(d.key))
+		firstIdx, firstOff, errf := bucket.FindFirstRecordRLock(object.CreateGtString(d.key))
 		if errf != nil {
 			t.Errorf(errf.Error())
 		}
@@ -89,7 +89,7 @@ func TestFindFinalRecord(t *testing.T) {
 		p.WriteInPage(idx, off)
 	}
 
-	firstIdx, firstOff, err := bucket.FindFirstRecord(p.Key())
+	firstIdx, firstOff, err := bucket.FindFirstRecordRLock(p.Key())
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -144,7 +144,7 @@ func TestSet(t *testing.T) {
 	}
 
 	for _, d := range data {
-		firstIdx, firstOff, err := bucket.FindFirstRecord(object.CreateGtString(d.key))
+		firstIdx, firstOff, err := bucket.FindFirstRecordRLock(object.CreateGtString(d.key))
 		if err != nil {
 			t.Errorf(err.Error())
 		}

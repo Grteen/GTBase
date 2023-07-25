@@ -25,7 +25,7 @@ func CreatePairLoc(idx, off int32) *pairLoc {
 }
 
 func Get(key object.Object) (object.Object, error) {
-	firstIdx, firstOff, err := bucket.FindFirstRecord(key)
+	firstIdx, firstOff, err := bucket.FindFirstRecordRLock(key)
 	if err != nil {
 		return nil, err
 	}

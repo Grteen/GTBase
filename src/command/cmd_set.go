@@ -15,7 +15,7 @@ func Set(key object.Object, val object.Object) error {
 }
 
 func set(p *pair.Pair) error {
-	firstRecordIdx, firstRecordOff, err := bucket.FindFirstRecord(p.Key())
+	firstRecordIdx, firstRecordOff, err := bucket.FindFirstRecordRLock(p.Key())
 	if err != nil {
 		return err
 	}

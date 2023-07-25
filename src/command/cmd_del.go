@@ -6,7 +6,7 @@ import (
 )
 
 func Del(key object.Object) error {
-	firstIdx, firstOff, err := bucket.FindFirstRecord(key)
+	firstIdx, firstOff, err := bucket.FindFirstRecordRLock(key)
 	if err != nil {
 		return err
 	}

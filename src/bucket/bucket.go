@@ -35,7 +35,7 @@ func (b *Bucket) ToByte() []byte {
 }
 
 func (b *Bucket) WriteInPage() {
-	page.WriteBytesToPageMemory(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
+	page.WriteBytesToPageMemoryLock(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
 }
 
 func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucket {
@@ -50,11 +50,11 @@ func CreateBucketByKey(key object.Object, firstRecordIdx, firstRecordOff int32) 
 }
 
 // find this key's hash's first record
-func FindFirstRecord(key object.Object) (int32, int32, error) {
+func FindFirstRecordRLock(key object.Object) (int32, int32, error) {
 	hashBucketIndex := utils.FirstHash(key.ToByte())
 	bucketIndex := utils.SecondHash(hashBucketIndex)
 
-	idx, off, err := findFirstRecord(hashBucketIndex, bucketIndex)
+	idx, off, err := findFirstRecordRLock(hashBucketIndex, bucketIndex)
 	if err != nil {
 		return -1, -1, err
 	}
@@ -62,13 +62,16 @@ func FindFirstRecord(key object.Object) (int32, int32, error) {
 	return idx, off, nil
 }
 
-func findFirstRecord(hashBucketIndex, bucketIndex int32) (int32, int32, error) {
+func findFirstRecordRLock(hashBucketIndex, bucketIndex int32) (int32, int32, error) {
 	bh := CreateBucketHeader(hashBucketIndex, bucketIndex)
 
 	pg, err := page.ReadBucketPage(bh.CalIndexOfBucketPage())
 	if err != nil {
 		return -1, -1, err
 	}
+
+	pg.RLock()
+	defer pg.RUnLock()
 
 	bts := pg.SrcSlice(bh.CalOffsetOfBucketPage(), bh.CalOffsetOfBucketPage()+constants.BucketByteLength)
 

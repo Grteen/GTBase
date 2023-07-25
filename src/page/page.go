@@ -18,7 +18,7 @@ const ()
 type Page struct {
 	pageHeader *PageHeader
 	src        []byte
-	lock       sync.Mutex
+	lock       sync.RWMutex
 	flushPath  string
 }
 
@@ -30,8 +30,20 @@ func (p *Page) SetSrc(bts []byte) {
 	p.src = bts
 }
 
-func (p *Page) SetPageHeader(ph *PageHeader) {
-	p.pageHeader = ph
+func (p *Page) Lock() {
+	p.lock.Lock()
+}
+
+func (p *Page) RLock() {
+	p.lock.RLock()
+}
+
+func (p *Page) UnLock() {
+	p.lock.Unlock()
+}
+
+func (p *Page) RUnLock() {
+	p.lock.RUnlock()
 }
 
 // Dirty the page and push it to the dirtyList
