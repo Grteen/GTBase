@@ -3,6 +3,7 @@ package constants
 const (
 	PageFilePathToDo       string = "/root/GtBase/temp/gt.pf"
 	BucketPageFilePathToDo string = "/root/GtBase/temp/gt.bf"
+	RedoLogToDo            string = "/root/GtBase/temp/redo.log"
 	CMNPathToDo            string = "/root/GtBase/temp/gt.cmn"
 	PageSize               int64  = 16384
 

@@ -19,9 +19,12 @@ type PagePool struct {
 	cacheLock       sync.Mutex
 	bucketCaches    map[int32]*BucketPage
 	bucketCacheLock sync.Mutex
-	dirtyList       *list.List
-	dirtyListLock   sync.Mutex
-	lruList         *LRUList
+	redoCaches      map[int32]*RedoPage
+	redoCacheLock   sync.Mutex
+
+	dirtyList     *list.List
+	dirtyListLock sync.Mutex
+	lruList       *LRUList
 }
 
 func (pool *PagePool) GetPairPage(idx int32) (*PairPage, bool) {
@@ -35,6 +38,13 @@ func (pool *PagePool) GetBucketPage(idx int32) (*BucketPage, bool) {
 	pool.bucketCacheLock.Lock()
 	defer pool.bucketCacheLock.Unlock()
 	p, ok := pool.bucketCaches[idx]
+	return p, ok
+}
+
+func (pool *PagePool) GetRedoPage(idx int32) (*RedoPage, bool) {
+	pool.redoCacheLock.Lock()
+	defer pool.redoCacheLock.Unlock()
+	p, ok := pool.redoCaches[idx]
 	return p, ok
 }
 
@@ -56,9 +66,26 @@ func (pool *PagePool) CachePairPage(p *PairPage) {
 }
 
 func (pool *PagePool) CacheBucketPage(p *BucketPage) {
-	pool.cacheLock.Lock()
-	defer pool.cacheLock.Unlock()
+	pool.bucketCacheLock.Lock()
+	defer pool.bucketCacheLock.Unlock()
 	pool.bucketCaches[p.GetIndex()] = p
+
+	delpageIdx := pool.lruList.Put(p.GetIndex())
+	if delpageIdx != nil {
+		delpg, ok := pool.GetPairPage(*delpageIdx)
+		if !ok {
+			return
+		}
+		go delpg.FlushPageLock()
+
+		delete(pool.caches, *delpageIdx)
+	}
+}
+
+func (pool *PagePool) CacheRedoPage(p *RedoPage) {
+	pool.redoCacheLock.Lock()
+	defer pool.redoCacheLock.Unlock()
+	pool.redoCaches[p.GetIndex()] = p
 
 	delpageIdx := pool.lruList.Put(p.GetIndex())
 	if delpageIdx != nil {
