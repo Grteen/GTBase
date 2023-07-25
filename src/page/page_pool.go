@@ -15,28 +15,28 @@ import (
 // every read should read PagePool first
 // if no cache in PagePool, it will read from disk and cache it
 type PagePool struct {
-	caches        map[int32]*Page
+	caches        map[int32]*PairPage
 	cacheLock     sync.Mutex
 	dirtyList     *list.List
 	dirtyListLock sync.Mutex
 	lruList       *LRUList
 }
 
-func (pool *PagePool) GetPage(idx int32) (*Page, bool) {
+func (pool *PagePool) GetPairPage(idx int32) (*PairPage, bool) {
 	pool.cacheLock.Lock()
 	defer pool.cacheLock.Unlock()
 	p, ok := pool.caches[idx]
 	return p, ok
 }
 
-func (pool *PagePool) CachePage(p *Page) {
+func (pool *PagePool) CachePairPage(p *PairPage) {
 	pool.cacheLock.Lock()
 	defer pool.cacheLock.Unlock()
 	pool.caches[p.GetIndex()] = p
 
 	delpageIdx := pool.lruList.Put(p.GetIndex())
 	if delpageIdx != nil {
-		delpg, ok := pool.GetPage(*delpageIdx)
+		delpg, ok := pool.GetPairPage(*delpageIdx)
 		if !ok {
 			return
 		}
@@ -70,7 +70,7 @@ func (pool *PagePool) DirtyListGet() (*DirtyListNode, error) {
 }
 
 func CreatePagePool() *PagePool {
-	return &PagePool{caches: map[int32]*Page{}, dirtyList: list.New(), lruList: CreateLRUList(constants.PagePoolDefaultCapcity)}
+	return &PagePool{caches: map[int32]*PairPage{}, dirtyList: list.New(), lruList: CreateLRUList(constants.PagePoolDefaultCapcity)}
 }
 
 var instance *PagePool
@@ -81,57 +81,6 @@ func GetPagePool() *PagePool {
 		instance = CreatePagePool()
 	})
 	return instance
-}
-
-// read the page from cache first
-// if it not exist, read page from disk and cache it
-func ReadPage(idx int32) (*Page, error) {
-	if idx < 0 {
-		return readPage(-idx, constants.BucketPageFilePathToDo)
-	}
-	return readPage(idx, constants.PageFilePathToDo)
-}
-
-// read the page from cache first
-// if it not exist, read page from disk and cache it
-func ReadBucketPage(idx int32) (*Page, error) {
-	return readPage(idx, constants.BucketPageFilePathToDo)
-}
-
-// func ReadBucketPage(idx int32) (*Page, error) {
-// 	return readPage(idx, BucketPageFilePathToDo)
-// }
-
-func readPage(idx int32, filePath string) (*Page, error) {
-	var idxm = idx
-	var idxd = idx
-	if IsBucketFilePath(filePath) {
-		idxm = -idx
-		idxd = idx - 1
-	}
-
-	p := readPageFromCache(idxm)
-	if p != nil {
-		return p, nil
-	}
-
-	pd, err := readPageFromDisk(idxd, filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	GetPagePool().CachePage(pd)
-
-	return pd, nil
-}
-
-func readPageFromCache(idx int32) *Page {
-	p, ok := GetPagePool().GetPage(idx)
-	if !ok {
-		return nil
-	}
-
-	return p
 }
 
 func readPageFromDisk(idx int32, filePath string) (*Page, error) {
@@ -163,42 +112,6 @@ func readOnePageOfBytes(f *os.File, offset int64) ([]byte, error) {
 	}
 
 	return result, nil
-}
-
-// also clean the page
-// func FlushPage(idx int32) error {
-// 	pg := readPageFromCache(idx)
-// 	if pg == nil {
-// 		return glog.Error("FlushPage can't flush because page%v not in PagePool", idx)
-// 	}
-
-// 	return pg.flushPage()
-// }
-
-// if page not in cache, it will read page from disk
-// Dirty the target page too
-func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
-	pg, err := ReadPage(idx)
-	if err != nil {
-		return err
-	}
-
-	pg.WriteBytes(off, bts)
-
-	return nil
-}
-
-func WriteBytesToPageMemoryLock(idx, off int32, bts []byte) error {
-	pg, err := ReadPage(idx)
-	if err != nil {
-		return err
-	}
-
-	pg.lock.Lock()
-	defer pg.lock.Unlock()
-	pg.WriteBytes(off, bts)
-
-	return nil
 }
 
 func FlushDirtyList(ctx context.Context) {

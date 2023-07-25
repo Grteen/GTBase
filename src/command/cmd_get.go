@@ -62,7 +62,7 @@ func FindSameKey(firstRecordIdx, firstRecordOff int32, key string) (*pair.Pair, 
 // TraverseList returns the current pair when the stop function returns true
 // second return value it the index and offset of current pair's middle offset
 func TraverseList(recordIdx, recordOff int32, stop []stopStruct) (*pair.Pair, *pairLoc, stopFlag, error) {
-	pg, err := page.ReadPage(recordIdx)
+	pg, err := page.ReadPairPage(recordIdx)
 	if err != nil {
 		return nil, nil, 0, err
 	}

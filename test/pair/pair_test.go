@@ -81,7 +81,7 @@ func TestWriteInPage(t *testing.T) {
 		idx, off := nw.NextWriteInfo()
 		p.WriteInPage(idx, off)
 
-		pg, errr := page.ReadPage(idx)
+		pg, errr := page.ReadPairPage(idx)
 		if errr != nil {
 			t.Errorf(err.Error())
 		}

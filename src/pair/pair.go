@@ -64,19 +64,19 @@ func (p *Pair) ToByte() []byte {
 }
 
 func (p *Pair) WriteInPage(idx, off int32) {
-	page.WriteBytesToPageMemory(idx, off, p.ToByte())
+	page.WriteBytesToPairPageMemory(idx, off, p.ToByte())
 }
 
 func (p *Pair) WriteInPageLock(idx, off int32) {
-	page.WriteBytesToPageMemoryLock(idx, off, p.ToByte())
+	page.WriteBytesToPairPageMemoryLock(idx, off, p.ToByte())
 }
 
 func (p *Pair) WriteInPageInMid(idx, off int32) {
-	page.WriteBytesToPageMemory(idx, off-p.GetMidOffsetNotInBasic(), p.ToByte())
+	page.WriteBytesToPairPageMemory(idx, off-p.GetMidOffsetNotInBasic(), p.ToByte())
 }
 
 func (p *Pair) WriteInPageInMidLock(idx, off int32) {
-	page.WriteBytesToPageMemoryLock(idx, off-p.GetMidOffsetNotInBasic(), p.ToByte())
+	page.WriteBytesToPairPageMemoryLock(idx, off-p.GetMidOffsetNotInBasic(), p.ToByte())
 }
 
 // MidOffset points to place between flag and overFlowIndex
@@ -94,7 +94,7 @@ func CreatePair(key, value object.Object, flag int8, of OverFlow) *Pair {
 	return &Pair{key: key, value: value, flag: flag, overFlow: of}
 }
 
-func ReadPair(pg *page.Page, midOff int32) *Pair {
+func ReadPair(pg *page.PairPage, midOff int32) *Pair {
 	temp := midOff
 
 	flag := pg.ReadFlag(temp)
@@ -119,11 +119,7 @@ func ReadPair(pg *page.Page, midOff int32) *Pair {
 
 func IsDelete(flag int8) bool {
 	flag &= 1
-	if flag == 1 {
-		return true
-	}
-
-	return false
+	return flag == 1
 }
 
 type OverFlow struct {

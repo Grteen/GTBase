@@ -3,8 +3,6 @@ package page
 import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
-	"GtBase/src/object"
-	"GtBase/utils"
 	"log"
 	"math"
 	"os"
@@ -126,32 +124,6 @@ func (p *Page) FlushPageLock() error {
 	// 	return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
 	// }
 	return p.writePageLock()
-}
-
-func (p *Page) ReadFlag(off int32) int8 {
-	return utils.EncodeBytesSmallEndToInt8(p.SrcSliceLength(off-constants.PairFlagSize, constants.PairFlagSize))
-}
-
-func (p *Page) ReadKeyLength(off int32) int32 {
-	return utils.EncodeBytesSmallEndToint32(p.SrcSliceLength(off-constants.PairKeyLengthSize, constants.PairKeyLengthSize))
-}
-
-func (p *Page) ReadKey(off int32, keyLength int32) object.Object {
-	return object.CreateGtStringByBytes(p.SrcSliceLength(off-keyLength, keyLength))
-}
-
-func (p *Page) ReadValLength(off int32) int32 {
-	return utils.EncodeBytesSmallEndToint32(p.SrcSliceLength(off-constants.PairKeyLengthSize, constants.PairKeyLengthSize))
-}
-
-func (p *Page) ReadVal(off int32, valLength int32) object.Object {
-	return object.CreateGtStringByBytes(p.SrcSliceLength(off-valLength, valLength))
-}
-
-func (p *Page) ReadOverFlow(off int32) (int32, int32) {
-	overFlowIdx := utils.EncodeBytesSmallEndToint32(p.SrcSliceLength(off, constants.PairOverFlowIndexSize))
-	overFlowOffset := utils.EncodeBytesSmallEndToint32(p.SrcSliceLength(off+constants.PairOverFlowIndexSize, constants.PairOverFlowOffsetSize))
-	return overFlowIdx, overFlowOffset
 }
 
 func IsBucketFilePath(filePath string) bool {

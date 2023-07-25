@@ -19,7 +19,7 @@ func TestReadFlush(t *testing.T) {
 	page.InitPageFile()
 	data := []string{"abc", "Hello World"}
 	for _, d := range data {
-		pg, err := page.ReadPage(0)
+		pg, err := page.ReadPairPage(0)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
@@ -30,13 +30,13 @@ func TestReadFlush(t *testing.T) {
 			t.Errorf(errf.Error())
 		}
 
-		pg2, err := page.ReadPage(0)
+		pg2, err := page.ReadPairPage(0)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
 		if !utils.EqualByteSlice(pg2.Src(), []byte(d)) {
-			t.Errorf("FlushPage should write %v but ReadPage read %s", d, pg2.Src()[:len([]byte(d))])
+			t.Errorf("FlushPage should write %v but ReadPairPage read %s", d, pg2.Src()[:len([]byte(d))])
 		}
 	}
 }
