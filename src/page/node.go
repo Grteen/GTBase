@@ -6,7 +6,7 @@ import (
 )
 
 type DirtyListNode struct {
-	pg        *Page
+	pg        PageItf
 	oldestCMN int32
 }
 
@@ -14,11 +14,11 @@ func (n *DirtyListNode) GetOldestCMN() int32 {
 	return n.oldestCMN
 }
 
-func (n *DirtyListNode) GetPage() *Page {
+func (n *DirtyListNode) GetPage() PageItf {
 	return n.pg
 }
 
-func CreateDirtyListNode(pg *Page, oldestCMN int32) *DirtyListNode {
+func CreateDirtyListNode(pg PageItf, oldestCMN int32) *DirtyListNode {
 	return &DirtyListNode{pg, oldestCMN}
 }
 

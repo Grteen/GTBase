@@ -37,7 +37,7 @@ func TestFirstSet(t *testing.T) {
 			t.Errorf(errf.Error())
 		}
 
-		pg, errr := page.ReadPage(firstIdx)
+		pg, errr := page.ReadPairPage(firstIdx)
 		if errr != nil {
 			t.Errorf(errr.Error())
 		}
@@ -103,7 +103,7 @@ func TestFindFinalRecord(t *testing.T) {
 		t.Errorf("FindFinalRecord should got %v off but got %v off", p.CalMidOffset(int32(10*len(p.ToByte()))), loc.GetOff())
 	}
 
-	pg, errr := page.ReadPage(0)
+	pg, errr := page.ReadPairPage(0)
 	if errr != nil {
 		t.Errorf(errr.Error())
 	}

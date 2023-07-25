@@ -35,7 +35,7 @@ func (b *Bucket) ToByte() []byte {
 }
 
 func (b *Bucket) WriteInPage() {
-	page.WriteBytesToPageMemoryLock(-b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
+	page.WriteBytesToBucketPageMemoryLock(b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
 }
 
 func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucket {

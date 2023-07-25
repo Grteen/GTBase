@@ -9,7 +9,9 @@ import (
 	"sync"
 )
 
-const ()
+type PageItf interface {
+	FlushPageLock() error
+}
 
 // Page is the basic unit store in disk and in xxx.pf file
 // It is always 16KB

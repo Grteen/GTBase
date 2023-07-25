@@ -132,7 +132,7 @@ func TestFindFirstRecord(t *testing.T) {
 			t.Errorf(errf.Error())
 		}
 
-		pg, errr := page.ReadPage(idxf)
+		pg, errr := page.ReadPairPage(idxf)
 		if errr != nil {
 			t.Errorf(errr.Error())
 		}
