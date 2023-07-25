@@ -188,6 +188,19 @@ func WriteBytesToPageMemory(idx, off int32, bts []byte) error {
 	return nil
 }
 
+func WriteBytesToPageMemoryLock(idx, off int32, bts []byte) error {
+	pg, err := ReadPage(idx)
+	if err != nil {
+		return err
+	}
+
+	pg.lock.Lock()
+	defer pg.lock.Unlock()
+	pg.WriteBytes(off, bts)
+
+	return nil
+}
+
 func FlushDirtyList(ctx context.Context) {
 	for {
 		select {

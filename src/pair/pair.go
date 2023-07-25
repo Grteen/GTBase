@@ -67,8 +67,16 @@ func (p *Pair) WriteInPage(idx, off int32) {
 	page.WriteBytesToPageMemory(idx, off, p.ToByte())
 }
 
+func (p *Pair) WriteInPageLock(idx, off int32) {
+	page.WriteBytesToPageMemoryLock(idx, off, p.ToByte())
+}
+
 func (p *Pair) WriteInPageInMid(idx, off int32) {
 	page.WriteBytesToPageMemory(idx, off-p.GetMidOffsetNotInBasic(), p.ToByte())
+}
+
+func (p *Pair) WriteInPageInMidLock(idx, off int32) {
+	page.WriteBytesToPageMemoryLock(idx, off-p.GetMidOffsetNotInBasic(), p.ToByte())
 }
 
 // MidOffset points to place between flag and overFlowIndex

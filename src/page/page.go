@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"sync"
 )
 
 const ()
@@ -17,6 +18,7 @@ const ()
 type Page struct {
 	pageHeader *PageHeader
 	src        []byte
+	lock       sync.Mutex
 	flushPath  string
 }
 
@@ -34,11 +36,15 @@ func (p *Page) SetPageHeader(ph *PageHeader) {
 
 // Dirty the page and push it to the dirtyList
 func (p *Page) DirtyPage() {
+	p.pageHeader.mu.Lock()
+	defer p.pageHeader.mu.Unlock()
 	p.pageHeader.dirty = true
 	GetPagePool().DirtyListPush(p, -1)
 }
 
 func (p *Page) CleanPage() {
+	p.pageHeader.mu.Lock()
+	defer p.pageHeader.mu.Unlock()
 	p.pageHeader.dirty = false
 }
 
@@ -146,13 +152,18 @@ func CreatePage(idx int32, src []byte, flushPath string) *Page {
 type PageHeader struct {
 	pageIndex int32
 	dirty     bool
+	mu        sync.Mutex
 }
 
 func (ph *PageHeader) PageIndex() int32 {
+	ph.mu.Lock()
+	defer ph.mu.Unlock()
 	return ph.pageIndex
 }
 
 func (ph *PageHeader) SetPageIndex(idx int32) {
+	ph.mu.Lock()
+	defer ph.mu.Unlock()
 	ph.pageIndex = idx
 }
 
