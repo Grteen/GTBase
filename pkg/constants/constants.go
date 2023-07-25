@@ -20,6 +20,9 @@ const (
 	PairOverFlowIndexSize  int32 = 4
 	PairOverFlowOffsetSize int32 = 4
 
+	RedoLogCMNSize    int32 = 4
+	RedoLogCmdLenSize int32 = 4
+
 	ServerGetNilReturn         string = "Nil"
 	ServerOkReturn             string = "Ok"
 	ServerUnknownCommandFormat string = "Unknown Command %v"

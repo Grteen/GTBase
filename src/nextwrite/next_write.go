@@ -29,9 +29,32 @@ func CreateNextWrite(pageIndex, pageOffset int32) *NextWrite {
 // and assign NextWrite to all Set command
 type NextWriteFactory struct {
 	commandNumber int32
-	nextWrite     NextWrite
-	nwLock        sync.Mutex
 	cmnLock       sync.Mutex
+
+	nextWrite        NextWrite
+	nwLock           sync.Mutex
+	redoLogNextWrite NextWrite
+	redoLock         sync.Mutex
+}
+
+func (nwf *NextWriteFactory) SetNextWriteLock(nw NextWrite) {
+	nwf.nwLock.Lock()
+	defer nwf.nwLock.Unlock()
+	nwf.nextWrite = nw
+}
+
+func (nwf *NextWriteFactory) SetRedoLogNextWriteLock(nw NextWrite) {
+	nwf.redoLock.Lock()
+	defer nwf.redoLock.Unlock()
+	nwf.redoLogNextWrite = nw
+}
+
+func (nwf *NextWriteFactory) SetNextWrite(nw NextWrite) {
+	nwf.nextWrite = nw
+}
+
+func (nwf *NextWriteFactory) SetRedoLogNextWrite(nw NextWrite) {
+	nwf.redoLogNextWrite = nw
 }
 
 // getCMN will get the current commandNumber and atomically increase it
@@ -105,18 +128,6 @@ func (nwf *NextWriteFactory) writeCMN() error {
 	return nil
 }
 
-var instance *NextWriteFactory
-var once sync.Once
-
-func GetNextWriteFactory() *NextWriteFactory {
-	once.Do(func() {
-		// TODO init it's nextWrite
-		instance = &NextWriteFactory{commandNumber: -1}
-	})
-
-	return instance
-}
-
 func GetCMN() (int32, error) {
 	return GetNextWriteFactory().getCMN()
 }
@@ -151,7 +162,33 @@ func DeleteCMNFile() {
 	}
 }
 
+var instance *NextWriteFactory
+var once sync.Once
+
+func GetNextWriteFactory() *NextWriteFactory {
+	once.Do(func() {
+		// TODO init it's nextWrite
+		instance = &NextWriteFactory{commandNumber: -1}
+	})
+
+	return instance
+}
+
 func InitNextWrite() error {
+	err := initNextWrite()
+	if err != nil {
+		return err
+	}
+
+	erri := initRedoNextWrite()
+	if erri != nil {
+		return erri
+	}
+
+	return nil
+}
+
+func initNextWrite() error {
 	GetNextWriteFactory().nwLock.Lock()
 	defer GetNextWriteFactory().nwLock.Unlock()
 	fileInfo, err := os.Stat(constants.PageFilePathToDo)
@@ -160,43 +197,83 @@ func InitNextWrite() error {
 	}
 
 	fileSize := fileInfo.Size()
-	GetNextWriteFactory().initNextWriteIndexAndOffset(fileSize)
+	nw := GetNextWriteFactory().initNextWriteIndexAndOffset(fileSize)
+	GetNextWriteFactory().SetNextWrite(*nw)
+
+	return nil
+}
+
+func initRedoNextWrite() error {
+	GetNextWriteFactory().redoLock.Lock()
+	defer GetNextWriteFactory().redoLock.Unlock()
+	fileInfor, errs := os.Stat(constants.RedoLogToDo)
+	if errs != nil {
+		return glog.Error("InitNextWrite can't Stat file %v becasuse %v", constants.RedoLogToDo, errs)
+	}
+
+	fileSizer := fileInfor.Size()
+	nwr := GetNextWriteFactory().initNextWriteIndexAndOffset(fileSizer)
+	GetNextWriteFactory().SetRedoLogNextWrite(*nwr)
+
 	return nil
 }
 
 // InitNextWrite must initialize a new page no matter what the last page is
-func (nwf *NextWriteFactory) initNextWriteIndexAndOffset(fileSize int64) {
+func (nwf *NextWriteFactory) initNextWriteIndexAndOffset(fileSize int64) *NextWrite {
 	pageIndex := int32(fileSize / constants.PageSize)
 	pageOffset := 0
-	nwf.nextWrite = *CreateNextWrite(pageIndex, int32(pageOffset))
+	return CreateNextWrite(pageIndex, int32(pageOffset))
 }
 
 func (nwf *NextWriteFactory) getNextWrite() *NextWrite {
 	return CreateNextWrite(nwf.nextWrite.pageIndex, nwf.nextWrite.pageOffset)
 }
 
+func (nwf *NextWriteFactory) getRedoNextWrite() *NextWrite {
+	return CreateNextWrite(nwf.redoLogNextWrite.pageIndex, nwf.redoLogNextWrite.pageOffset)
+}
+
 // if last page's size don't satisfy the size will write in
 // return a new page index to it
 // if size to write is bigger than PageSize
 // refuse it and return an error
-func (nwf *NextWriteFactory) checkRestSizeAndChange(off int32) error {
+func checkRestSizeAndChange(off, idx, offInPage int32) (int32, int32, error) {
 	if off > int32(constants.PageSize) {
-		return glog.Error("The Size to Write %v bytes is bigger than %v", off, constants.PageSize)
+		return -1, -1, glog.Error("The Size to Write %v bytes is bigger than %v", off, constants.PageSize)
 	}
-	idx, offInPage := nwf.getNextWrite().NextWriteInfo()
 	if offInPage+off > int32(constants.PageSize) {
-		nwf.nextWrite = *CreateNextWrite(idx+1, 0)
+		return idx + 1, 0, nil
 	}
 
-	return nil
+	return -1, -1, nil
 }
 
 func getNextWrite(off int32) (*NextWrite, error) {
-	err := GetNextWriteFactory().checkRestSizeAndChange(off)
+	idx, offInPage := GetNextWriteFactory().getNextWrite().NextWriteInfo()
+	newidx, newoff, err := checkRestSizeAndChange(off, idx, offInPage)
 	if err != nil {
 		return nil, err
 	}
+
+	if newidx != -1 && newoff != -1 {
+		GetNextWriteFactory().SetNextWrite(*CreateNextWrite(newidx, newoff))
+	}
+
 	return GetNextWriteFactory().getNextWrite(), nil
+}
+
+func getRedoNextWrite(off int32) (*NextWrite, error) {
+	idx, offInPage := GetNextWriteFactory().getRedoNextWrite().NextWriteInfo()
+	newidx, newoff, err := checkRestSizeAndChange(off, idx, offInPage)
+	if err != nil {
+		return nil, err
+	}
+
+	if newidx != -1 && newoff != -1 {
+		GetNextWriteFactory().SetRedoLogNextWrite(*CreateNextWrite(newidx, newoff))
+	}
+
+	return GetNextWriteFactory().getRedoNextWrite(), nil
 }
 
 // Get the NextWrite and increase is locked
@@ -218,17 +295,75 @@ func GetNextWriteAndIncreaseIt(btsLength int32) (*NextWrite, error) {
 	return result, nil
 }
 
-// GetNextWrite ensure that the size of the write does not exceed the size of the page
-func (nwf *NextWriteFactory) increaseNextWrite(off int32) error {
-	idx, oldOff := nwf.nextWrite.NextWriteInfo()
-	if oldOff+off > int32(constants.PageSize) {
-		return glog.Error("increaseNextWrite write %v bytes but page rest %v bytes", off, constants.PageSize-int64(oldOff))
+func GetRedoNextWriteAndIncreaseIt(btsLength int32) (*NextWrite, error) {
+	GetNextWriteFactory().redoLock.Lock()
+	defer GetNextWriteFactory().redoLock.Unlock()
+
+	result, err := getRedoNextWrite(btsLength)
+	if err != nil {
+		return nil, err
 	}
 
-	nwf.nextWrite = *CreateNextWrite(idx, oldOff+off)
-	return nil
+	erri := IncreaseRedoNextWrite(btsLength)
+	if erri != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// GetNextWrite ensure that the size of the write does not exceed the size of the page
+func increaseNextWrite(off, idx, oldOff int32) (*NextWrite, error) {
+	if oldOff+off > int32(constants.PageSize) {
+		return nil, glog.Error("increaseNextWrite write %v bytes but page rest %v bytes", off, constants.PageSize-int64(oldOff))
+	}
+
+	return CreateNextWrite(idx, oldOff+off), nil
 }
 
 func IncreaseNextWrite(off int32) error {
-	return GetNextWriteFactory().increaseNextWrite(off)
+	idx, oldOff := GetNextWriteFactory().nextWrite.NextWriteInfo()
+	nw, err := increaseNextWrite(off, idx, oldOff)
+	if err != nil {
+		return err
+	}
+
+	GetNextWriteFactory().SetNextWrite(*nw)
+	return nil
+}
+
+func IncreaseRedoNextWrite(off int32) error {
+	idx, oldOff := GetNextWriteFactory().redoLogNextWrite.NextWriteInfo()
+	nw, err := increaseNextWrite(off, idx, oldOff)
+	if err != nil {
+		return err
+	}
+
+	GetNextWriteFactory().SetRedoLogNextWrite(*nw)
+	return nil
+}
+
+func InitRedoLog() {
+	if _, err := os.Stat(constants.RedoLogToDo); os.IsNotExist(err) {
+		_, errc := os.Create(constants.RedoLogToDo)
+		if errc != nil {
+			log.Fatalf("InitRedoLog can't create the RedoLog because %s\n", err)
+		}
+
+		errm := os.Chmod(constants.RedoLogToDo, 0777)
+		if errm != nil {
+			log.Fatalf("InitRedoLog can't chmod because of %s\n", errm)
+		}
+	}
+}
+
+func DeleteRedoLog() {
+	if _, err := os.Stat(constants.RedoLogToDo); os.IsNotExist(err) {
+		return
+	}
+
+	errr := os.Remove(constants.RedoLogToDo)
+	if errr != nil {
+		log.Fatalf("DeleteRedoLog can't remove the RedoLog because %s\n", errr)
+	}
 }

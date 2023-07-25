@@ -43,6 +43,9 @@ func TestReadWriteCMN(t *testing.T) {
 func TestInitNextWrite(t *testing.T) {
 	page.DeletePageFile()
 	page.InitPageFile()
+	nextwrite.DeleteRedoLog()
+	nextwrite.InitRedoLog()
+
 	err := nextwrite.InitNextWrite()
 	if err != nil {
 		t.Errorf(err.Error())
