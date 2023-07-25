@@ -12,18 +12,24 @@ type SetAnalyzer struct {
 }
 
 func (a *SetAnalyzer) Analyze() Command {
-	result := CreateSetCommand()
-	a.getKey(0, result)
-	return result
+	cmd := CreateSetCommand()
+	return a.getKey(0, cmd)
 }
 
-func (a *SetAnalyzer) getKey(nowIdx int32, c *SetCommand) {
+func (a *SetAnalyzer) getKey(nowIdx int32, c *SetCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
 	c.key = object.ParseObjectType(a.parts[nowIdx])
-	a.getVal(nowIdx+1, c)
+	return a.getVal(nowIdx+1, c)
 }
 
-func (a *SetAnalyzer) getVal(nowIdx int32, c *SetCommand) {
+func (a *SetAnalyzer) getVal(nowIdx int32, c *SetCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
 	c.val = object.ParseObjectType(a.parts[nowIdx])
+	return c
 }
 
 func CreateSetAnalyzer(parts [][]byte) Analyzer {

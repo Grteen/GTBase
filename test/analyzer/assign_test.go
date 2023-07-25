@@ -43,4 +43,14 @@ func TestAssign(t *testing.T) {
 	if res != constants.ServerErrorArg {
 		t.Errorf("Exec should get %v but got %v", constants.ServerErrorArg, res)
 	}
+
+	res = analyzer.CreateCommandAssign([]byte("Set First")).Assign().Analyze().Exec().ToString()
+	if res != constants.ServerErrorArg {
+		t.Errorf("Exec should get %v but got %v", constants.ServerErrorArg, res)
+	}
+
+	res = analyzer.CreateCommandAssign([]byte("Del")).Assign().Analyze().Exec().ToString()
+	if res != constants.ServerErrorArg {
+		t.Errorf("Exec should get %v but got %v", constants.ServerErrorArg, res)
+	}
 }

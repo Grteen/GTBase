@@ -12,13 +12,16 @@ type DelAnalyzer struct {
 }
 
 func (a *DelAnalyzer) Analyze() Command {
-	result := CreateDelCommand()
-	a.getKey(0, result)
-	return result
+	cmd := CreateDelCommand()
+	return a.getKey(0, cmd)
 }
 
-func (a *DelAnalyzer) getKey(nowIdx int32, c *DelCommand) {
+func (a *DelAnalyzer) getKey(nowIdx int32, c *DelCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
 	c.key = object.ParseObjectType(a.parts[nowIdx])
+	return c
 }
 
 func CreateDelAnalyzer(parts [][]byte) Analyzer {
