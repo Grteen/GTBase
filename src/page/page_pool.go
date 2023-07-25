@@ -16,17 +16,28 @@ import (
 // if no cache in PagePool, it will read from disk and cache it
 type PagePool struct {
 	caches        map[int32]*Page
+	cacheLock     sync.Mutex
 	dirtyList     *list.List
 	dirtyListLock sync.Mutex
+	lruList       *LRUList
 }
 
 func (pool *PagePool) GetPage(idx int32) (*Page, bool) {
+	pool.cacheLock.Lock()
+	defer pool.cacheLock.Unlock()
 	p, ok := pool.caches[idx]
 	return p, ok
 }
 
 func (pool *PagePool) CachePage(p *Page) {
+	pool.cacheLock.Lock()
+	defer pool.cacheLock.Unlock()
 	pool.caches[p.GetIndex()] = p
+
+	delpage := pool.lruList.Put(p.GetIndex())
+	if delpage != nil {
+		delete(pool.caches, *delpage)
+	}
 }
 
 func (pool *PagePool) DirtyListPush(pg *Page, cmn int32) {
@@ -53,7 +64,7 @@ func (pool *PagePool) DirtyListGet() (*DirtyListNode, error) {
 }
 
 func CreatePagePool() *PagePool {
-	return &PagePool{caches: map[int32]*Page{}, dirtyList: list.New()}
+	return &PagePool{caches: map[int32]*Page{}, dirtyList: list.New(), lruList: CreateLRUList(constants.PagePoolDefaultCapcity)}
 }
 
 var instance *PagePool

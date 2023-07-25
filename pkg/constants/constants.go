@@ -28,4 +28,6 @@ const (
 	SetCommand string = "Set"
 	GetCommand string = "Get"
 	DelCommand string = "Del"
+
+	PagePoolDefaultCapcity = 1024
 )
