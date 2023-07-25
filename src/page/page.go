@@ -51,6 +51,8 @@ func (p *Page) DirtyPageLock() {
 	p.pageHeader.mu.Lock()
 	defer p.pageHeader.mu.Unlock()
 	p.pageHeader.dirty = true
+	// TODO
+	// should be push in cmn
 	GetPagePool().DirtyListPush(p, -1)
 }
 

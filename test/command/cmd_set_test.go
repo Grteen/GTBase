@@ -137,7 +137,7 @@ func TestSet(t *testing.T) {
 	}
 
 	for _, d := range data {
-		err := command.Set(object.CreateGtString(d.key), object.CreateGtString(d.val))
+		err := command.Set(object.CreateGtString(d.key), object.CreateGtString(d.val), -1)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
@@ -177,7 +177,7 @@ func TestSameKeySet(t *testing.T) {
 	}
 
 	for _, d := range data {
-		err := command.Set(object.CreateGtString(d.key), object.CreateGtString(d.val))
+		err := command.Set(object.CreateGtString(d.key), object.CreateGtString(d.val), -1)
 		if err != nil {
 			t.Errorf(err.Error())
 		}

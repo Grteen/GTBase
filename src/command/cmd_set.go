@@ -9,7 +9,7 @@ import (
 	"GtBase/utils"
 )
 
-func Set(key object.Object, val object.Object) error {
+func Set(key object.Object, val object.Object, cmn int32) error {
 	p := pair.CreatePair(key, val, 0, pair.CreateNullOverFlow())
 	return set(p)
 }

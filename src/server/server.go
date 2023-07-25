@@ -3,6 +3,7 @@ package server
 import (
 	"GtBase/pkg/constants"
 	"GtBase/src/analyzer"
+	"GtBase/src/nextwrite"
 	"net"
 	"sync"
 	"syscall"
@@ -70,7 +71,12 @@ func (s *GtBaseServer) handleCommand(client *GtBaseClient) error {
 		return err
 	}
 
-	result := analyzer.CreateCommandAssign(bts).Assign().Analyze().Exec().ToByte()
+	cmn, errg := nextwrite.GetCMN()
+	if errg != nil {
+		return errg
+	}
+
+	result := analyzer.CreateCommandAssign(bts, cmn).Assign().Analyze().Exec().ToByte()
 
 	errw := client.Write(result)
 	if errw != nil {

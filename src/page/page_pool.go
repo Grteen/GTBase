@@ -123,7 +123,12 @@ func (pool *PagePool) DirtyListGet() (*DirtyListNode, error) {
 }
 
 func CreatePagePool() *PagePool {
-	return &PagePool{caches: map[int32]*PairPage{}, bucketCaches: map[int32]*BucketPage{}, dirtyList: list.New(), lruList: CreateLRUList(constants.PagePoolDefaultCapcity)}
+	return &PagePool{
+		caches:       map[int32]*PairPage{},
+		bucketCaches: map[int32]*BucketPage{},
+		redoCaches:   map[int32]*RedoPage{},
+		dirtyList:    list.New(),
+		lruList:      CreateLRUList(constants.PagePoolDefaultCapcity)}
 }
 
 var instance *PagePool

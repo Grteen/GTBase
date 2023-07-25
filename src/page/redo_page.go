@@ -61,7 +61,7 @@ func readRedoPageFromDisk(idx int32) (*RedoPage, error) {
 	return CreateRedoPage(idx, src, constants.RedoLogToDo), nil
 }
 
-func WriteBytesToRedorPageMemory(idx, off int32, bts []byte) error {
+func WriteBytesToRedoPageMemory(idx, off int32, bts []byte) error {
 	pg, err := ReadRedoPage(idx)
 	if err != nil {
 		return err

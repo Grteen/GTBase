@@ -2,6 +2,8 @@ package redo
 
 import (
 	"GtBase/pkg/constants"
+	"GtBase/src/nextwrite"
+	"GtBase/src/page"
 	"GtBase/utils"
 )
 
@@ -32,6 +34,21 @@ func (r *Redo) ToByte() []byte {
 	return result
 }
 
-// func (r *Redo) WriteInPage() {
-// 	page.WriteBytesToRedoPageMemoryLock(idx int32, off int32, bts []byte)
-// }
+func (r *Redo) WriteInPage(idx, off int32) {
+	page.WriteBytesToRedoPageMemory(idx, off, r.ToByte())
+}
+
+func CreateRedo(cmn, cmdlen int32, cmd []byte) *Redo {
+	return &Redo{cmn: cmn, cmdLen: cmdlen, cmd: cmd}
+}
+
+func WriteRedoLog(cmn int32, cmd []byte) error {
+	redo := CreateRedo(cmn, int32(len(cmd)), cmd)
+	nw, err := nextwrite.GetRedoNextWriteAndIncreaseIt(int32(len(redo.ToByte())))
+	if err != nil {
+		return err
+	}
+
+	redo.WriteInPage(nw.NextWriteInfo())
+	return nil
+}

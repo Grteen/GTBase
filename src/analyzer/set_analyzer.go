@@ -4,15 +4,18 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/command"
 	"GtBase/src/object"
+	"GtBase/src/redo"
 )
 
 // SET [KEY] [VAL]
 type SetAnalyzer struct {
 	parts [][]byte
+	cmd   []byte
+	cmn   int32
 }
 
 func (a *SetAnalyzer) Analyze() Command {
-	cmd := CreateSetCommand()
+	cmd := CreateSetCommand(a.cmd, a.cmn)
 	return a.getKey(0, cmd)
 }
 
@@ -32,17 +35,21 @@ func (a *SetAnalyzer) getVal(nowIdx int32, c *SetCommand) Command {
 	return c
 }
 
-func CreateSetAnalyzer(parts [][]byte) Analyzer {
-	return &SetAnalyzer{parts: parts}
+func CreateSetAnalyzer(parts [][]byte, cmd []byte, cmn int32) Analyzer {
+	return &SetAnalyzer{parts: parts, cmd: cmd, cmn: cmn}
 }
 
 type SetCommand struct {
 	key object.Object
 	val object.Object
+	cmd []byte
+	cmn int32
 }
 
 func (c *SetCommand) Exec() object.Object {
-	err := command.Set(c.key, c.val)
+	redo.WriteRedoLog(c.cmn, c.cmd)
+
+	err := command.Set(c.key, c.val, c.cmn)
 	if err != nil {
 		return object.CreateGtString(err.Error())
 	}
@@ -50,6 +57,6 @@ func (c *SetCommand) Exec() object.Object {
 	return object.CreateGtString(constants.ServerOkReturn)
 }
 
-func CreateSetCommand() *SetCommand {
-	return &SetCommand{}
+func CreateSetCommand(cmd []byte, cmn int32) *SetCommand {
+	return &SetCommand{cmd: cmd, cmn: cmn}
 }

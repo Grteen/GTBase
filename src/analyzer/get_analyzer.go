@@ -9,6 +9,8 @@ import (
 // GET [KEY]
 type GetAnalyzer struct {
 	parts [][]byte
+	cmd   []byte
+	cmn   int32
 }
 
 func (a *GetAnalyzer) Analyze() Command {
@@ -24,8 +26,8 @@ func (a *GetAnalyzer) getKey(nowIdx int32, c *GetCommand) Command {
 	return c
 }
 
-func CreateGetAnalyzer(parts [][]byte) Analyzer {
-	return &GetAnalyzer{parts: parts}
+func CreateGetAnalyzer(parts [][]byte, cmd []byte, cmn int32) Analyzer {
+	return &GetAnalyzer{parts: parts, cmd: cmd, cmn: cmn}
 }
 
 type GetCommand struct {
