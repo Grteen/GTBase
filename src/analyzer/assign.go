@@ -28,7 +28,7 @@ func (c *CommandAssign) Assign() Analyzer {
 
 	f, ok := c.dict[string(cmd)]
 	if !ok {
-
+		return CreateUnknownCommandAnalyzer(cmd)
 	}
 
 	return f(split[1:])

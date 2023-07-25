@@ -3,6 +3,7 @@ package analyzer
 import (
 	"GtBase/pkg/constants"
 	"GtBase/src/analyzer"
+	"fmt"
 	"testing"
 )
 
@@ -30,5 +31,11 @@ func TestAssign(t *testing.T) {
 	res = analyzer.CreateCommandAssign([]byte("Get key")).Assign().Analyze().Exec().ToString()
 	if res != constants.ServerGetNilReturn {
 		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res)
+	}
+
+	res = analyzer.CreateCommandAssign([]byte("asdasd key")).Assign().Analyze().Exec().ToString()
+	result := fmt.Sprintf(constants.ServerUnknownCommandFormat, "asdasd")
+	if res != result {
+		t.Errorf("Exec should get %v but got %v", result, res)
 	}
 }
