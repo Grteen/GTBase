@@ -77,6 +77,8 @@ func (p *Page) IsBucket() bool {
 }
 
 func (p *Page) SetFlushPath(flushPath string) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	p.flushPath = flushPath
 }
 
@@ -99,7 +101,9 @@ func (p *Page) WriteBytes(off int32, bts []byte) {
 
 // write the page back to the disk
 // also clean the page
-func (p *Page) writePage() error {
+func (p *Page) writePageLock() error {
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	file, err := os.OpenFile(p.GetFlushPath(), os.O_RDWR, 0777)
 	if err != nil {
 		return glog.Error("WritePage can't open PageFile because %s\n", err)
@@ -117,11 +121,11 @@ func (p *Page) writePage() error {
 }
 
 // also clean the page
-func (p *Page) FlushPage() error {
+func (p *Page) FlushPageLock() error {
 	// if !p.Dirty() {
 	// 	return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
 	// }
-	return p.writePage()
+	return p.writePageLock()
 }
 
 func (p *Page) ReadFlag(off int32) int8 {

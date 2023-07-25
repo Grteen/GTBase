@@ -40,7 +40,7 @@ func (pool *PagePool) CachePage(p *Page) {
 		if !ok {
 			return
 		}
-		go delpg.FlushPage()
+		go delpg.FlushPageLock()
 
 		delete(pool.caches, *delpageIdx)
 	}
@@ -216,7 +216,7 @@ func FlushDirtyList(ctx context.Context) {
 				continue
 			}
 
-			node.GetPage().FlushPage()
+			node.GetPage().FlushPageLock()
 		}
 	}
 }
