@@ -35,14 +35,14 @@ func (p *Page) SetPageHeader(ph *PageHeader) {
 }
 
 // Dirty the page and push it to the dirtyList
-func (p *Page) DirtyPage() {
+func (p *Page) DirtyPageLock() {
 	p.pageHeader.mu.Lock()
 	defer p.pageHeader.mu.Unlock()
 	p.pageHeader.dirty = true
 	GetPagePool().DirtyListPush(p, -1)
 }
 
-func (p *Page) CleanPage() {
+func (p *Page) CleanPageLock() {
 	p.pageHeader.mu.Lock()
 	defer p.pageHeader.mu.Unlock()
 	p.pageHeader.dirty = false
@@ -82,7 +82,7 @@ func (p *Page) WriteBytes(off int32, bts []byte) {
 	for i := 0; i < len(bts); i++ {
 		p.src[i+int(off)] = bts[i]
 	}
-	p.DirtyPage()
+	p.DirtyPageLock()
 }
 
 // write the page back to the disk
@@ -99,7 +99,7 @@ func (p *Page) writePage() error {
 		return glog.Error("WritePage can't write because %s\n", err)
 	}
 
-	p.CleanPage()
+	p.CleanPageLock()
 
 	return nil
 }
@@ -156,15 +156,7 @@ type PageHeader struct {
 }
 
 func (ph *PageHeader) PageIndex() int32 {
-	ph.mu.Lock()
-	defer ph.mu.Unlock()
 	return ph.pageIndex
-}
-
-func (ph *PageHeader) SetPageIndex(idx int32) {
-	ph.mu.Lock()
-	defer ph.mu.Unlock()
-	ph.pageIndex = idx
 }
 
 func CalOffsetOfIndex(idx int32) int64 {
