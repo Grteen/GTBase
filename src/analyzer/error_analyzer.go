@@ -27,6 +27,11 @@ func (c *UnknownCommandCommand) Exec() object.Object {
 	return object.CreateGtString(response)
 }
 
+func (c *UnknownCommandCommand) ExecWithOutRedoLog() object.Object {
+	response := fmt.Sprintf(constants.ServerUnknownCommandFormat, string(c.cmd))
+	return object.CreateGtString(response)
+}
+
 func CreateUnknownCommandCommand(cmd []byte) *UnknownCommandCommand {
 	return &UnknownCommandCommand{cmd: cmd}
 }
@@ -36,6 +41,10 @@ type ErrorArgCommand struct {
 }
 
 func (c *ErrorArgCommand) Exec() object.Object {
+	return object.CreateGtString(constants.ServerErrorArg)
+}
+
+func (c *ErrorArgCommand) ExecWithOutRedoLog() object.Object {
 	return object.CreateGtString(constants.ServerErrorArg)
 }
 

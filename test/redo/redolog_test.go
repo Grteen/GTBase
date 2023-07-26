@@ -79,7 +79,7 @@ func TestReadRedo(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		r := redo.ReadRedo(pg, d.len)
+		r, _ := redo.ReadRedo(pg, d.len)
 		if r.GetCMN() != d.res.GetCMN() || !utils.EqualByteSlice(r.GetCmd(), d.res.GetCmd()) {
 			t.Errorf("ReadRedo should get %v cmn %v cmd but got %v cmn %v cmd", d.res.GetCMN(), d.res.GetCmd(), r.GetCMN(), r.GetCmd())
 		}

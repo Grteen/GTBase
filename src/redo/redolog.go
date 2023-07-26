@@ -5,6 +5,7 @@ import (
 	"GtBase/src/nextwrite"
 	"GtBase/src/page"
 	"GtBase/utils"
+	"errors"
 	"log"
 	"os"
 )
@@ -44,18 +45,27 @@ func CreateRedo(cmn, cmdlen int32, cmd []byte) *Redo {
 	return &Redo{cmn: cmn, cmdLen: cmdlen, cmd: cmd}
 }
 
-func ReadRedo(pg *page.RedoPage, off int32) *Redo {
+func ReadRedo(pg *page.RedoPage, off int32) (*Redo, error) {
 	temp := off
 
+	if temp+constants.RedoLogCMNSize > int32(constants.PageSize) {
+		return nil, errors.New(constants.ReadNextRedoPageError)
+	}
 	cmn := pg.ReadCMN(temp)
 	temp += constants.RedoLogCMNSize
 
+	if temp+constants.RedoLogCmdLenSize > int32(constants.PageSize) {
+		return nil, errors.New(constants.ReadNextRedoPageError)
+	}
 	cmdLen := pg.ReadCmdLen(temp)
 	temp += constants.RedoLogCmdLenSize
 
+	if temp+cmdLen > int32(constants.PageSize) {
+		return nil, errors.New(constants.ReadNextRedoPageError)
+	}
 	cmd := pg.ReadCmd(temp, cmdLen)
 
-	return CreateRedo(cmn, cmdLen, cmd)
+	return CreateRedo(cmn, cmdLen, cmd), nil
 }
 
 func WriteRedoLog(cmn int32, cmd []byte) error {

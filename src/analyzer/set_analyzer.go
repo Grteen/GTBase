@@ -49,6 +49,10 @@ type SetCommand struct {
 func (c *SetCommand) Exec() object.Object {
 	redo.WriteRedoLog(c.cmn, c.cmd)
 
+	return c.ExecWithOutRedoLog()
+}
+
+func (c *SetCommand) ExecWithOutRedoLog() object.Object {
 	err := command.Set(c.key, c.val, c.cmn)
 	if err != nil {
 		return object.CreateGtString(err.Error())

@@ -35,6 +35,10 @@ type GetCommand struct {
 }
 
 func (c *GetCommand) Exec() object.Object {
+	return c.ExecWithOutRedoLog()
+}
+
+func (c *GetCommand) ExecWithOutRedoLog() object.Object {
 	result, err := command.Get(c.key)
 	if err != nil {
 		return object.CreateGtString(err.Error())

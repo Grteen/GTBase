@@ -36,5 +36,7 @@ const (
 	GetCommand string = "Get"
 	DelCommand string = "Del"
 
-	PagePoolDefaultCapcity = 1024
+	PagePoolDefaultCapcity int32 = 1024
+
+	ReadNextRedoPageError string = "should read next redo page"
 )
