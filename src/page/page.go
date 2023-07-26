@@ -30,6 +30,16 @@ func (p *Page) SetSrc(bts []byte) {
 	p.src = bts
 }
 
+func (p *Page) SetCMN(cmn int32) {
+	p.pageHeader.mu.Lock()
+	defer p.pageHeader.mu.Unlock()
+	p.pageHeader.cmn = cmn
+}
+
+func (p *Page) GetCMN() int32 {
+	return p.pageHeader.cmn
+}
+
 func (p *Page) Lock() {
 	p.lock.Lock()
 }
@@ -53,7 +63,7 @@ func (p *Page) DirtyPageLock() {
 	p.pageHeader.dirty = true
 	// TODO
 	// should be push in cmn
-	GetPagePool().DirtyListPush(p, -1)
+	GetPagePool().DirtyListPush(p, p.GetCMN())
 }
 
 func (p *Page) CleanPageLock() {
@@ -145,10 +155,15 @@ type PageHeader struct {
 	pageIndex int32
 	dirty     bool
 	mu        sync.Mutex
+	cmn       int32
 }
 
 func (ph *PageHeader) PageIndex() int32 {
 	return ph.pageIndex
+}
+
+func (ph *PageHeader) GetCMN() int32 {
+	return ph.cmn
 }
 
 func CalOffsetOfIndex(idx int32) int64 {

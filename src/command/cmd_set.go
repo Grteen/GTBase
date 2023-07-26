@@ -54,7 +54,7 @@ func UpdateBucket(p *pair.Pair, idx, off int32) {
 	firstHash := utils.FirstHash(p.Key().ToByte())
 	secondHash := utils.SecondHash(firstHash)
 
-	b := bucket.CreateBucket(bucket.CreateBucketHeader(firstHash, secondHash), idx, p.CalMidOffset(off))
+	b := bucket.CreateBucket(bucket.CreateBucketHeader(firstHash, secondHash), idx, p.CalMidOffset(off), p.GetCMN())
 
 	b.WriteInPage()
 }

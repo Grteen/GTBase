@@ -61,18 +61,19 @@ func readBucketPageFromDisk(idx int32) (*BucketPage, error) {
 	return CreateBucketPage(idx, src, constants.BucketPageFilePathToDo), nil
 }
 
-func WriteBytesToBucketrPageMemory(idx, off int32, bts []byte) error {
+func WriteBytesToBucketrPageMemory(idx, off int32, bts []byte, cmn int32) error {
 	pg, err := ReadBucketPage(idx)
 	if err != nil {
 		return err
 	}
 
+	pg.SetCMN(cmn)
 	pg.WriteBytes(off, bts)
 
 	return nil
 }
 
-func WriteBytesToBucketPageMemoryLock(idx, off int32, bts []byte) error {
+func WriteBytesToBucketPageMemoryLock(idx, off int32, bts []byte, cmn int32) error {
 	pg, err := ReadBucketPage(idx)
 	if err != nil {
 		return err
@@ -80,6 +81,7 @@ func WriteBytesToBucketPageMemoryLock(idx, off int32, bts []byte) error {
 
 	pg.lock.Lock()
 	defer pg.lock.Unlock()
+	pg.SetCMN(cmn)
 	pg.WriteBytes(off, bts)
 
 	return nil

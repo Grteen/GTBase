@@ -12,6 +12,7 @@ type Bucket struct {
 	bh          *BucketHeader
 	firstIndex  int32
 	firstOffset int32
+	cmn         int32
 }
 
 func (b *Bucket) FirstIndex() int32 {
@@ -35,18 +36,18 @@ func (b *Bucket) ToByte() []byte {
 }
 
 func (b *Bucket) WriteInPage() {
-	page.WriteBytesToBucketPageMemoryLock(b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte())
+	page.WriteBytesToBucketPageMemoryLock(b.BucketHeader().CalIndexOfBucketPage(), b.BucketHeader().CalOffsetOfBucketPage(), b.ToByte(), b.cmn)
 }
 
-func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff int32) *Bucket {
-	return &Bucket{bh, firstRecordIdx, firstRecordOff}
+func CreateBucket(bh *BucketHeader, firstRecordIdx, firstRecordOff, cmn int32) *Bucket {
+	return &Bucket{bh, firstRecordIdx, firstRecordOff, cmn}
 }
 
-func CreateBucketByKey(key object.Object, firstRecordIdx, firstRecordOff int32) *Bucket {
+func CreateBucketByKey(key object.Object, firstRecordIdx, firstRecordOff, cmn int32) *Bucket {
 	hashBucketIndex := utils.FirstHash(key.ToByte())
 	bucketIndex := utils.SecondHash(hashBucketIndex)
 
-	return CreateBucket(CreateBucketHeader(hashBucketIndex, bucketIndex), firstRecordIdx, firstRecordOff)
+	return CreateBucket(CreateBucketHeader(hashBucketIndex, bucketIndex), firstRecordIdx, firstRecordOff, cmn)
 }
 
 // find this key's hash's first record

@@ -22,7 +22,7 @@ func TestBucketToByte(t *testing.T) {
 	}
 
 	for _, d := range data {
-		b := bucket.CreateBucket(nil, d.idx, d.off)
+		b := bucket.CreateBucket(nil, d.idx, d.off, -1)
 		if !utils.EqualByteSlice(d.res, b.ToByte()) {
 			t.Errorf("ToByte should got %v but got %v", d.res, b.ToByte())
 		}
@@ -48,7 +48,7 @@ func TestWriteInPage(t *testing.T) {
 	for i := 0; i < len(data); i++ {
 		d := data[i]
 
-		b := bucket.CreateBucket(bucket.CreateBucketHeader(d.firstHashValue, d.secondHashValue), d.idx, d.off)
+		b := bucket.CreateBucket(bucket.CreateBucketHeader(d.firstHashValue, d.secondHashValue), d.idx, d.off, -1)
 		b.WriteInPage()
 
 		pg, err := page.ReadBucketPage(b.BucketHeader().CalIndexOfBucketPage())
@@ -82,7 +82,7 @@ func TestWriteInPage(t *testing.T) {
 	for i := 0; i < len(data); i++ {
 		d := data[i]
 
-		b := bucket.CreateBucket(bucket.CreateBucketHeader(d.firstHashValue, d.secondHashValue), d.idx, d.off)
+		b := bucket.CreateBucket(bucket.CreateBucketHeader(d.firstHashValue, d.secondHashValue), d.idx, d.off, -1)
 		b.WriteInPage()
 
 		pg, err := page.ReadBucketPage(b.BucketHeader().CalIndexOfBucketPage())
@@ -122,7 +122,7 @@ func TestFindFirstRecord(t *testing.T) {
 
 		idx, off := nw.NextWriteInfo()
 
-		b := bucket.CreateBucketByKey(p.Key(), idx, off)
+		b := bucket.CreateBucketByKey(p.Key(), idx, off, -1)
 
 		p.WriteInPage(idx, off)
 		b.WriteInPage()

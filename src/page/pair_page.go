@@ -89,18 +89,19 @@ func readPairPageFromDisk(idx int32) (*PairPage, error) {
 	return CreatePairPage(idx, src, constants.PageFilePathToDo), nil
 }
 
-func WriteBytesToPairPageMemory(idx, off int32, bts []byte) error {
+func WriteBytesToPairPageMemory(idx, off int32, bts []byte, cmn int32) error {
 	pg, err := ReadPairPage(idx)
 	if err != nil {
 		return err
 	}
 
+	pg.SetCMN(cmn)
 	pg.WriteBytes(off, bts)
 
 	return nil
 }
 
-func WriteBytesToPairPageMemoryLock(idx, off int32, bts []byte) error {
+func WriteBytesToPairPageMemoryLock(idx, off int32, bts []byte, cmn int32) error {
 	pg, err := ReadPairPage(idx)
 	if err != nil {
 		return err
@@ -108,6 +109,7 @@ func WriteBytesToPairPageMemoryLock(idx, off int32, bts []byte) error {
 
 	pg.lock.Lock()
 	defer pg.lock.Unlock()
+	pg.SetCMN(cmn)
 	pg.WriteBytes(off, bts)
 
 	return nil
