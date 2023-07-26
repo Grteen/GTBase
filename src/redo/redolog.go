@@ -35,7 +35,7 @@ func (r *Redo) ToByte() []byte {
 }
 
 func (r *Redo) WriteInPage(idx, off int32) {
-	page.WriteBytesToRedoPageMemory(idx, off, r.ToByte())
+	page.WriteBytesToRedoPageMemory(idx, off, r.ToByte(), r.cmn)
 }
 
 func CreateRedo(cmn, cmdlen int32, cmd []byte) *Redo {

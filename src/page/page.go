@@ -186,6 +186,10 @@ func InitBucketPageFile() {
 	initPageFile(constants.BucketPageFilePathToDo)
 }
 
+func InitRedoLog() {
+	initPageFile(constants.RedoLogToDo)
+}
+
 func initPageFile(filePath string) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		_, errc := os.Create(filePath)
@@ -206,6 +210,10 @@ func DeletePageFile() {
 
 func DeleteBucketPageFile() {
 	deletePageFile(constants.BucketPageFilePathToDo)
+}
+
+func DeleteRedoLog() {
+	deletePageFile(constants.RedoLogToDo)
 }
 
 func deletePageFile(filePath string) {

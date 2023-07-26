@@ -40,7 +40,7 @@ type DelCommand struct {
 func (c *DelCommand) Exec() object.Object {
 	redo.WriteRedoLog(c.cmn, c.cmd)
 
-	err := command.Del(c.key)
+	err := command.Del(c.key, c.cmn)
 	if err != nil {
 		return object.CreateGtString(err.Error())
 	}

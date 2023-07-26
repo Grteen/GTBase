@@ -32,6 +32,10 @@ func (p *Pair) GetCMN() int32 {
 	return p.cmn
 }
 
+func (p *Pair) SetCMN(cmn int32) {
+	p.cmn = cmn
+}
+
 func (p *Pair) Delete() {
 	p.flag |= 1
 }

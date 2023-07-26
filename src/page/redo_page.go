@@ -61,18 +61,19 @@ func readRedoPageFromDisk(idx int32) (*RedoPage, error) {
 	return CreateRedoPage(idx, src, constants.RedoLogToDo), nil
 }
 
-func WriteBytesToRedoPageMemory(idx, off int32, bts []byte) error {
+func WriteBytesToRedoPageMemory(idx, off int32, bts []byte, cmn int32) error {
 	pg, err := ReadRedoPage(idx)
 	if err != nil {
 		return err
 	}
 
+	pg.SetCMN(cmn)
 	pg.WriteBytes(off, bts)
 
 	return nil
 }
 
-func WriteBytesToRedoPageMemoryLock(idx, off int32, bts []byte) error {
+func WriteBytesToRedoPageMemoryLock(idx, off int32, bts []byte, cmn int32) error {
 	pg, err := ReadRedoPage(idx)
 	if err != nil {
 		return err
@@ -80,6 +81,7 @@ func WriteBytesToRedoPageMemoryLock(idx, off int32, bts []byte) error {
 
 	pg.lock.Lock()
 	defer pg.lock.Unlock()
+	pg.SetCMN(cmn)
 	pg.WriteBytes(off, bts)
 
 	return nil

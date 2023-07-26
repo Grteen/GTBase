@@ -5,7 +5,7 @@ import (
 	"GtBase/src/object"
 )
 
-func Del(key object.Object) error {
+func Del(key object.Object, cmn int32) error {
 	firstIdx, firstOff, err := bucket.FindFirstRecordRLock(key)
 	if err != nil {
 		return err
@@ -16,6 +16,7 @@ func Del(key object.Object) error {
 		return errf
 	}
 
+	p.SetCMN(cmn)
 	p.Delete()
 
 	p.WriteInPageInMidLock(loc.GetIdx(), loc.GetOff())
