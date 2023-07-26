@@ -107,16 +107,16 @@ func ReadPair(pg *page.PairPage, midOff int32) *Pair {
 	temp := midOff
 
 	flag := pg.ReadFlag(temp)
-	temp -= 1
+	temp -= constants.PairFlagSize
 
 	keyLen := pg.ReadKeyLength(temp)
-	temp -= 4
+	temp -= constants.PairKeyLengthSize
 
 	key := pg.ReadKey(temp, keyLen)
 	temp -= keyLen
 
 	valLen := pg.ReadValLength(temp)
-	temp -= 4
+	temp -= constants.PairValLengthSize
 
 	val := pg.ReadVal(temp, valLen)
 

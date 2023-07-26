@@ -11,6 +11,7 @@ import (
 
 type PageItf interface {
 	FlushPageLock() error
+	GetCMN() int32
 }
 
 // Page is the basic unit store in disk and in xxx.pf file

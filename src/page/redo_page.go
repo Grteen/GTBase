@@ -3,11 +3,24 @@ package page
 import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
+	"GtBase/utils"
 	"os"
 )
 
 type RedoPage struct {
 	Page
+}
+
+func (p *RedoPage) ReadCMN(off int32) int32 {
+	return utils.EncodeBytesSmallEndToint32(p.SrcSliceLength(off, constants.RedoLogCMNSize))
+}
+
+func (p *RedoPage) ReadCmdLen(off int32) int32 {
+	return utils.EncodeBytesSmallEndToint32(p.SrcSliceLength(off, constants.RedoLogCmdLenSize))
+}
+
+func (p *RedoPage) ReadCmd(off, cmdLen int32) []byte {
+	return p.SrcSliceLength(off, cmdLen)
 }
 
 func CreateRedoPage(idx int32, src []byte, flushPath string) *RedoPage {

@@ -166,7 +166,9 @@ func FlushDirtyList(ctx context.Context) {
 				continue
 			}
 
-			node.GetPage().FlushPageLock()
+			flushPage := node.GetPage()
+			flushPage.FlushPageLock()
+			WriteCheckPoint(flushPage.GetCMN())
 		}
 	}
 }

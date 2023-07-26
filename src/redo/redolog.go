@@ -44,6 +44,20 @@ func CreateRedo(cmn, cmdlen int32, cmd []byte) *Redo {
 	return &Redo{cmn: cmn, cmdLen: cmdlen, cmd: cmd}
 }
 
+func ReadRedo(pg *page.RedoPage, off int32) *Redo {
+	temp := off
+
+	cmn := pg.ReadCMN(temp)
+	temp += constants.RedoLogCMNSize
+
+	cmdLen := pg.ReadCmdLen(temp)
+	temp += constants.RedoLogCmdLenSize
+
+	cmd := pg.ReadCmd(temp, cmdLen)
+
+	return CreateRedo(cmn, cmdLen, cmd)
+}
+
 func WriteRedoLog(cmn int32, cmd []byte) error {
 	redo := CreateRedo(cmn, int32(len(cmd)), cmd)
 	nw, err := nextwrite.GetRedoNextWriteAndIncreaseIt(int32(len(redo.ToByte())))

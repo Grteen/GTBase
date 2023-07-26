@@ -144,7 +144,7 @@ func InitCMNFile() {
 			log.Fatalf("InitCMNFile can't chmod because of %s\n", errm)
 		}
 
-		errw := binary.Write(file, binary.LittleEndian, utils.Encodeint32ToBytesSmallEnd(0))
+		errw := binary.Write(file, binary.LittleEndian, utils.Encodeint32ToBytesSmallEnd(1))
 		if errw != nil {
 			log.Fatalf("writeCMNFile can't write file %v because %v", constants.CMNPathToDo, errw)
 		}
