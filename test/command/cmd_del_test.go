@@ -30,7 +30,7 @@ func TestDel(t *testing.T) {
 		}
 	}
 
-	err := command.Del(object.CreateGtString(data[1].key))
+	err := command.Del(object.CreateGtString(data[1].key), -1)
 	if err != nil {
 		t.Errorf(err.Error())
 	}

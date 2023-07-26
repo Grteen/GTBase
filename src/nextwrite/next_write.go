@@ -342,28 +342,3 @@ func IncreaseRedoNextWrite(off int32) error {
 	GetNextWriteFactory().SetRedoLogNextWrite(*nw)
 	return nil
 }
-
-func InitRedoLog() {
-	if _, err := os.Stat(constants.RedoLogToDo); os.IsNotExist(err) {
-		_, errc := os.Create(constants.RedoLogToDo)
-		if errc != nil {
-			log.Fatalf("InitRedoLog can't create the RedoLog because %s\n", err)
-		}
-
-		errm := os.Chmod(constants.RedoLogToDo, 0777)
-		if errm != nil {
-			log.Fatalf("InitRedoLog can't chmod because of %s\n", errm)
-		}
-	}
-}
-
-func DeleteRedoLog() {
-	if _, err := os.Stat(constants.RedoLogToDo); os.IsNotExist(err) {
-		return
-	}
-
-	errr := os.Remove(constants.RedoLogToDo)
-	if errr != nil {
-		log.Fatalf("DeleteRedoLog can't remove the RedoLog because %s\n", errr)
-	}
-}

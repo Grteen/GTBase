@@ -5,6 +5,7 @@ const (
 	BucketPageFilePathToDo string = "/root/GtBase/temp/gt.bf"
 	RedoLogToDo            string = "/root/GtBase/temp/redo.log"
 	CMNPathToDo            string = "/root/GtBase/temp/gt.cmn"
+	CheckPointPathToDo     string = "/root/GtBase/temp/gt.cp"
 	PageSize               int64  = 16384
 
 	BucketByteLength     int32 = 8

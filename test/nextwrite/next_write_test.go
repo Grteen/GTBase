@@ -4,6 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/nextwrite"
 	"GtBase/src/page"
+	"GtBase/src/redo"
 	"os"
 	"testing"
 )
@@ -43,8 +44,8 @@ func TestReadWriteCMN(t *testing.T) {
 func TestInitNextWrite(t *testing.T) {
 	page.DeletePageFile()
 	page.InitPageFile()
-	nextwrite.DeleteRedoLog()
-	nextwrite.InitRedoLog()
+	redo.DeleteRedoLog()
+	redo.InitRedoLog()
 
 	err := nextwrite.InitNextWrite()
 	if err != nil {

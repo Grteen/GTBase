@@ -178,18 +178,6 @@ func CreatePageHeader(idx int32) PageHeader {
 	return PageHeader{pageIndex: idx, dirty: false}
 }
 
-func InitPageFile() {
-	initPageFile(constants.PageFilePathToDo)
-}
-
-func InitBucketPageFile() {
-	initPageFile(constants.BucketPageFilePathToDo)
-}
-
-func InitRedoLog() {
-	initPageFile(constants.RedoLogToDo)
-}
-
 func initPageFile(filePath string) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		_, errc := os.Create(filePath)
@@ -202,18 +190,6 @@ func initPageFile(filePath string) {
 			log.Fatalf("InitPageFile can't chmod because of %s\n", errm)
 		}
 	}
-}
-
-func DeletePageFile() {
-	deletePageFile(constants.PageFilePathToDo)
-}
-
-func DeleteBucketPageFile() {
-	deletePageFile(constants.BucketPageFilePathToDo)
-}
-
-func DeleteRedoLog() {
-	deletePageFile(constants.RedoLogToDo)
 }
 
 func deletePageFile(filePath string) {

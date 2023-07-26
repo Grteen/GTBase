@@ -86,3 +86,11 @@ func WriteBytesToRedoPageMemoryLock(idx, off int32, bts []byte, cmn int32) error
 
 	return nil
 }
+
+func InitRedoLog() {
+	initPageFile(constants.RedoLogToDo)
+}
+
+func DeleteRedoLog() {
+	deletePageFile(constants.RedoLogToDo)
+}

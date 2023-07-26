@@ -114,3 +114,11 @@ func WriteBytesToPairPageMemoryLock(idx, off int32, bts []byte, cmn int32) error
 
 	return nil
 }
+
+func InitPageFile() {
+	initPageFile(constants.PageFilePathToDo)
+}
+
+func DeletePageFile() {
+	deletePageFile(constants.PageFilePathToDo)
+}

@@ -86,3 +86,11 @@ func WriteBytesToBucketPageMemoryLock(idx, off int32, bts []byte, cmn int32) err
 
 	return nil
 }
+
+func InitBucketPageFile() {
+	initPageFile(constants.BucketPageFilePathToDo)
+}
+
+func DeleteBucketPageFile() {
+	deletePageFile(constants.BucketPageFilePathToDo)
+}

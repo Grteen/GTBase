@@ -2,12 +2,13 @@ package nextwrite
 
 import (
 	"GtBase/src/nextwrite"
+	"GtBase/src/redo"
 	"testing"
 )
 
 func TestRedoNextWrite(t *testing.T) {
-	nextwrite.DeleteRedoLog()
-	nextwrite.InitRedoLog()
+	redo.DeleteRedoLog()
+	redo.InitRedoLog()
 	err := nextwrite.InitNextWrite()
 	if err != nil {
 		t.Errorf(err.Error())
