@@ -24,7 +24,7 @@ func TestRedoLog(t *testing.T) {
 	nextwrite.DeleteCMNFile()
 	nextwrite.InitCMNFile()
 
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	go page.FlushDirtyList(ctx)
 
 	dataw := []struct {
@@ -61,4 +61,6 @@ func TestRedoLog(t *testing.T) {
 			t.Errorf("Exec should get %v but got %v", d.res, res)
 		}
 	}
+
+	cancel()
 }
