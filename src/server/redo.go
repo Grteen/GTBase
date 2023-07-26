@@ -6,7 +6,6 @@ import (
 	"GtBase/src/analyzer"
 	"GtBase/src/page"
 	"GtBase/src/redo"
-	"errors"
 	"os"
 )
 
@@ -100,7 +99,7 @@ func RedoLog() error {
 
 	for start < totalLen {
 		err := redoCmdInPage(start, checkPoint)
-		if errors.Is(err, errors.New(constants.ReadNextRedoPageError)) {
+		if err.Error() == constants.ReadNextRedoPageError {
 			start++
 			continue
 		}
