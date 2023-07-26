@@ -114,7 +114,7 @@ func TestFindFirstRecord(t *testing.T) {
 	}
 
 	for _, d := range data {
-		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), 0, pair.CreateOverFlow(0, 0))
+		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), 0, pair.CreateOverFlow(0, 0), -1)
 		nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(p.ToByte())))
 		if err != nil {
 			t.Errorf(err.Error())

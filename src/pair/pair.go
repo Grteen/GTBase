@@ -13,6 +13,7 @@ type Pair struct {
 	value    object.Object
 	flag     int8
 	overFlow OverFlow
+	cmn      int32
 }
 
 func (p *Pair) Key() object.Object {
@@ -25,6 +26,10 @@ func (p *Pair) Value() object.Object {
 
 func (p *Pair) Flag() int8 {
 	return p.flag
+}
+
+func (p *Pair) GetCMN() int32 {
+	return p.cmn
 }
 
 func (p *Pair) Delete() {
@@ -90,8 +95,8 @@ func (p *Pair) GetMidOffsetNotInBasic() int32 {
 		constants.PairKeyLengthSize + constants.PairFlagSize
 }
 
-func CreatePair(key, value object.Object, flag int8, of OverFlow) *Pair {
-	return &Pair{key: key, value: value, flag: flag, overFlow: of}
+func CreatePair(key, value object.Object, flag int8, of OverFlow, cmn int32) *Pair {
+	return &Pair{key: key, value: value, flag: flag, overFlow: of, cmn: cmn}
 }
 
 func ReadPair(pg *page.PairPage, midOff int32) *Pair {
@@ -114,7 +119,7 @@ func ReadPair(pg *page.PairPage, midOff int32) *Pair {
 	temp = midOff
 
 	overflowIdx, overflowOff := pg.ReadOverFlow(temp)
-	return CreatePair(key, val, flag, CreateOverFlow(overflowIdx, overflowOff))
+	return CreatePair(key, val, flag, CreateOverFlow(overflowIdx, overflowOff), -1)
 }
 
 func IsDelete(flag int8) bool {

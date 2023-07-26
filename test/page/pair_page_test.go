@@ -127,7 +127,7 @@ func TestReadPair(t *testing.T) {
 	}
 
 	for _, d := range data {
-		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), d.flag, pair.CreateOverFlow(d.overFlowIdx, d.overFlowOff))
+		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), d.flag, pair.CreateOverFlow(d.overFlowIdx, d.overFlowOff), -1)
 		nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(p.ToByte())))
 		if err != nil {
 			t.Errorf(err.Error())

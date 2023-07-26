@@ -15,7 +15,7 @@ func TestPairToByte(t *testing.T) {
 	data := createTestPairToByteData()
 
 	for _, d := range data {
-		p := pair.CreatePair(d.key, d.val, d.flag, pair.CreateOverFlow(d.overFlowIndex, d.overFlowOffset))
+		p := pair.CreatePair(d.key, d.val, d.flag, pair.CreateOverFlow(d.overFlowIndex, d.overFlowOffset), -1)
 		if !utils.EqualByteSlice(p.ToByte(), d.res) {
 			t.Errorf("Pair.ToByte should got %v but got %v", d.res, p.ToByte())
 		}
@@ -71,7 +71,7 @@ func TestWriteInPage(t *testing.T) {
 	for i := 0; i < len(data); i++ {
 		d := data[i]
 
-		p := pair.CreatePair(d.key, d.val, d.flag, pair.CreateOverFlow(d.overFlowIndex, d.overFlowOffset))
+		p := pair.CreatePair(d.key, d.val, d.flag, pair.CreateOverFlow(d.overFlowIndex, d.overFlowOffset), -1)
 		bts := p.ToByte()
 		nw, err := nextwrite.GetNextWriteAndIncreaseIt(int32(len(bts)))
 		if err != nil {

@@ -10,7 +10,7 @@ import (
 )
 
 func Set(key object.Object, val object.Object, cmn int32) error {
-	p := pair.CreatePair(key, val, 0, pair.CreateNullOverFlow())
+	p := pair.CreatePair(key, val, 0, pair.CreateNullOverFlow(), cmn)
 	return set(p)
 }
 

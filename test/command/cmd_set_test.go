@@ -26,7 +26,7 @@ func TestFirstSet(t *testing.T) {
 	}
 
 	for _, d := range data {
-		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), d.flag, pair.CreateNullOverFlow())
+		p := pair.CreatePair(object.CreateGtString(d.key), object.CreateGtString(d.val), d.flag, pair.CreateNullOverFlow(), -1)
 		err := command.FirstSetInThisBucket(p)
 		if err != nil {
 			t.Errorf(err.Error())
@@ -64,7 +64,7 @@ func TestFindFinalRecord(t *testing.T) {
 	page.InitBucketPageFile()
 	page.InitPageFile()
 
-	p := pair.CreatePair(object.CreateGtString("First"), object.CreateGtString("Second"), 0, pair.CreateNullOverFlow())
+	p := pair.CreatePair(object.CreateGtString("First"), object.CreateGtString("Second"), 0, pair.CreateNullOverFlow(), -1)
 	p.SetOverFlow(pair.CreateOverFlow(0, p.CalMidOffset(int32(len(p.ToByte())))))
 
 	for i := 1; i <= 10; i++ {
