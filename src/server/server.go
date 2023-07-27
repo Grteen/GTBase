@@ -74,7 +74,12 @@ func (s *GtBaseServer) handleAccept(listenFd int) error {
 	if erra != nil {
 		return erra
 	}
-	s.addClient(client.CreateGtBaseClient(nfd))
+	addr, errg := client.GetAddressByFd(nfd)
+	if errg != nil {
+		return errg
+	}
+
+	s.addClient(client.CreateGtBaseClient(nfd, addr))
 	return nil
 }
 

@@ -10,6 +10,7 @@ import (
 type GtBaseClient struct {
 	fd         int
 	readBuffer []byte
+	addr       *Address
 }
 
 func (c *GtBaseClient) GetFd() int {
@@ -60,6 +61,6 @@ func (c *GtBaseClient) Write(data []byte) error {
 	return nil
 }
 
-func CreateGtBaseClient(fd int) *GtBaseClient {
-	return &GtBaseClient{fd: fd, readBuffer: make([]byte, 0)}
+func CreateGtBaseClient(fd int, addr *Address) *GtBaseClient {
+	return &GtBaseClient{fd: fd, readBuffer: make([]byte, 0), addr: addr}
 }
