@@ -105,12 +105,12 @@ func RedoLog() error {
 
 	for start < totalLen {
 		err := redoCmdInPage(start, checkPoint)
-		if err.Error() == constants.ReadNextRedoPageError {
-			start++
-			continue
-		}
-
 		if err != nil {
+			if err.Error() == constants.ReadNextRedoPageError {
+				start++
+				continue
+			}
+
 			return err
 		}
 
