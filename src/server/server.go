@@ -82,6 +82,13 @@ func (s *GtBaseServer) handleCommand(client *GtBaseClient) error {
 	if err != nil {
 		return err
 	}
+	if len(bts) == 0 {
+		err := s.ioer.Remove(client.fd)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 
 	cmn, errg := nextwrite.GetCMN()
 	if errg != nil {

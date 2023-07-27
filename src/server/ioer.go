@@ -10,6 +10,7 @@ type Ioer interface {
 	Run(int)
 	Wait() ([]*Task, error)
 	AddRead(int) error
+	Remove(int) error
 }
 
 type Task struct {
@@ -87,6 +88,20 @@ func (p *EPoller) AddRead(addFd int) error {
 	err := syscall.EpollCtl(p.epollFd, syscall.EPOLL_CTL_ADD, addFd, &event)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (p *EPoller) Remove(fd int) error {
+	err := syscall.EpollCtl(p.epollFd, syscall.EPOLL_CTL_DEL, fd, nil)
+	if err != nil {
+		return err
+	}
+
+	errc := syscall.Close(fd)
+	if errc != nil {
+		return errc
 	}
 
 	return nil
