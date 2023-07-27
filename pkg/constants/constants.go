@@ -39,4 +39,7 @@ const (
 	PagePoolDefaultCapcity int32 = 1024
 
 	ReadNextRedoPageError string = "should read next redo page"
+	ClientExitError       string = "client exits"
+
+	CommandSep = "\r\n"
 )

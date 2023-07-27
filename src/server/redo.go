@@ -29,9 +29,11 @@ func redoCmdInPage(idx, checkPoint int32) error {
 			return errr
 		}
 
-		redoCmd(r)
+		if r.GetCMN() >= checkPoint {
+			redoCmd(r)
+		}
 
-		off += r.GetCmdLen() + constants.RedoLogCMNSize
+		off += r.GetCmdLen() + constants.RedoLogCMNSize + constants.RedoLogCmdLenSize
 	}
 
 	return nil
@@ -48,6 +50,10 @@ func redoLogTotalLen() (int32, error) {
 }
 
 func findFirstRedoPageToRedo(checkPoint, totalLen int32) (int32, error) {
+	if totalLen == 0 {
+		return 0, nil
+	}
+
 	l, r := 0, int(totalLen-1)
 
 	for l < r {

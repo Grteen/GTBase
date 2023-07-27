@@ -33,6 +33,14 @@ func DeleteCheckPointFile() {
 }
 
 func WriteCheckPoint(cmn int32) error {
+	if cmn <= 0 {
+		return nil
+	}
+
+	return writeCheckPoint(cmn)
+}
+
+func writeCheckPoint(cmn int32) error {
 	file, err := os.OpenFile(constants.CheckPointPathToDo, os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		return glog.Error("WriteCheckPoint can't open file %v because %v", constants.CheckPointPathToDo, err)

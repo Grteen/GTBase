@@ -78,28 +78,33 @@ func (s *GtBaseServer) handleAccept(listenFd int) error {
 }
 
 func (s *GtBaseServer) handleCommand(client *GtBaseClient) error {
-	bts, err := client.Read()
-	if err != nil {
-		return err
-	}
-	if len(bts) == 0 {
-		err := s.ioer.Remove(client.fd)
+	for {
+		bts, err := client.Read()
 		if err != nil {
+			if err.Error() == constants.ClientExitError {
+				errr := s.ioer.Remove(client.fd)
+				if errr != nil {
+					return errr
+				}
+				return nil
+			}
 			return err
 		}
-		return nil
-	}
+		if bts == nil {
+			break
+		}
 
-	cmn, errg := nextwrite.GetCMN()
-	if errg != nil {
-		return errg
-	}
+		cmn, errg := nextwrite.GetCMN()
+		if errg != nil {
+			return errg
+		}
 
-	result := analyzer.CreateCommandAssign(bts, cmn).Assign().Analyze().Exec().ToByte()
+		result := analyzer.CreateCommandAssign(bts, cmn).Assign().Analyze().Exec().ToByte()
 
-	errw := client.Write(result)
-	if errw != nil {
-		return errw
+		errw := client.Write(result)
+		if errw != nil {
+			return errw
+		}
 	}
 
 	return nil

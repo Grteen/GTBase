@@ -22,7 +22,7 @@ func main() {
 		text, _ := reader.ReadString('\n')
 		text = strings.TrimSuffix(text, "\n")
 
-		_, err := conn.Write([]byte(text))
+		_, err := conn.Write([]byte(text + "\r\n"))
 		if err != nil {
 			fmt.Println("Error sending:", err)
 			return

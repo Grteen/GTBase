@@ -7,7 +7,7 @@ import (
 )
 
 func TestFind(t *testing.T) {
-	pg, err := page.ReadPairPage(1)
+	pg, err := page.ReadRedoPage(1)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
