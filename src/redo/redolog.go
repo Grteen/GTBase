@@ -52,6 +52,9 @@ func ReadRedo(pg *page.RedoPage, off int32) (*Redo, error) {
 		return nil, errors.New(constants.ReadNextRedoPageError)
 	}
 	cmn := pg.ReadCMN(temp)
+	if cmn == 0 {
+		return nil, nil
+	}
 	temp += constants.RedoLogCMNSize
 
 	if temp+constants.RedoLogCmdLenSize > int32(constants.PageSize) {

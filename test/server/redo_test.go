@@ -25,7 +25,7 @@ func TestRedoLog(t *testing.T) {
 	nextwrite.InitCMNFile()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go page.FlushDirtyList(ctx)
+	go page.FlushRedoDirtyList(ctx)
 
 	dataw := []struct {
 		cmn int32
@@ -41,7 +41,6 @@ func TestRedoLog(t *testing.T) {
 	}
 
 	time.Sleep(1 * time.Second)
-
 	err := server.RedoLog()
 	if err != nil {
 		t.Errorf(err.Error())

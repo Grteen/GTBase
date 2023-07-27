@@ -29,6 +29,10 @@ func redoCmdInPage(idx, checkPoint int32) error {
 			return errr
 		}
 
+		if r == nil {
+			break
+		}
+
 		if r.GetCMN() >= checkPoint {
 			redoCmd(r)
 		}
@@ -40,9 +44,9 @@ func redoCmdInPage(idx, checkPoint int32) error {
 }
 
 func redoLogTotalLen() (int32, error) {
-	fileInfo, err := os.Stat(constants.PageFilePathToDo)
+	fileInfo, err := os.Stat(constants.RedoLogToDo)
 	if err != nil {
-		return -1, glog.Error("InitNextWrite can't Stat file %v becasuse %v", constants.PageFilePathToDo, err)
+		return -1, glog.Error("InitNextWrite can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
 	}
 
 	fileSize := fileInfo.Size()

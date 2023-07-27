@@ -30,6 +30,14 @@ func (p *RedoPage) DirtyPageLock() {
 	GetPagePool().RedoDirtyListPush(p, p.GetCMN())
 }
 
+func (p *RedoPage) WriteBytes(off int32, bts []byte) {
+	// ToDo should ensure the consistency
+	for i := 0; i < len(bts); i++ {
+		p.src[i+int(off)] = bts[i]
+	}
+	p.DirtyPageLock()
+}
+
 func CreateRedoPage(idx int32, src []byte, flushPath string) *RedoPage {
 	ph := CreatePageHeader(idx)
 	result := &RedoPage{Page: Page{pageHeader: &ph, src: src, flushPath: flushPath}}

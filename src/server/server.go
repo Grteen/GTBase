@@ -3,6 +3,7 @@ package server
 import (
 	"GtBase/pkg/constants"
 	"GtBase/src/analyzer"
+	"GtBase/src/client"
 	"GtBase/src/nextwrite"
 	"GtBase/src/page"
 	"context"
@@ -12,19 +13,19 @@ import (
 )
 
 type GtBaseServer struct {
-	clients  map[int]*GtBaseClient
+	clients  map[int]*client.GtBaseClient
 	clock    sync.Mutex
 	ioer     Ioer
 	listenFd int
 }
 
-func (s *GtBaseServer) addClient(client *GtBaseClient) {
+func (s *GtBaseServer) addClient(client *client.GtBaseClient) {
 	s.clock.Lock()
 	defer s.clock.Unlock()
 	s.clients[client.GetFd()] = client
 }
 
-func (s *GtBaseServer) getClient(fd int) *GtBaseClient {
+func (s *GtBaseServer) getClient(fd int) *client.GtBaseClient {
 	s.clock.Lock()
 	defer s.clock.Unlock()
 	result, ok := s.clients[fd]
@@ -73,16 +74,16 @@ func (s *GtBaseServer) handleAccept(listenFd int) error {
 	if erra != nil {
 		return erra
 	}
-	s.addClient(CreateGtBaseClient(nfd))
+	s.addClient(client.CreateGtBaseClient(nfd))
 	return nil
 }
 
-func (s *GtBaseServer) handleCommand(client *GtBaseClient) error {
+func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 	for {
 		bts, err := client.Read()
 		if err != nil {
 			if err.Error() == constants.ClientExitError {
-				errr := s.ioer.Remove(client.fd)
+				errr := s.ioer.Remove(client.GetFd())
 				if errr != nil {
 					return errr
 				}
@@ -143,5 +144,5 @@ func listenAndGetFd(port int) (int, error) {
 }
 
 func CreateGtBaseServer() *GtBaseServer {
-	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*GtBaseClient)}
+	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*client.GtBaseClient)}
 }

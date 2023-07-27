@@ -18,10 +18,10 @@ func TestServer(t *testing.T) {
 		command []byte
 		result  []byte
 	}{
-		{[]byte("Set Key Val"), []byte("Ok")},
-		{[]byte("Get Key"), []byte("Val")},
-		{[]byte("Del Key"), []byte("Ok")},
-		{[]byte("Get Key"), []byte("Nil")},
+		{[]byte("Set Key Val\r\n"), []byte("Ok")},
+		{[]byte("Get Key\r\n"), []byte("Val")},
+		{[]byte("Del Key\r\n"), []byte("Ok")},
+		{[]byte("Get Key\r\n"), []byte("Nil")},
 	}
 
 	go func() {
