@@ -15,6 +15,9 @@ func Del(key object.Object, cmn int32) error {
 	if errf != nil {
 		return errf
 	}
+	if p == nil {
+		return nil
+	}
 
 	p.SetCMN(cmn)
 	p.Delete()
