@@ -22,9 +22,11 @@ type PagePool struct {
 	redoCaches      map[int32]*RedoPage
 	redoCacheLock   sync.Mutex
 
-	dirtyList     *list.List
-	dirtyListLock sync.Mutex
-	lruList       *LRUList
+	dirtyList         *list.List
+	dirtyListLock     sync.Mutex
+	redoDirtyList     *list.List
+	redoDirtyListLock sync.Mutex
+	lruList           *LRUList
 }
 
 func (pool *PagePool) GetPairPage(idx int32) (*PairPage, bool) {
@@ -122,13 +124,37 @@ func (pool *PagePool) DirtyListGet() (*DirtyListNode, error) {
 	return nil, nil
 }
 
+func (pool *PagePool) RedoDirtyListPush(pg PageItf, cmn int32) {
+	pool.redoDirtyListLock.Lock()
+	defer pool.redoDirtyListLock.Unlock()
+
+	pool.redoDirtyList.PushBack(CreateDirtyListNode(pg, cmn))
+}
+
+func (pool *PagePool) RedoDirtyListGet() (*DirtyListNode, error) {
+	pool.redoDirtyListLock.Lock()
+	defer pool.redoDirtyListLock.Unlock()
+
+	front := pool.redoDirtyList.Front()
+	if front != nil {
+		result, ok := pool.redoDirtyList.Remove(front).(*DirtyListNode)
+		if !ok {
+			return nil, glog.Error("can't transform to *Page")
+		}
+		return result, nil
+	}
+
+	return nil, nil
+}
+
 func CreatePagePool() *PagePool {
 	return &PagePool{
-		caches:       map[int32]*PairPage{},
-		bucketCaches: map[int32]*BucketPage{},
-		redoCaches:   map[int32]*RedoPage{},
-		dirtyList:    list.New(),
-		lruList:      CreateLRUList(constants.PagePoolDefaultCapcity)}
+		caches:        map[int32]*PairPage{},
+		bucketCaches:  map[int32]*BucketPage{},
+		redoCaches:    map[int32]*RedoPage{},
+		dirtyList:     list.New(),
+		redoDirtyList: list.New(),
+		lruList:       CreateLRUList(constants.PagePoolDefaultCapcity)}
 }
 
 var instance *PagePool
@@ -169,6 +195,27 @@ func FlushDirtyList(ctx context.Context) {
 			flushPage := node.GetPage()
 			flushPage.FlushPageLock()
 			WriteCheckPoint(flushPage.GetCMN())
+		}
+	}
+}
+
+func FlushRedoDirtyList(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			time.Sleep(10 * time.Millisecond)
+			node, err := GetPagePool().RedoDirtyListGet()
+			if err != nil {
+				return
+			}
+			if node == nil {
+				continue
+			}
+
+			flushPage := node.GetPage()
+			flushPage.FlushPageLock()
 		}
 	}
 }

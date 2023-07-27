@@ -4,6 +4,8 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/analyzer"
 	"GtBase/src/nextwrite"
+	"GtBase/src/page"
+	"context"
 	"net"
 	"sync"
 	"syscall"
@@ -34,6 +36,16 @@ func (s *GtBaseServer) getClient(fd int) *GtBaseClient {
 }
 
 func (s *GtBaseServer) Run(port int) error {
+	initFile()
+	errr := RedoLog()
+	if errr != nil {
+		return errr
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go page.FlushDirtyList(ctx)
+	go page.FlushRedoDirtyList(ctx)
+
 	listenFd, err := listenAndGetFd(port)
 	if err != nil {
 		return err
