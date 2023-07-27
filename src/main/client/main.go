@@ -3,10 +3,12 @@ package main
 import (
 	"GtBase/pkg/constants"
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -40,7 +42,14 @@ func readFromGtBase(conn net.Conn) ([]byte, error) {
 }
 
 func main() {
-	conn, err := net.Dial("tcp", "127.0.0.1:1234")
+	var host string
+	var port int
+
+	flag.StringVar(&host, "h", "127.0.0.1", "host")
+	flag.IntVar(&port, "p", 9877, "port")
+	flag.Parse()
+
+	conn, err := net.Dial("tcp", host+":"+strconv.Itoa(port))
 	if err != nil {
 		fmt.Println("Error connecting:", err)
 		return
