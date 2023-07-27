@@ -1,7 +1,11 @@
 package replic
 
 import (
+	"GtBase/pkg/constants"
+	"GtBase/pkg/glog"
 	"GtBase/src/client"
+	"GtBase/src/page"
+	"os"
 	"sync"
 )
 
@@ -11,13 +15,102 @@ type NextSeq struct {
 	cLock sync.Mutex
 }
 
+func (n *NextSeq) increaseCount() bool {
+	n.cLock.Lock()
+	defer n.cLock.Unlock()
+	n.count++
+
+	if n.count >= 3 {
+		n.count = 0
+		return true
+	}
+	return false
+}
+
+func CreateNextSeq(seq int32) *NextSeq {
+	return &NextSeq{seq: seq, count: 0}
+}
+
 type Slave struct {
-	client.GtBaseClient
+	client  *client.GtBaseClient
 	logIdx  int32
 	logOff  int32
+	sLock   sync.Mutex
 	nextSeq *NextSeq
 }
 
-// func CreateSlave(logIdx, logOff int32) *Slave {
+// if get same Sequence three times it will return true
+// and master should resend the redolog
+func (s *Slave) GetSameSeq() bool {
+	return s.nextSeq.increaseCount()
+}
 
-// }
+func (s *Slave) SetLogIdxAndOff(logIdx, logOff int32) {
+	s.sLock.Lock()
+	defer s.sLock.Unlock()
+	s.logIdx = logIdx
+	s.logOff = logOff
+}
+
+// return how many redo page can be send according to s.logIdx (not included s.logIdx page)
+func (s *Slave) calRedoLogRestLen() (int32, error) {
+	fileInfo, err := os.Stat(constants.RedoLogToDo)
+	if err != nil {
+		return -1, glog.Error("CalRedoLogRestLen can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
+	}
+
+	fileSize := fileInfo.Size()
+	totalLen := int32(fileSize) / int32(constants.PageSize)
+
+	restPage := totalLen - s.logIdx - 1
+	return restPage, nil
+}
+
+func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
+	firstPg, err := page.ReadRedoPage(s.logIdx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]byte, 0, (restPageLen+1)*int32(constants.PageSize))
+	result = append(result, firstPg.SrcSlice(s.logOff, int32(constants.PageSize))...)
+
+	for i := 1; i <= int(restPageLen); i++ {
+		pg, err := page.ReadRedoPage(s.logIdx + int32(i))
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, pg.Src()...)
+	}
+
+	return result, nil
+}
+
+func (s *Slave) SendRedoLog() error {
+	restPageLen, err := s.calRedoLogRestLen()
+	if err != nil {
+		return err
+	}
+
+	pageToSendLen := restPageLen
+	if pageToSendLen >= constants.MaxRedoLogPagesToSendOnce {
+		pageToSendLen = constants.MaxRedoLogPagesToSendOnce
+	}
+
+	result, errr := s.readRedoLogToSend(pageToSendLen)
+	if errr != nil {
+		return err
+	}
+
+	errw := s.client.Write(result)
+	if errw != nil {
+		return errw
+	}
+
+	return nil
+}
+
+func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {
+	return &Slave{client: client, logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq)}
+}

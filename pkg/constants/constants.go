@@ -42,4 +42,6 @@ const (
 	ClientExitError       string = "client exits"
 
 	CommandSep = "\r\n"
+
+	MaxRedoLogPagesToSendOnce int32 = 100
 )
