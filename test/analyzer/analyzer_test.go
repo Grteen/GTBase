@@ -30,7 +30,7 @@ func TestAnalyzer(t *testing.T) {
 		cmd = append(cmd, []byte(d.key))
 		cmd = append(cmd, []byte(d.val))
 
-		a := analyzer.CreateSetAnalyzer(cmd, []byte(""), -1)
+		a := analyzer.CreateSetAnalyzer(cmd, []byte(""), -1, nil)
 		res := a.Analyze().Exec().ToString()
 		if res != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, res)
@@ -41,7 +41,7 @@ func TestAnalyzer(t *testing.T) {
 		cmd := make([][]byte, 0)
 		cmd = append(cmd, []byte(d.key))
 
-		a := analyzer.CreateGetAnalyzer(cmd, []byte(""), -1)
+		a := analyzer.CreateGetAnalyzer(cmd, []byte(""), -1, nil)
 		res := a.Analyze().Exec().ToString()
 		if res != d.val {
 			t.Errorf("Exec should get %v but got %v", d.val, res)
@@ -51,13 +51,13 @@ func TestAnalyzer(t *testing.T) {
 	cmd := make([][]byte, 0)
 	cmd = append(cmd, []byte(data[1].key))
 
-	a := analyzer.CreateDelAnalyzer(cmd, []byte(""), -1)
+	a := analyzer.CreateDelAnalyzer(cmd, []byte(""), -1, nil)
 	res := a.Analyze().Exec().ToString()
 	if res != constants.ServerOkReturn {
 		t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, res)
 	}
 
-	a2 := analyzer.CreateGetAnalyzer(cmd, []byte(""), -1)
+	a2 := analyzer.CreateGetAnalyzer(cmd, []byte(""), -1, nil)
 	res = a2.Analyze().Exec().ToString()
 	if res != constants.ServerGetNilReturn {
 		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res)
@@ -142,7 +142,9 @@ func TestSlave(t *testing.T) {
 	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(1))
 
-	analyzer.CreateSlaveAnalyzer(cmd, c, rs).Analyze().Exec()
+	args := analyzer.CreateCommandAssignArgs(c, rs)
+
+	analyzer.CreateSlaveAnalyzer(cmd, nil, 0, args).Analyze().Exec()
 
 	seqbts := <-ch
 	seq := utils.EncodeBytesSmallEndToint32(seqbts)

@@ -27,7 +27,7 @@ func (a *DelAnalyzer) getKey(nowIdx int32, c *DelCommand) Command {
 	return c
 }
 
-func CreateDelAnalyzer(parts [][]byte, cmd []byte, cmn int32) Analyzer {
+func CreateDelAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
 	return &DelAnalyzer{parts: parts, cmd: cmd, cmn: cmn}
 }
 

@@ -35,7 +35,7 @@ func (a *SetAnalyzer) getVal(nowIdx int32, c *SetCommand) Command {
 	return c
 }
 
-func CreateSetAnalyzer(parts [][]byte, cmd []byte, cmn int32) Analyzer {
+func CreateSetAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
 	return &SetAnalyzer{parts: parts, cmd: cmd, cmn: cmn}
 }
 

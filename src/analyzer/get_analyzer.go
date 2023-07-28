@@ -26,7 +26,7 @@ func (a *GetAnalyzer) getKey(nowIdx int32, c *GetCommand) Command {
 	return c
 }
 
-func CreateGetAnalyzer(parts [][]byte, cmd []byte, cmn int32) Analyzer {
+func CreateGetAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
 	return &GetAnalyzer{parts: parts, cmd: cmd, cmn: cmn}
 }
 

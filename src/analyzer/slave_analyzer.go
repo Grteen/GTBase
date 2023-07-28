@@ -46,8 +46,30 @@ func (a *SlaveAnalyzer) getSeq(nowIdx int32, c *SlaveCommand) Command {
 	return c
 }
 
-func CreateSlaveAnalyzer(parts [][]byte, c *client.GtBaseClient, rs *replic.ReplicState) Analyzer {
+func createSlaveAnalyzer(parts [][]byte, c *client.GtBaseClient, rs *replic.ReplicState) Analyzer {
 	return &SlaveAnalyzer{parts: parts, c: c, rs: rs}
+}
+
+func CreateSlaveAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
+	clientItf, ok := args[constants.AssignArgClient]
+	if !ok {
+		return nil
+	}
+	client, ok := clientItf.(*client.GtBaseClient)
+	if !ok {
+		return nil
+	}
+
+	rsItf, ok := args[constants.AssignArgReplicState]
+	if !ok {
+		return nil
+	}
+	rs, ok := rsItf.(*replic.ReplicState)
+	if !ok {
+		return nil
+	}
+
+	return createSlaveAnalyzer(parts, client, rs)
 }
 
 type SlaveCommand struct {

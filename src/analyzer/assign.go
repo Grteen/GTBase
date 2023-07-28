@@ -9,16 +9,17 @@ import (
 
 type CommandAssign struct {
 	bts  []byte
-	dict map[string]func([][]byte, []byte, int32) Analyzer
+	dict map[string]func([][]byte, []byte, int32, map[string]interface{}) Analyzer
 	cmn  int32
 	args map[string]interface{}
 }
 
 func (c *CommandAssign) InitDict() {
-	c.dict = map[string]func([][]byte, []byte, int32) Analyzer{
-		constants.SetCommand: CreateSetAnalyzer,
-		constants.GetCommand: CreateGetAnalyzer,
-		constants.DelCommand: CreateDelAnalyzer,
+	c.dict = map[string]func([][]byte, []byte, int32, map[string]interface{}) Analyzer{
+		constants.SetCommand:   CreateSetAnalyzer,
+		constants.GetCommand:   CreateGetAnalyzer,
+		constants.DelCommand:   CreateDelAnalyzer,
+		constants.SlaveCommand: CreateSlaveAnalyzer,
 	}
 }
 
@@ -35,7 +36,7 @@ func (c *CommandAssign) Assign() Analyzer {
 		return CreateUnknownCommandAnalyzer(cmd)
 	}
 
-	return f(split[1:], c.bts, c.cmn)
+	return f(split[1:], c.bts, c.cmn, c.args)
 }
 
 func CreateCommandAssignArgs(c *client.GtBaseClient, rs *replic.ReplicState) map[string]interface{} {
