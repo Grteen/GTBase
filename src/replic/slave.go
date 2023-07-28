@@ -40,6 +40,14 @@ type Slave struct {
 	nextSeq *NextSeq
 }
 
+func (s *Slave) GetClient() *client.GtBaseClient {
+	return s.client
+}
+
+func (s *Slave) GetLogInfo() (int32, int32) {
+	return s.logIdx, s.logOff
+}
+
 // if get same Sequence three times it will return true
 // and master should resend the redolog
 func (s *Slave) GetSameSeq() bool {
@@ -97,6 +105,7 @@ func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
 	return result, nil
 }
 
+// seq redolog \r\n
 func (s *Slave) SendRedoLog() error {
 	restPageLen, err := s.calRedoLogRestLen()
 	if err != nil {

@@ -28,6 +28,7 @@ const (
 	ServerOkReturn             string = "Ok"
 	ServerUnknownCommandFormat string = "Unknown Command %v"
 	ServerErrorArg             string = "Invalid Argument"
+	ServerSlaveNotExist        string = "Slave Not Exist"
 
 	IoerRead   int32 = 1
 	IoerAccept int32 = 2

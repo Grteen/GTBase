@@ -61,6 +61,10 @@ func (c *GtBaseClient) Write(data []byte) error {
 	return nil
 }
 
+func (c *GtBaseClient) GenerateKey() string {
+	return c.addr.GenerateKey()
+}
+
 func CreateGtBaseClient(fd int, addr *Address) *GtBaseClient {
 	return &GtBaseClient{fd: fd, readBuffer: make([]byte, 0), addr: addr}
 }
