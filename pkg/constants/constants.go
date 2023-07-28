@@ -47,4 +47,8 @@ const (
 
 	MaxRedoLogPagesToSendOnce int32 = 100
 	SendRedoLogSeqSize        int32 = 4
+	SlaveFullSyncThreshold    int32 = 1
+
+	SlaveFullSync int32 = 1
+	SlaveSync     int32 = 2
 )

@@ -6,12 +6,12 @@ import (
 
 type ReplicState struct {
 	slaves map[string]*Slave
-	rsLock sync.Mutex
+	sLock  sync.Mutex
 }
 
 func (rs *ReplicState) AppendSlaveLock(s *Slave) {
-	rs.rsLock.Lock()
-	defer rs.rsLock.Unlock()
+	rs.sLock.Lock()
+	defer rs.sLock.Unlock()
 
 	key := s.client.GenerateKey()
 

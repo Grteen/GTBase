@@ -33,11 +33,22 @@ func CreateNextSeq(seq int32) *NextSeq {
 }
 
 type Slave struct {
-	client  *client.GtBaseClient
-	logIdx  int32
-	logOff  int32
-	sLock   sync.Mutex
-	nextSeq *NextSeq
+	client    *client.GtBaseClient
+	logIdx    int32
+	logOff    int32
+	sLock     sync.Mutex
+	nextSeq   *NextSeq
+	syncState int32
+}
+
+func (s *Slave) GetSyncState() int32 {
+	return s.syncState
+}
+
+func (s *Slave) SetSyncStateLock(state int32) {
+	s.sLock.Lock()
+	defer s.sLock.Unlock()
+	s.syncState = state
 }
 
 func (s *Slave) GetClient() *client.GtBaseClient {
@@ -137,6 +148,20 @@ func (s *Slave) GetSendRedoLogResponse(logIdx, logOff, seq int32) {
 	s.SetNextSeqLock(seq)
 }
 
+// return Slave's syncState and error
+func (s *Slave) CheckFullSyncFinish() (int32, error) {
+	restPageLen, err := s.calRedoLogRestLen()
+	if err != nil {
+		return -1, err
+	}
+
+	if restPageLen <= constants.SlaveFullSyncThreshold {
+		s.SetSyncStateLock(constants.SlaveSync)
+	}
+
+	return s.syncState, nil
+}
+
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {
-	return &Slave{client: client, logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq)}
+	return &Slave{client: client, logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq), syncState: constants.SlaveFullSync}
 }
