@@ -16,11 +16,12 @@ type CommandAssign struct {
 
 func (c *CommandAssign) InitDict() {
 	c.dict = map[string]func([][]byte, []byte, int32, map[string]interface{}) Analyzer{
-		constants.SetCommand:     CreateSetAnalyzer,
-		constants.GetCommand:     CreateGetAnalyzer,
-		constants.DelCommand:     CreateDelAnalyzer,
-		constants.SlaveCommand:   CreateSlaveAnalyzer,
-		constants.GetRedoCommand: CreateGetRedoAnalyzer,
+		constants.SetCommand:      CreateSetAnalyzer,
+		constants.GetCommand:      CreateGetAnalyzer,
+		constants.DelCommand:      CreateDelAnalyzer,
+		constants.SlaveCommand:    CreateSlaveAnalyzer,
+		constants.GetRedoCommand:  CreateGetRedoAnalyzer,
+		constants.GetHeartCommand: CreateGetHeartAnalyzer,
 	}
 }
 
