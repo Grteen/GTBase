@@ -171,4 +171,22 @@ func TestSlave(t *testing.T) {
 		t.Errorf("ReadRedoPage and SendRedoLog not same")
 		fmt.Println(len(res), len(result))
 	}
+
+	logIdx := int32(len(result)) / int32(constants.PageSize)
+	logOff := int32(len(result)) % int32(constants.PageSize)
+
+	cmd2 := make([][]byte, 0)
+	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(logIdx))
+	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(logOff))
+	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(2))
+
+	analyzer.CreateGetRedoAnalyzer(cmd2, nil, 0, args).Analyze().Exec()
+	s, ok := rs.GetSlave(c.GenerateKey())
+	if !ok {
+		t.Errorf("Should be Ok")
+	}
+
+	if idx, off := s.GetLogInfo(); idx != logIdx || off != logOff {
+		t.Errorf("GetLogInfo should get %v idx %v off but got %v idx %v off", logIdx, logOff, idx, off)
+	}
 }

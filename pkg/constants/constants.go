@@ -33,10 +33,11 @@ const (
 	IoerRead   int32 = 1
 	IoerAccept int32 = 2
 
-	SetCommand   string = "Set"
-	GetCommand   string = "Get"
-	DelCommand   string = "Del"
-	SlaveCommand string = "Slave"
+	SetCommand     string = "Set"
+	GetCommand     string = "Get"
+	DelCommand     string = "Del"
+	SlaveCommand   string = "Slave"
+	GetRedoCommand string = "GetRedo"
 
 	PagePoolDefaultCapcity int32 = 1024
 
