@@ -41,7 +41,8 @@ const (
 	ReadNextRedoPageError string = "should read next redo page"
 	ClientExitError       string = "client exits"
 
-	CommandSep = "\r\n"
+	CommandSep       string = "\r\n"
+	ReplicRedoLogEnd string = "\r\n"
 
 	MaxRedoLogPagesToSendOnce int32 = 100
 )

@@ -12,8 +12,10 @@ import (
 func TestServer(t *testing.T) {
 	page.DeletePageFile()
 	page.DeleteBucketPageFile()
+	page.DeleteRedoLog()
 	page.InitBucketPageFile()
 	page.InitPageFile()
+	page.InitRedoLog()
 	data := []struct {
 		command []byte
 		result  []byte

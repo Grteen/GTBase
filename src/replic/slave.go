@@ -67,6 +67,9 @@ func (s *Slave) calRedoLogRestLen() (int32, error) {
 }
 
 func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
+	if restPageLen == -1 {
+		return make([]byte, 0), nil
+	}
 	firstPg, err := page.ReadRedoPage(s.logIdx)
 	if err != nil {
 		return nil, err
@@ -102,6 +105,8 @@ func (s *Slave) SendRedoLog() error {
 	if errr != nil {
 		return err
 	}
+
+	result = append(result, []byte(constants.ReplicRedoLogEnd)...)
 
 	errw := s.client.Write(result)
 	if errw != nil {
