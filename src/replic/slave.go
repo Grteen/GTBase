@@ -5,6 +5,7 @@ import (
 	"GtBase/pkg/glog"
 	"GtBase/src/client"
 	"GtBase/src/page"
+	"GtBase/utils"
 	"os"
 	"sync"
 )
@@ -45,11 +46,17 @@ func (s *Slave) GetSameSeq() bool {
 	return s.nextSeq.increaseCount()
 }
 
-func (s *Slave) SetLogIdxAndOff(logIdx, logOff int32) {
+func (s *Slave) SetLogIdxAndOffLock(logIdx, logOff int32) {
 	s.sLock.Lock()
 	defer s.sLock.Unlock()
 	s.logIdx = logIdx
 	s.logOff = logOff
+}
+
+func (s *Slave) SetNextSeqLock(seq int32) {
+	s.sLock.Lock()
+	defer s.sLock.Unlock()
+	s.nextSeq = CreateNextSeq(seq)
 }
 
 // return how many redo page can be send according to s.logIdx (not included s.logIdx page)
@@ -105,7 +112,7 @@ func (s *Slave) SendRedoLog() error {
 	if errr != nil {
 		return err
 	}
-
+	result = append(utils.Encodeint32ToBytesSmallEnd(s.nextSeq.seq), result...)
 	result = append(result, []byte(constants.ReplicRedoLogEnd)...)
 
 	errw := s.client.Write(result)
@@ -114,6 +121,11 @@ func (s *Slave) SendRedoLog() error {
 	}
 
 	return nil
+}
+
+func (s *Slave) GetSendRedoLogResponse(logIdx, logOff, seq int32) {
+	s.SetLogIdxAndOffLock(logIdx, logOff)
+	s.SetNextSeqLock(seq)
 }
 
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {

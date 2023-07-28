@@ -45,4 +45,5 @@ const (
 	ReplicRedoLogEnd string = "\r\n"
 
 	MaxRedoLogPagesToSendOnce int32 = 100
+	SendRedoLogSeqSize        int32 = 4
 )
