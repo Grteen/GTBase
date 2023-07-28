@@ -37,6 +37,7 @@ const (
 	GetCommand     string = "Get"
 	DelCommand     string = "Del"
 	SlaveCommand   string = "Slave"
+	RedoCommand    string = "Redo"
 	GetRedoCommand string = "GetRedo"
 
 	PagePoolDefaultCapcity int32 = 1024

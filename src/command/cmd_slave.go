@@ -10,7 +10,7 @@ import (
 func Slave(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) {
 	s := replic.CreateSlave(logIdx, logOff, seq, client)
 	rs.AppendSlaveLock(s)
-	s.SendRedoLog()
+	s.SendRedoLogToSlave()
 }
 
 // if slave is satisfy the FullSyncState then Send Next RedoLog
@@ -22,14 +22,14 @@ func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.
 		return object.CreateGtString(constants.ServerSlaveNotExist), nil
 	}
 
-	s.GetSendRedoLogResponse(logIdx, logOff, seq)
+	s.GetSendRedoLogResponseFromSlave(logIdx, logOff, seq)
 	state, err := s.CheckFullSyncFinish()
 	if err != nil {
 		return nil, err
 	}
 
 	if state == constants.SlaveFullSync {
-		s.SendRedoLog()
+		s.SendRedoLogToSlave()
 	}
 
 	return object.CreateGtString(constants.ServerOkReturn), nil

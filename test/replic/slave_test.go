@@ -53,8 +53,8 @@ func TestSlaveSendRedoLog(t *testing.T) {
 			result = append(result, buf[0:n]...)
 			if utils.EqualByteSlice(result[len(result)-2:], []byte(constants.ReplicRedoLogEnd)) {
 				result = result[:len(result)-2]
-				ch <- result[:constants.SendRedoLogSeqSize]
-				result = result[constants.SendRedoLogSeqSize:]
+				ch <- result[len(constants.RedoCommand) : len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)]
+				result = result[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize):]
 				break
 			}
 		}
@@ -84,7 +84,7 @@ func TestSlaveSendRedoLog(t *testing.T) {
 	}
 
 	s := replic.CreateSlave(0, 0, 1, client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 0)))
-	s.SendRedoLog()
+	s.SendRedoLogToSlave()
 
 	seqbts := <-ch
 	seq := utils.EncodeBytesSmallEndToint32(seqbts)

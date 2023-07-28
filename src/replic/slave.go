@@ -116,8 +116,8 @@ func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
 	return result, nil
 }
 
-// seq redolog \r\n
-func (s *Slave) SendRedoLog() error {
+// Redo seq redolog \r\n
+func (s *Slave) SendRedoLogToSlave() error {
 	restPageLen, err := s.calRedoLogRestLen()
 	if err != nil {
 		return err
@@ -133,6 +133,7 @@ func (s *Slave) SendRedoLog() error {
 		return err
 	}
 	result = append(utils.Encodeint32ToBytesSmallEnd(s.nextSeq.seq), result...)
+	result = append([]byte(constants.RedoCommand), result...)
 	result = append(result, []byte(constants.ReplicRedoLogEnd)...)
 
 	errw := s.client.Write(result)
@@ -143,7 +144,7 @@ func (s *Slave) SendRedoLog() error {
 	return nil
 }
 
-func (s *Slave) GetSendRedoLogResponse(logIdx, logOff, seq int32) {
+func (s *Slave) GetSendRedoLogResponseFromSlave(logIdx, logOff, seq int32) {
 	s.SetLogIdxAndOffLock(logIdx, logOff)
 	s.SetNextSeqLock(seq)
 }
@@ -160,6 +161,10 @@ func (s *Slave) CheckFullSyncFinish() (int32, error) {
 	}
 
 	return s.syncState, nil
+}
+
+func (s *Slave) SendHeartToSlave() {
+
 }
 
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {

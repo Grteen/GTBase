@@ -104,8 +104,8 @@ func TestSlave(t *testing.T) {
 			result = append(result, buf[0:n]...)
 			if utils.EqualByteSlice(result[len(result)-2:], []byte(constants.ReplicRedoLogEnd)) {
 				result = result[:len(result)-2]
-				ch <- result[:constants.SendRedoLogSeqSize]
-				result = result[constants.SendRedoLogSeqSize:]
+				ch <- result[len(constants.RedoCommand) : len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)]
+				result = result[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize):]
 				break
 			}
 		}
