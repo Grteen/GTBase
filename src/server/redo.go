@@ -10,7 +10,7 @@ import (
 )
 
 func redoCmd(redo *redo.Redo) {
-	analyzer.CreateCommandAssign(redo.GetCmd(), redo.GetCMN()).Assign().Analyze().ExecWithOutRedoLog()
+	analyzer.CreateCommandAssign(redo.GetCmd(), redo.GetCMN(), nil).Assign().Analyze().ExecWithOutRedoLog()
 }
 
 // if redo all of this page's command it will return a error constants.ReadNextRedoPageError

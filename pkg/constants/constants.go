@@ -51,4 +51,7 @@ const (
 
 	SlaveFullSync int32 = 1
 	SlaveSync     int32 = 2
+
+	AssignArgClient      string = "AssignClient"
+	AssignArgReplicState string = "AssignReplicState"
 )

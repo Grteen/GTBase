@@ -31,7 +31,7 @@ func TestRedoLog(t *testing.T) {
 			t.Errorf(errg.Error())
 		}
 
-		ok := analyzer.CreateCommandAssign([]byte(d.cmd), cmn).Assign().Analyze().Exec().ToString()
+		ok := analyzer.CreateCommandAssign([]byte(d.cmd), cmn, nil).Assign().Analyze().Exec().ToString()
 		if ok != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
 		}
@@ -69,7 +69,7 @@ func TestReadRedo(t *testing.T) {
 			t.Errorf(errg.Error())
 		}
 
-		ok := analyzer.CreateCommandAssign([]byte(d.cmd), cmn).Assign().Analyze().Exec().ToString()
+		ok := analyzer.CreateCommandAssign([]byte(d.cmd), cmn, nil).Assign().Analyze().Exec().ToString()
 		if ok != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
 		}

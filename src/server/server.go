@@ -6,6 +6,7 @@ import (
 	"GtBase/src/client"
 	"GtBase/src/nextwrite"
 	"GtBase/src/page"
+	"GtBase/src/replic"
 	"context"
 	"net"
 	"sync"
@@ -17,6 +18,8 @@ type GtBaseServer struct {
 	clock    sync.Mutex
 	ioer     Ioer
 	listenFd int
+
+	rs *replic.ReplicState
 }
 
 func (s *GtBaseServer) addClient(client *client.GtBaseClient) {
@@ -105,7 +108,8 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 			return errg
 		}
 
-		result := analyzer.CreateCommandAssign(bts, cmn).Assign().Analyze().Exec().ToByte()
+		args := analyzer.CreateCommandAssignArgs(client, s.rs)
+		result := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec().ToByte()
 
 		errw := client.Write(result)
 		if errw != nil {
@@ -149,5 +153,5 @@ func listenAndGetFd(port int) (int, error) {
 }
 
 func CreateGtBaseServer() *GtBaseServer {
-	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*client.GtBaseClient)}
+	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*client.GtBaseClient), rs: replic.CreateReplicState()}
 }

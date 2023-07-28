@@ -2,6 +2,8 @@ package analyzer
 
 import (
 	"GtBase/pkg/constants"
+	"GtBase/src/client"
+	"GtBase/src/replic"
 	"bytes"
 )
 
@@ -9,6 +11,7 @@ type CommandAssign struct {
 	bts  []byte
 	dict map[string]func([][]byte, []byte, int32) Analyzer
 	cmn  int32
+	args map[string]interface{}
 }
 
 func (c *CommandAssign) InitDict() {
@@ -35,8 +38,15 @@ func (c *CommandAssign) Assign() Analyzer {
 	return f(split[1:], c.bts, c.cmn)
 }
 
-func CreateCommandAssign(bts []byte, cmn int32) *CommandAssign {
-	result := &CommandAssign{bts: bts, cmn: cmn}
+func CreateCommandAssignArgs(c *client.GtBaseClient, rs *replic.ReplicState) map[string]interface{} {
+	return map[string]interface{}{
+		constants.AssignArgClient:      c,
+		constants.AssignArgReplicState: rs,
+	}
+}
+
+func CreateCommandAssign(bts []byte, cmn int32, args map[string]interface{}) *CommandAssign {
+	result := &CommandAssign{bts: bts, cmn: cmn, args: args}
 	result.InitDict()
 	return result
 }
