@@ -11,25 +11,25 @@ import (
 )
 
 type NextSeq struct {
-	seq   int32
-	count int32
-	cLock sync.Mutex
+	seq        int32
+	heartCount int32
+	cLock      sync.Mutex
 }
 
 func (n *NextSeq) increaseCount() bool {
 	n.cLock.Lock()
 	defer n.cLock.Unlock()
-	n.count++
+	n.heartCount++
 
-	if n.count >= 3 {
-		n.count = 0
+	if n.heartCount >= 3 {
+		n.heartCount = 0
 		return true
 	}
 	return false
 }
 
 func CreateNextSeq(seq int32) *NextSeq {
-	return &NextSeq{seq: seq, count: 0}
+	return &NextSeq{seq: seq, heartCount: 0}
 }
 
 type Slave struct {
@@ -76,6 +76,10 @@ func (s *Slave) SetNextSeqLock(seq int32) {
 	s.sLock.Lock()
 	defer s.sLock.Unlock()
 	s.nextSeq = CreateNextSeq(seq)
+}
+
+func (s *Slave) GetSeq() int32 {
+	return s.nextSeq.seq
 }
 
 // return how many redo page can be send according to s.logIdx (not included s.logIdx page)
@@ -167,8 +171,43 @@ func (s *Slave) CheckFullSyncFinish() (int32, error) {
 	return s.syncState, nil
 }
 
-func (s *Slave) SendHeartToSlave() {
+func (s *Slave) SendHeartToSlave() error {
+	result := []byte(constants.HeartCommand)
 
+	errw := s.client.Write(result)
+	if errw != nil {
+		return errw
+	}
+
+	return nil
+}
+
+func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq int32) error {
+	if seq <= s.GetSeq() {
+		reSend := s.GetSameSeq()
+		if reSend {
+			if s.syncState == constants.SlaveFullSync {
+				s.SetLogIdxAndOffLock(logIdx, logOff)
+				s.SetNextSeqLock(seq)
+				err := s.SendHeartToSlave()
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+		}
+	}
+
+	if s.syncState == constants.SlaveSync {
+		s.SetLogIdxAndOffLock(logIdx, logOff)
+		s.SetNextSeqLock(seq)
+		err := s.SendRedoLogToSlave()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {

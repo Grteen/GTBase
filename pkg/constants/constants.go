@@ -39,6 +39,7 @@ const (
 	SlaveCommand   string = "Slave"
 	RedoCommand    string = "Redo"
 	GetRedoCommand string = "GetRedo"
+	HeartCommand   string = "Heart"
 
 	PagePoolDefaultCapcity int32 = 1024
 
