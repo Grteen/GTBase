@@ -22,6 +22,7 @@ func (c *CommandAssign) InitDict() {
 		constants.SlaveCommand:    CreateSlaveAnalyzer,
 		constants.GetRedoCommand:  CreateGetRedoAnalyzer,
 		constants.GetHeartCommand: CreateGetHeartAnalyzer,
+		constants.HeartCommand:    CreateHeartAnalyzer,
 	}
 }
 

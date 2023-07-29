@@ -84,10 +84,10 @@ func TestSlave(t *testing.T) {
 	poller := &server.EPoller{}
 	poller.Run(listenSock)
 
-	result := make([]byte, 0)
+	parts := make([]byte, 0)
 
 	ch := make(chan []byte)
-	go func(result []byte) {
+	go func(parts []byte) {
 		conn, err := net.Dial("tcp", "127.0.0.1:7866")
 		if err != nil {
 			t.Errorf(err.Error())
@@ -101,16 +101,16 @@ func TestSlave(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 
-			result = append(result, buf[0:n]...)
-			if utils.EqualByteSlice(result[len(result)-2:], []byte(constants.ReplicRedoLogEnd)) {
-				result = result[:len(result)-2]
-				ch <- result[len(constants.RedoCommand)+1 : len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)]
-				result = result[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)+2:]
+			parts = append(parts, buf[0:n]...)
+			if utils.EqualByteSlice(parts[len(parts)-2:], []byte(constants.ReplicRedoLogEnd)) {
+				parts = parts[:len(parts)-2]
+				ch <- parts[len(constants.RedoCommand)+1 : len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)]
+				parts = parts[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)+2:]
 				break
 			}
 		}
-		ch <- result
-	}(result)
+		ch <- parts
+	}(parts)
 
 	tasks, err := poller.Wait()
 	if err != nil {
@@ -151,7 +151,7 @@ func TestSlave(t *testing.T) {
 	if seq != 1 {
 		t.Errorf("seq should be %v but got %v", 1, seq)
 	}
-	result = <-ch
+	parts = <-ch
 
 	res := make([]byte, 0)
 	for i := 0; i < 10; i++ {
@@ -167,13 +167,13 @@ func TestSlave(t *testing.T) {
 		res = append(res, pg.Src()...)
 	}
 
-	if !utils.EqualByteSlice(res, result) {
+	if !utils.EqualByteSlice(res, parts) {
 		t.Errorf("ReadRedoPage and SendRedoLog not same")
-		fmt.Println(len(res), len(result))
+		fmt.Println(len(res), len(parts))
 	}
 
-	logIdx := int32(len(result)) / int32(constants.PageSize)
-	logOff := int32(len(result)) % int32(constants.PageSize)
+	logIdx := int32(len(parts)) / int32(constants.PageSize)
+	logOff := int32(len(parts)) % int32(constants.PageSize)
 
 	cmd2 := make([][]byte, 0)
 	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(logIdx))
@@ -214,7 +214,7 @@ func TestHeart(t *testing.T) {
 	ch := make(chan []byte)
 	h := make(chan struct{})
 	go func() {
-		result := make([]byte, 0)
+		parts := make([]byte, 0)
 		conn, err := net.Dial("tcp", "127.0.0.1:8544")
 		if err != nil {
 			t.Errorf(err.Error())
@@ -228,18 +228,18 @@ func TestHeart(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 			if !utils.EqualByteSlice(buf[:n], []byte(constants.HeartCommand)) {
-				result = append(result, buf[0:n]...)
-				if utils.EqualByteSlice(result[len(result)-2:], []byte(constants.ReplicRedoLogEnd)) {
-					result = result[:len(result)-2]
-					ch <- result[len(constants.RedoCommand)+1 : len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)]
-					result = result[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)+2:]
+				parts = append(parts, buf[0:n]...)
+				if utils.EqualByteSlice(parts[len(parts)-2:], []byte(constants.ReplicRedoLogEnd)) {
+					parts = parts[:len(parts)-2]
+					ch <- parts[len(constants.RedoCommand)+1 : len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)]
+					parts = parts[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)+2:]
 					break
 				}
 			} else {
 				h <- struct{}{}
 			}
 		}
-		ch <- result
+		ch <- parts
 	}()
 
 	tasks, err := poller.Wait()
@@ -286,7 +286,7 @@ func TestHeart(t *testing.T) {
 	if seq != 2 {
 		t.Errorf("seq should be %v but got %v", 2, seq)
 	}
-	result := <-ch
+	parts := <-ch
 
 	res := make([]byte, 0)
 	for i := 0; i < 10; i++ {
@@ -302,8 +302,72 @@ func TestHeart(t *testing.T) {
 		res = append(res, pg.Src()...)
 	}
 
-	if !utils.EqualByteSlice(res, result) {
+	if !utils.EqualByteSlice(res, parts) {
 		t.Errorf("ReadRedoPage and SendRedoLog not same")
-		fmt.Println(len(res), len(result))
+		fmt.Println(len(res), len(parts))
+	}
+}
+
+func TestHeartAnalyzer(t *testing.T) {
+	port := 4244
+	lfd, err := utils.BindAndListen(port)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	go func() {
+		fd, err := utils.LocalDial(port)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		defer utils.CloseFd(fd)
+
+		parts, errr := utils.ReadFd(fd)
+		if errr != nil {
+			t.Errorf(errr.Error())
+		}
+
+		if !utils.EqualByteSlice(parts, []byte(constants.HeartCommand+constants.CommandSep)) {
+			t.Errorf("should read %v but got %v", constants.HeartCommand, parts)
+		}
+
+		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
+		m := replic.CreateMaster(10, 5000, c)
+
+		rs := replic.CreateReplicState()
+		rs.SetMasterLock(m)
+
+		args := analyzer.CreateCommandAssignArgs(c, rs)
+
+		analyzer.CreateHeartAnalyzer(nil, nil, -1, args).Analyze().Exec()
+	}()
+
+	nfd, erra := utils.Accept(int(lfd))
+	if erra != nil {
+		t.Errorf(erra.Error())
+	}
+
+	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", port))
+	s := replic.CreateSlave(0, 0, 1, c)
+	s.SetSyncStateLock(constants.SlaveSync)
+
+	errh := s.SendHeartToSlave()
+	if errh != nil {
+		t.Errorf(errh.Error())
+	}
+
+	rs := replic.CreateReplicState()
+	rs.AppendSlaveLock(s)
+
+	parts := make([][]byte, 0)
+	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(10))
+	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(5000))
+	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(1))
+
+	analyzer.CreateGetHeartAnalyzer(parts, nil, 1, analyzer.CreateCommandAssignArgs(c, rs)).Analyze().Exec()
+
+	logIdx, logOff := s.GetLogInfo()
+	if logIdx != 10 || logOff != 5000 {
+		t.Errorf("should get %v idx %v off but got %v idx %v off", 10, 5000, logIdx, logOff)
 	}
 }

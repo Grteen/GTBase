@@ -5,6 +5,7 @@ import (
 	"GtBase/src/client"
 	"GtBase/src/object"
 	"GtBase/src/replic"
+	"errors"
 )
 
 func Slave(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) {
@@ -33,4 +34,23 @@ func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.
 	}
 
 	return object.CreateGtString(constants.ServerOkReturn), nil
+}
+
+func GetHeart(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
+	key := client.GenerateKey()
+	s, ok := rs.GetSlave(key)
+	if !ok {
+		return errors.New(constants.ServerSlaveNotExist)
+	}
+
+	err := s.GetHeartRespFromSlave(logIdx, logOff, seq)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Heart(rs *replic.ReplicState) error {
+	return rs.GetMaster().HeartFromMaster()
 }

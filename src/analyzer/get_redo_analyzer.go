@@ -83,12 +83,12 @@ type GetRedoCommand struct {
 
 func (c *GetRedoCommand) Exec() object.Object {
 	command.GetRedo(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return object.CreateGtString(constants.ServerOkReturn)
+	return nil
 }
 
 func (c *GetRedoCommand) ExecWithOutRedoLog() object.Object {
 	command.GetRedo(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return object.CreateGtString(constants.ServerOkReturn)
+	return nil
 }
 
 func CreateGetRedoCommand(c *client.GtBaseClient, rs *replic.ReplicState) *GetRedoCommand {

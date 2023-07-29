@@ -83,12 +83,12 @@ type SlaveCommand struct {
 
 func (c *SlaveCommand) Exec() object.Object {
 	command.Slave(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return object.CreateGtString(constants.ServerOkReturn)
+	return nil
 }
 
 func (c *SlaveCommand) ExecWithOutRedoLog() object.Object {
 	command.Slave(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return object.CreateGtString(constants.ServerOkReturn)
+	return nil
 }
 
 func CreateSlaveCommand(c *client.GtBaseClient, rs *replic.ReplicState) *SlaveCommand {

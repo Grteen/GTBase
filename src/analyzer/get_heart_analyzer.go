@@ -82,12 +82,12 @@ type GetHeartCommand struct {
 
 func (c *GetHeartCommand) Exec() object.Object {
 	command.GetHeart(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return object.CreateGtString(constants.ServerOkReturn)
+	return nil
 }
 
 func (c *GetHeartCommand) ExecWithOutRedoLog() object.Object {
 	command.GetHeart(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return object.CreateGtString(constants.ServerOkReturn)
+	return nil
 }
 
 func CreateGetHeartCommand(c *client.GtBaseClient, rs *replic.ReplicState) *GetHeartCommand {

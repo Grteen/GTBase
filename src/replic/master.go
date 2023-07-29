@@ -31,7 +31,7 @@ func (m *Master) sendGetHeartToMaster() error {
 	return client.GetHeart(m.client, m.logIdx, m.logOff)
 }
 
-func (m *Master) GetHeartFromMaster() error {
+func (m *Master) HeartFromMaster() error {
 	return m.sendGetHeartToMaster()
 }
 

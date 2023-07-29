@@ -130,6 +130,9 @@ func (s *Slave) SendRedoLogToSlave() error {
 	if pageToSendLen >= constants.MaxRedoLogPagesToSendOnce {
 		pageToSendLen = constants.MaxRedoLogPagesToSendOnce
 	}
+	if pageToSendLen < -1 {
+		pageToSendLen = -1
+	}
 
 	redoLog, errr := s.readRedoLogToSend(pageToSendLen)
 	if errr != nil {

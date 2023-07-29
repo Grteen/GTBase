@@ -34,7 +34,7 @@ func TestMasterHeart(t *testing.T) {
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
 		m := replic.CreateMaster(10, 5000, c)
 
-		errg := m.GetHeartFromMaster()
+		errg := m.HeartFromMaster()
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}
