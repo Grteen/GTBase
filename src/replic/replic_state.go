@@ -11,7 +11,9 @@ type ReplicState struct {
 	mLock  sync.Mutex
 }
 
-func (rs *ReplicState) AppendSlaveLock(s *Slave) {
+// if Slave exists and connect return false
+// if not exists or disconnect return true
+func (rs *ReplicState) AppendSlaveLock(s *Slave) bool {
 	rs.sLock.Lock()
 	defer rs.sLock.Unlock()
 
@@ -20,7 +22,10 @@ func (rs *ReplicState) AppendSlaveLock(s *Slave) {
 	_, ok := rs.slaves[key]
 	if !ok {
 		rs.slaves[key] = s
+		return false
 	}
+
+	return true
 }
 
 func (rs *ReplicState) SetMasterLock(m *Master) {

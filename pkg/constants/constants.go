@@ -54,8 +54,9 @@ const (
 	SendRedoLogSeqSize        int32 = 4
 	SlaveFullSyncThreshold    int32 = 1
 
-	SlaveFullSync int32 = 1
-	SlaveSync     int32 = 2
+	SlaveFullSync   int32 = 1
+	SlaveSync       int32 = 2
+	SlaveDisConnect int32 = 3
 
 	AssignArgClient      string = "AssignClient"
 	AssignArgReplicState string = "AssignReplicState"

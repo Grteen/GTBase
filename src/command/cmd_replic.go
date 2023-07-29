@@ -10,8 +10,11 @@ import (
 
 func Slave(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) {
 	s := replic.CreateSlave(logIdx, logOff, seq, client)
-	rs.AppendSlaveLock(s)
-	s.SendRedoLogToSlave()
+	exist := rs.AppendSlaveLock(s)
+	if !exist {
+		s.SendRedoLogToSlave()
+		go s.HeartBeat(rs)
+	}
 }
 
 // if slave is satisfy the FullSyncState then Send Next RedoLog

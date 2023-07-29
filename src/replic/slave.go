@@ -7,6 +7,7 @@ import (
 	"GtBase/src/page"
 	"os"
 	"sync"
+	"time"
 )
 
 type NextSeq struct {
@@ -58,10 +59,6 @@ func (h *HeartInfo) IncreaseSeq() {
 
 func (h *HeartInfo) Push(seq int32) {
 	h.heartChan <- seq
-}
-
-func (h *HeartInfo) Get() int32 {
-	return <-h.heartChan
 }
 
 func CreateHeartInfo() *HeartInfo {
@@ -247,7 +244,25 @@ func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32) error
 }
 
 func (s *Slave) HeartBeat(rs *ReplicState) {
-	s.SendHeartToSlave()
+	timer := time.NewTimer(5 * time.Second)
+	for {
+		time.Sleep(1 * time.Second)
+		s.SendHeartToSlave()
+		select {
+		case heartSeq := <-s.hf.heartChan:
+			if heartSeq == s.hf.heartSeq {
+				s.hf.IncreaseSeq()
+				timer.Reset(5 * time.Second)
+			}
+		case <-timer.C:
+			disc := s.hf.IncreaseCount()
+			if disc {
+				s.SetSyncStateLock(constants.SlaveDisConnect)
+				return
+			}
+			timer.Reset(5 * time.Second)
+		}
+	}
 }
 
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {

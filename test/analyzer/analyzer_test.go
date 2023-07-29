@@ -71,7 +71,7 @@ func TestSlave(t *testing.T) {
 	}
 	defer syscall.Close(listenSock)
 
-	addr := syscall.SockaddrInet4{Port: 7866}
+	addr := syscall.SockaddrInet4{Port: 7433}
 	copy(addr.Addr[:], net.ParseIP("127.0.0.1").To4())
 
 	err = syscall.Bind(listenSock, &addr)
@@ -88,7 +88,7 @@ func TestSlave(t *testing.T) {
 
 	ch := make(chan []byte)
 	go func(parts []byte) {
-		conn, err := net.Dial("tcp", "127.0.0.1:7866")
+		conn, err := net.Dial("tcp", "127.0.0.1:7433")
 		if err != nil {
 			t.Errorf(err.Error())
 			return
