@@ -332,7 +332,7 @@ func TestHeartAnalyzer(t *testing.T) {
 		}
 
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
-		m := replic.CreateMaster(10, 5000, c)
+		m := replic.CreateMaster(10, 5000, -1, c)
 
 		rs := replic.CreateReplicState()
 		rs.SetMasterLock(m)

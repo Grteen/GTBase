@@ -115,6 +115,28 @@ func WriteBytesToRedoPageMemoryLock(idx, off int32, bts []byte, cmn int32) error
 	return nil
 }
 
+func WriteRedoLogFromReplic(idx, off int32, bts []byte) error {
+	nowIdx := idx
+	nowOff := off
+	for len(bts) != 0 {
+		pg, err := ReadRedoPage(nowIdx)
+		if err != nil {
+			return err
+		}
+
+		pg.WriteBytes(nowOff, bts[:utils.MinInt(int(constants.PageSize-int64(nowOff)), len(bts))])
+		nowOff = 0
+		nowIdx++
+		if len(bts) < int(constants.PageSize-int64(nowOff)) {
+			bts = bts[:0]
+		} else {
+			bts = bts[constants.PageSize-int64(nowOff):]
+		}
+	}
+
+	return nil
+}
+
 func InitRedoLog() {
 	initPageFile(constants.RedoLogToDo)
 }

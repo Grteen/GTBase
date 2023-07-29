@@ -50,3 +50,23 @@ func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
 
 	return nil
 }
+
+func GetRedo(client *GtBaseClient, logIdx, logOff, seq int32) error {
+	result := make([]byte, 0)
+	result = append(result, []byte(constants.GetRedoCommand)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(logIdx)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(logIdx)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(logIdx)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, []byte(constants.CommandSep)...)
+
+	err := client.Write(result)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
