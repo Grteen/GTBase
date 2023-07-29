@@ -371,3 +371,76 @@ func TestHeartAnalyzer(t *testing.T) {
 		t.Errorf("should get %v idx %v off but got %v idx %v off", 10, 5000, logIdx, logOff)
 	}
 }
+
+func TestRedoAnalyzer(t *testing.T) {
+	port := 6544
+	lfd, err := utils.BindAndListen(port)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	redo, errr := page.ReadRedoPage(0)
+	if errr != nil {
+		t.Errorf(errr.Error())
+	}
+
+	slaveRedo := redo.Src()[:19]
+	ch := make(chan struct{})
+	go func() {
+		fd, err := utils.LocalDial(port)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+		defer utils.CloseFd(fd)
+
+		result := make([]byte, 0)
+		for {
+			res, errr := utils.ReadFd(fd)
+			if errr != nil {
+				t.Errorf(errr.Error())
+			}
+			result = append(result, res...)
+			if utils.EqualByteSlice(result[len(result)-2:], []byte(constants.ReplicRedoLogEnd)) {
+				result = result[:len(result)-2]
+				break
+			}
+		}
+		seqBts := result[len(constants.RedoCommand)+1 : len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)]
+
+		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
+		m := replic.CreateMaster(0, int32(len(slaveRedo)), 1, c)
+		rs := replic.CreateReplicState()
+		rs.SetMasterLock(m)
+
+		parts := make([][]byte, 0)
+		parts = append(parts, seqBts)
+		parts = append(parts, result)
+
+		analyzer.CreateRedoAnalyzer(parts, nil, -1, analyzer.CreateCommandAssignArgs(c, rs)).Analyze().Exec()
+		ch <- struct{}{}
+	}()
+
+	nfd, erra := utils.Accept(int(lfd))
+	if erra != nil {
+		t.Errorf(erra.Error())
+	}
+
+	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", port))
+	s := replic.CreateSlave(0, int32(len(slaveRedo)), 1, c)
+
+	errh := s.SendRedoLogToSlave()
+	if errh != nil {
+		t.Errorf(errh.Error())
+	}
+
+	<-ch
+
+	pg, err := page.ReadRedoPage(0)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !utils.EqualByteSlice(pg.Src(), redo.Src()) {
+		t.Errorf("not same")
+	}
+}

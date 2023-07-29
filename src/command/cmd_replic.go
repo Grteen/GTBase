@@ -36,6 +36,10 @@ func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.
 	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
+func Redo(seq int32, redoLog []byte, rs *replic.ReplicState) error {
+	return rs.GetMaster().RedoFromMaster(seq, redoLog)
+}
+
 func GetHeart(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
 	key := client.GenerateKey()
 	s, ok := rs.GetSlave(key)
