@@ -5,7 +5,6 @@ import (
 	"GtBase/pkg/glog"
 	"GtBase/src/client"
 	"GtBase/src/page"
-	"GtBase/utils"
 	"os"
 	"sync"
 )
@@ -137,14 +136,7 @@ func (s *Slave) SendRedoLogToSlave() error {
 		return err
 	}
 
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.RedoCommand+" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(s.nextSeq.seq)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, redoLog...)
-	result = append(result, []byte(constants.ReplicRedoLogEnd)...)
-
-	errw := s.client.Write(result)
+	errw := client.Redo(s.client, redoLog, s.nextSeq.seq)
 	if errw != nil {
 		return errw
 	}
