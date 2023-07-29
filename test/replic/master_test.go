@@ -28,14 +28,20 @@ func TestMasterHeart(t *testing.T) {
 			t.Errorf(errr.Error())
 		}
 
-		if !utils.EqualByteSlice(result, []byte(constants.HeartCommand+constants.CommandSep)) {
-			t.Errorf("should read %v but got %v", constants.HeartCommand, result)
+		com := make([]byte, 0)
+		com = append(com, []byte(constants.HeartCommand)...)
+		com = append(com, []byte(" ")...)
+		com = append(com, utils.Encodeint32ToBytesSmallEnd(0)...)
+		com = append(com, []byte(constants.CommandSep)...)
+
+		if !utils.EqualByteSlice(result, com) {
+			t.Errorf("should read %v but got %v", com, result)
 		}
 
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
 		m := replic.CreateMaster(10, 5000, -1, c)
 
-		errg := m.HeartFromMaster()
+		errg := m.HeartFromMaster(0)
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}
@@ -61,6 +67,8 @@ func TestMasterHeart(t *testing.T) {
 
 	result := make([]byte, 0)
 	result = append(result, []byte(constants.GetHeartCommand)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(0)...)
 	result = append(result, []byte(" ")...)
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(10)...)
 	result = append(result, []byte(" ")...)

@@ -198,7 +198,7 @@ func TestHeart(t *testing.T) {
 	}
 	defer syscall.Close(listenSock)
 
-	addr := syscall.SockaddrInet4{Port: 8544}
+	addr := syscall.SockaddrInet4{Port: 4877}
 	copy(addr.Addr[:], net.ParseIP("127.0.0.1").To4())
 
 	err = syscall.Bind(listenSock, &addr)
@@ -215,7 +215,7 @@ func TestHeart(t *testing.T) {
 	h := make(chan struct{})
 	go func() {
 		parts := make([]byte, 0)
-		conn, err := net.Dial("tcp", "127.0.0.1:8544")
+		conn, err := net.Dial("tcp", "127.0.0.1:4877")
 		if err != nil {
 			t.Errorf(err.Error())
 			return
@@ -227,7 +227,7 @@ func TestHeart(t *testing.T) {
 			if err != nil {
 				t.Errorf(err.Error())
 			}
-			if !utils.EqualByteSlice(buf[:n], []byte(constants.HeartCommand)) {
+			if !utils.EqualByteSlice(buf[:n-7], []byte(constants.HeartCommand)) {
 				parts = append(parts, buf[0:n]...)
 				if utils.EqualByteSlice(parts[len(parts)-2:], []byte(constants.ReplicRedoLogEnd)) {
 					parts = parts[:len(parts)-2]
@@ -265,6 +265,7 @@ func TestHeart(t *testing.T) {
 	}
 
 	cmd2 := make([][]byte, 0)
+	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(2))
@@ -327,8 +328,14 @@ func TestHeartAnalyzer(t *testing.T) {
 			t.Errorf(errr.Error())
 		}
 
-		if !utils.EqualByteSlice(parts, []byte(constants.HeartCommand+constants.CommandSep)) {
-			t.Errorf("should read %v but got %v", constants.HeartCommand, parts)
+		com := make([]byte, 0)
+		com = append(com, []byte(constants.HeartCommand)...)
+		com = append(com, []byte(" ")...)
+		com = append(com, utils.Encodeint32ToBytesSmallEnd(0)...)
+		com = append(com, []byte(constants.CommandSep)...)
+
+		if !utils.EqualByteSlice(parts, com) {
+			t.Errorf("should read %v but got %v", com, parts)
 		}
 
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
@@ -360,6 +367,7 @@ func TestHeartAnalyzer(t *testing.T) {
 	rs.AppendSlaveLock(s)
 
 	parts := make([][]byte, 0)
+	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(0))
 	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(10))
 	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(5000))
 	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(1))

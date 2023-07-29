@@ -59,4 +59,7 @@ const (
 
 	AssignArgClient      string = "AssignClient"
 	AssignArgReplicState string = "AssignReplicState"
+
+	HeartCountLimit int32 = 10
+	HeartSeqSize    int32 = 4
 )

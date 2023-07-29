@@ -18,7 +18,15 @@ type GetHeartAnalyzer struct {
 
 func (a *GetHeartAnalyzer) Analyze() Command {
 	cmd := CreateGetHeartCommand(a.c, a.rs)
-	return a.getLogIdx(0, cmd)
+	return a.getHeartSeq(0, cmd)
+}
+
+func (a *GetHeartAnalyzer) getHeartSeq(nowIdx int32, c *GetHeartCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.heartSeq = utils.EncodeBytesSmallEndToint32(a.parts[nowIdx])
+	return a.getLogIdx(nowIdx+1, c)
 }
 
 func (a *GetHeartAnalyzer) getLogIdx(nowIdx int32, c *GetHeartCommand) Command {
@@ -72,21 +80,22 @@ func CreateGetHeartAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[stri
 }
 
 type GetHeartCommand struct {
-	logIdx int32
-	logOff int32
-	seq    int32
+	logIdx   int32
+	logOff   int32
+	seq      int32
+	heartSeq int32
 
 	c  *client.GtBaseClient
 	rs *replic.ReplicState
 }
 
 func (c *GetHeartCommand) Exec() object.Object {
-	command.GetHeart(c.logIdx, c.logOff, c.seq, c.c, c.rs)
+	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.c, c.rs)
 	return nil
 }
 
 func (c *GetHeartCommand) ExecWithOutRedoLog() object.Object {
-	command.GetHeart(c.logIdx, c.logOff, c.seq, c.c, c.rs)
+	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.c, c.rs)
 	return nil
 }
 

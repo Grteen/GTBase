@@ -31,6 +31,43 @@ func CreateNextSeq(seq int32) *NextSeq {
 	return &NextSeq{seq: seq, heartCount: 0}
 }
 
+type HeartInfo struct {
+	heartChan  chan int32
+	heartCount int32
+	heartSeq   int32
+	hLock      sync.Mutex
+}
+
+// if heartCount greater than HeartCountLimit return true
+func (h *HeartInfo) IncreaseCount() bool {
+	h.hLock.Lock()
+	defer h.hLock.Unlock()
+	h.heartCount++
+	if h.heartCount >= constants.HeartCountLimit {
+		h.heartCount = 0
+	}
+
+	return true
+}
+
+func (h *HeartInfo) IncreaseSeq() {
+	h.hLock.Lock()
+	defer h.hLock.Unlock()
+	h.heartSeq++
+}
+
+func (h *HeartInfo) Push(seq int32) {
+	h.heartChan <- seq
+}
+
+func (h *HeartInfo) Get() int32 {
+	return <-h.heartChan
+}
+
+func CreateHeartInfo() *HeartInfo {
+	return &HeartInfo{heartChan: make(chan int32, 10)}
+}
+
 type Slave struct {
 	client    *client.GtBaseClient
 	logIdx    int32
@@ -38,6 +75,7 @@ type Slave struct {
 	sLock     sync.Mutex
 	nextSeq   *NextSeq
 	syncState int32
+	hf        *HeartInfo
 }
 
 func (s *Slave) GetSyncState() int32 {
@@ -56,6 +94,10 @@ func (s *Slave) GetClient() *client.GtBaseClient {
 
 func (s *Slave) GetLogInfo() (int32, int32) {
 	return s.logIdx, s.logOff
+}
+
+func (s *Slave) GetHeatInfo() *HeartInfo {
+	return s.hf
 }
 
 // if get same Sequence three times it will return true
@@ -167,10 +209,14 @@ func (s *Slave) CheckFullSyncFinish() (int32, error) {
 }
 
 func (s *Slave) SendHeartToSlave() error {
-	return client.Heart(s.client)
+	return client.Heart(s.client, s.hf.heartSeq)
 }
 
-func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq int32) error {
+func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32) error {
+	if heartSeq != s.hf.heartSeq {
+		return nil
+	}
+
 	if seq <= s.GetSeq() {
 		reSend := s.GetSameSeq()
 		if reSend {
@@ -195,9 +241,15 @@ func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq int32) error {
 		}
 	}
 
+	s.hf.Push(seq)
+
 	return nil
 }
 
+func (s *Slave) HeartBeat(rs *ReplicState) {
+	s.SendHeartToSlave()
+}
+
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {
-	return &Slave{client: client, logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq), syncState: constants.SlaveFullSync}
+	return &Slave{client: client, logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq), syncState: constants.SlaveFullSync, hf: CreateHeartInfo()}
 }

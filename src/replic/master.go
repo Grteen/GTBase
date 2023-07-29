@@ -40,12 +40,12 @@ func (m *Master) SetSeqLock(seq int32) {
 	m.seq = seq
 }
 
-func (m *Master) sendGetHeartToMaster() error {
-	return client.GetHeart(m.client, m.logIdx, m.logOff)
+func (m *Master) sendGetHeartToMaster(heartSeq int32) error {
+	return client.GetHeart(m.client, m.logIdx, m.logOff, heartSeq)
 }
 
-func (m *Master) HeartFromMaster() error {
-	return m.sendGetHeartToMaster()
+func (m *Master) HeartFromMaster(heartSeq int32) error {
+	return m.sendGetHeartToMaster(heartSeq)
 }
 
 func (m *Master) sendGetRedoToMaster() error {

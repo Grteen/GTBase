@@ -40,14 +40,14 @@ func Redo(seq int32, redoLog []byte, rs *replic.ReplicState) error {
 	return rs.GetMaster().RedoFromMaster(seq, redoLog)
 }
 
-func GetHeart(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
+func GetHeart(logIdx, logOff, seq, heartSeq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
 	key := client.GenerateKey()
 	s, ok := rs.GetSlave(key)
 	if !ok {
 		return errors.New(constants.ServerSlaveNotExist)
 	}
 
-	err := s.GetHeartRespFromSlave(logIdx, logOff, seq)
+	err := s.GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq)
 	if err != nil {
 		return err
 	}
@@ -55,6 +55,6 @@ func GetHeart(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic
 	return nil
 }
 
-func Heart(rs *replic.ReplicState) error {
-	return rs.GetMaster().HeartFromMaster()
+func Heart(heartSeq int32, rs *replic.ReplicState) error {
+	return rs.GetMaster().HeartFromMaster(heartSeq)
 }

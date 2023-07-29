@@ -5,17 +5,26 @@ import (
 	"GtBase/src/command"
 	"GtBase/src/object"
 	"GtBase/src/replic"
+	"GtBase/utils"
 	"log"
 )
 
 type HeartAnalyzer struct {
-	// parts [][]byte
-	rs *replic.ReplicState
+	parts [][]byte
+	rs    *replic.ReplicState
 }
 
 func (a *HeartAnalyzer) Analyze() Command {
 	cmd := CreateHeartCommand(a.rs)
-	return cmd
+	return a.getHeartSeq(0, cmd)
+}
+
+func (a *HeartAnalyzer) getHeartSeq(nowIdx int32, c *HeartCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.heartSeq = utils.EncodeBytesSmallEndToint32(a.parts[nowIdx])
+	return c
 }
 
 func createHeartAnalyzer(rs *replic.ReplicState) Analyzer {
@@ -36,7 +45,8 @@ func CreateHeartAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]
 }
 
 type HeartCommand struct {
-	rs *replic.ReplicState
+	heartSeq int32
+	rs       *replic.ReplicState
 }
 
 func (c *HeartCommand) Exec() object.Object {
@@ -44,7 +54,7 @@ func (c *HeartCommand) Exec() object.Object {
 }
 
 func (c *HeartCommand) ExecWithOutRedoLog() object.Object {
-	err := command.Heart(c.rs)
+	err := command.Heart(c.heartSeq, c.rs)
 	if err != nil {
 		log.Println(err)
 	}
