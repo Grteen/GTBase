@@ -164,14 +164,7 @@ func (s *Slave) CheckFullSyncFinish() (int32, error) {
 }
 
 func (s *Slave) SendHeartToSlave() error {
-	result := []byte(constants.HeartCommand)
-
-	errw := s.client.Write(result)
-	if errw != nil {
-		return errw
-	}
-
-	return nil
+	return client.Heart(s.client)
 }
 
 func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq int32) error {

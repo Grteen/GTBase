@@ -27,6 +27,14 @@ func (m *Master) SetLogIdxAndOffLock(logIdx, logOff int32) {
 	m.logOff = logOff
 }
 
-func (m *Master) Heart() {
+func (m *Master) sendGetHeartToMaster() error {
+	return client.GetHeart(m.client, m.logIdx, m.logOff)
+}
 
+func (m *Master) GetHeartFromMaster() error {
+	return m.sendGetHeartToMaster()
+}
+
+func CreateMaster(logIdx, logOff int32, client *client.GtBaseClient) *Master {
+	return &Master{logIdx: logIdx, logOff: logOff, client: client}
 }
