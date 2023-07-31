@@ -46,9 +46,10 @@ func (h *HeartInfo) IncreaseCount() bool {
 	h.heartCount++
 	if h.heartCount >= constants.HeartCountLimit {
 		h.heartCount = 0
+		return true
 	}
 
-	return true
+	return false
 }
 
 func (h *HeartInfo) IncreaseSeq() {
@@ -244,7 +245,7 @@ func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32) error
 }
 
 func (s *Slave) HeartBeat(rs *ReplicState) {
-	timer := time.NewTimer(5 * time.Second)
+loop:
 	for {
 		time.Sleep(1 * time.Second)
 		s.SendHeartToSlave()
@@ -252,15 +253,15 @@ func (s *Slave) HeartBeat(rs *ReplicState) {
 		case heartSeq := <-s.hf.heartChan:
 			if heartSeq == s.hf.heartSeq {
 				s.hf.IncreaseSeq()
-				timer.Reset(5 * time.Second)
 			}
-		case <-timer.C:
+			goto loop
+		case <-time.After(3 * time.Second):
 			disc := s.hf.IncreaseCount()
 			if disc {
 				s.SetSyncStateLock(constants.SlaveDisConnect)
 				return
 			}
-			timer.Reset(5 * time.Second)
+			goto loop
 		}
 	}
 }

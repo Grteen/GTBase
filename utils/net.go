@@ -51,6 +51,32 @@ func LocalDial(port int) (int, error) {
 	return sockfd, nil
 }
 
+func Dial(host string, port int) (int, error) {
+	sockfd, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		return -1, err
+	}
+
+	ipAddr, errr := net.ResolveIPAddr("ip", host)
+	if errr != nil {
+		return -1, errr
+	}
+
+	ip := ipAddr.IP.To4()
+
+	serverAddr := syscall.SockaddrInet4{
+		Port: port,
+		Addr: [4]byte(ip),
+	}
+
+	errc := syscall.Connect(sockfd, &serverAddr)
+	if errc != nil {
+		return -1, errc
+	}
+
+	return sockfd, nil
+}
+
 func ReadFd(fd int) ([]byte, error) {
 	buf := make([]byte, 1024)
 	n, err := syscall.Read(fd, buf)

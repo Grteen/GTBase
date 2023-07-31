@@ -41,6 +41,7 @@ const (
 	GetRedoCommand  string = "GetRedo"
 	HeartCommand    string = "Heart"
 	GetHeartCommand string = "GetHeart"
+	BecomeSlave     string = "BecomeSlave"
 
 	PagePoolDefaultCapcity int32 = 1024
 

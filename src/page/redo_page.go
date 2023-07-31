@@ -137,6 +137,16 @@ func WriteRedoLogFromReplic(idx, off int32, bts []byte) error {
 	return nil
 }
 
+func GetEndRedoLogIdxAndOff() (int32, int32, error) {
+	fileInfor, errs := os.Stat(constants.RedoLogToDo)
+	if errs != nil {
+		return -1, -1, errs
+	}
+
+	fileSizer := fileInfor.Size()
+	return int32(fileSizer / constants.PageSize), int32(fileSizer % constants.PageSize), nil
+}
+
 func InitRedoLog() {
 	initPageFile(constants.RedoLogToDo)
 }

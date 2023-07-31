@@ -12,6 +12,7 @@ import (
 	"net"
 	"syscall"
 	"testing"
+	"time"
 )
 
 func TestAnalyzer(t *testing.T) {
@@ -450,5 +451,46 @@ func TestRedoAnalyzer(t *testing.T) {
 
 	if !utils.EqualByteSlice(pg.Src(), redo.Src()) {
 		t.Errorf("not same")
+	}
+}
+
+func TestBecomeSlaveAnalyzer(t *testing.T) {
+	portm := 1777
+	go func() {
+
+		err := server.CreateGtBaseServer().Run(portm)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+	}()
+
+	cmd := make([][]byte, 0)
+	cmd = append(cmd, []byte("127.0.0.1"))
+	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(int32(portm)))
+	c := client.CreateGtBaseClient(-1, client.CreateAddress("127.0.0.1", portm))
+	rs := replic.CreateReplicState()
+
+	time.Sleep(1 * time.Second)
+	analyzer.CreateBecomeSlaveAnalyzer(cmd, nil, -1, analyzer.CreateCommandAssignArgs(c, rs)).Analyze().Exec()
+
+	result := make([]byte, 0)
+	result = append(result, []byte(constants.HeartCommand)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(0)...)
+	result = append(result, []byte(constants.CommandSep)...)
+
+	fd := rs.GetMaster().GetClient().GetFd()
+	for i := 0; i < 2; i++ {
+		res, err := utils.ReadFd(fd)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		if i >= 1 {
+			if !utils.EqualByteSlice(res, result) {
+				t.Errorf("should get %v but got %v", result, res)
+			}
+		}
 	}
 }

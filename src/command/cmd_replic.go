@@ -4,7 +4,9 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/client"
 	"GtBase/src/object"
+	"GtBase/src/page"
 	"GtBase/src/replic"
+	"GtBase/utils"
 	"errors"
 )
 
@@ -60,4 +62,26 @@ func GetHeart(logIdx, logOff, seq, heartSeq int32, client *client.GtBaseClient, 
 
 func Heart(heartSeq int32, rs *replic.ReplicState) error {
 	return rs.GetMaster().HeartFromMaster(heartSeq)
+}
+
+func BecomeSlave(host string, port int, rs *replic.ReplicState) error {
+	fd, err := utils.Dial(host, port)
+	if err != nil {
+		return err
+	}
+
+	c := client.CreateGtBaseClient(fd, client.CreateAddress(host, port))
+	idx, off, errg := page.GetEndRedoLogIdxAndOff()
+	if errg != nil {
+		return errg
+	}
+
+	rs.SetMasterLock(replic.CreateMaster(idx, off, 0, c))
+
+	errs := client.Slave(c, idx, off, 0)
+	if errs != nil {
+		return errs
+	}
+
+	return nil
 }

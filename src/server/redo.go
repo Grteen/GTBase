@@ -106,7 +106,6 @@ func RedoLog() error {
 	if errf != nil {
 		return errf
 	}
-
 	for start < totalLen {
 		err := redoCmdInPage(start, checkPoint)
 		if err != nil {
