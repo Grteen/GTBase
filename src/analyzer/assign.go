@@ -5,7 +5,6 @@ import (
 	"GtBase/src/client"
 	"GtBase/src/replic"
 	"bytes"
-	"fmt"
 )
 
 type CommandAssign struct {
@@ -30,7 +29,6 @@ func (c *CommandAssign) InitDict() {
 }
 
 func (c *CommandAssign) splitCommand() [][]byte {
-	fmt.Println(c.bts)
 	return bytes.Fields(c.bts)
 }
 

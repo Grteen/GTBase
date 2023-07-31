@@ -1,11 +1,11 @@
 package constants
 
 const (
-	PageFilePathToDo       string = "/root/GtBase/temp/gt.pf"
-	BucketPageFilePathToDo string = "/root/GtBase/temp/gt.bf"
-	RedoLogToDo            string = "/root/GtBase/temp/redo.log"
-	CMNPathToDo            string = "/root/GtBase/temp/gt.cmn"
-	CheckPointPathToDo     string = "/root/GtBase/temp/gt.cp"
+	PageFilePathToDo       string = "./gt.pf"
+	BucketPageFilePathToDo string = "./gt.bf"
+	RedoLogToDo            string = "./redo.log"
+	CMNPathToDo            string = "./gt.cmn"
+	CheckPointPathToDo     string = "./gt.cp"
 	PageSize               int64  = 16384
 
 	BucketByteLength     int32 = 8

@@ -34,7 +34,6 @@ func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq int32) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -46,7 +45,6 @@ func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
 	result = append(result, []byte(" ")...)
 	result = append(result, redoLog...)
 	result = append(result, []byte(constants.CommandSep)...)
-
 	err := client.Write(result)
 	if err != nil {
 		return err

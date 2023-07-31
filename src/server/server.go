@@ -8,6 +8,7 @@ import (
 	"GtBase/src/page"
 	"GtBase/src/replic"
 	"context"
+	"fmt"
 	"net"
 	"sync"
 	"syscall"
@@ -90,36 +91,33 @@ func (s *GtBaseServer) handleAccept(listenFd int) error {
 }
 
 func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
-	for {
-		bts, err := client.Read()
-		if err != nil {
-			if err.Error() == constants.ClientExitError {
-				errr := s.ioer.Remove(client.GetFd())
-				if errr != nil {
-					return errr
-				}
-				return nil
+	bts, err := client.Read()
+	if err != nil {
+		if err.Error() == constants.ClientExitError {
+			errr := s.ioer.Remove(client.GetFd())
+			if errr != nil {
+				return errr
 			}
-			return err
+			return nil
 		}
-		if bts == nil {
-			break
-		}
+		return err
+	}
+	if bts == nil {
+		return nil
+	}
 
-		cmn, errg := nextwrite.GetCMN()
-		if errg != nil {
-			return errg
-		}
+	cmn, errg := nextwrite.GetCMN()
+	if errg != nil {
+		return errg
+	}
 
-		args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port)
-		result := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
-		if result != nil {
-			errw := client.Write(result.ToByte())
-			if errw != nil {
-				return errw
-			}
+	args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port)
+	result := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
+	if result != nil {
+		errw := client.Write(result.ToByte())
+		if errw != nil {
+			return errw
 		}
-
 	}
 
 	return nil
@@ -128,9 +126,15 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 func (s *GtBaseServer) assignTask(tasks []*Task) {
 	for _, t := range tasks {
 		if t.EventType() == constants.IoerAccept {
-			s.handleAccept(s.listenFd)
+			err := s.handleAccept(s.listenFd)
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else if t.EventType() == constants.IoerRead {
-			s.handleCommand(s.getClient(int(t.EventFd())))
+			err := s.handleCommand(s.getClient(int(t.EventFd())))
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }

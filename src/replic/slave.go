@@ -6,6 +6,8 @@ import (
 	"GtBase/src/client"
 	"GtBase/src/page"
 	"GtBase/utils"
+	"fmt"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -93,7 +95,12 @@ func (s *Slave) GetClient() *client.GtBaseClient {
 
 func (s *Slave) InitClient(host string, port int) error {
 	fd, err := utils.Dial(host, port)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(fd, host, port)
 	s.client = client.CreateGtBaseClient(fd, client.CreateAddress(host, port))
+	// _, err = utils.WriteFd(fd, []byte("here\r\n"))
 	return err
 }
 

@@ -4,6 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
 	"GtBase/utils"
+	"fmt"
 	"os"
 )
 
@@ -118,6 +119,7 @@ func WriteBytesToRedoPageMemoryLock(idx, off int32, bts []byte, cmn int32) error
 func WriteRedoLogFromReplic(idx, off int32, bts []byte) error {
 	nowIdx := idx
 	nowOff := off
+	fmt.Println(idx, off, bts)
 	for len(bts) != 0 {
 		pg, err := ReadRedoPage(nowIdx)
 		if err != nil {

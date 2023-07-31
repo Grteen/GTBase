@@ -27,8 +27,8 @@ func (a *HeartAnalyzer) getHeartSeq(nowIdx int32, c *HeartCommand) Command {
 	return c
 }
 
-func createHeartAnalyzer(rs *replic.ReplicState) Analyzer {
-	return &HeartAnalyzer{rs: rs}
+func createHeartAnalyzer(parts [][]byte, rs *replic.ReplicState) Analyzer {
+	return &HeartAnalyzer{parts: parts, rs: rs}
 }
 
 func CreateHeartAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
@@ -41,7 +41,7 @@ func CreateHeartAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]
 		return nil
 	}
 
-	return createHeartAnalyzer(rs)
+	return createHeartAnalyzer(parts, rs)
 }
 
 type HeartCommand struct {
