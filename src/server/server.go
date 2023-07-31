@@ -19,6 +19,9 @@ type GtBaseServer struct {
 	ioer     Ioer
 	listenFd int
 
+	host string
+	port int
+
 	rs *replic.ReplicState
 }
 
@@ -39,7 +42,7 @@ func (s *GtBaseServer) getClient(fd int) *client.GtBaseClient {
 	return result
 }
 
-func (s *GtBaseServer) Run(port int) error {
+func (s *GtBaseServer) Run() error {
 	initFile()
 	errr := RedoLog()
 	if errr != nil {
@@ -50,7 +53,7 @@ func (s *GtBaseServer) Run(port int) error {
 	go page.FlushDirtyList(ctx)
 	go page.FlushRedoDirtyList(ctx)
 
-	listenFd, err := listenAndGetFd(port)
+	listenFd, err := listenAndGetFd(s.port)
 	if err != nil {
 		return err
 	}
@@ -108,7 +111,7 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 			return errg
 		}
 
-		args := analyzer.CreateCommandAssignArgs(client, s.rs)
+		args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port)
 		result := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
 		if result != nil {
 			errw := client.Write(result.ToByte())
@@ -154,6 +157,6 @@ func listenAndGetFd(port int) (int, error) {
 	return listenSock, nil
 }
 
-func CreateGtBaseServer() *GtBaseServer {
-	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*client.GtBaseClient), rs: replic.CreateReplicState()}
+func CreateGtBaseServer(host string, port int) *GtBaseServer {
+	return &GtBaseServer{ioer: &EPoller{}, clients: make(map[int]*client.GtBaseClient), rs: replic.CreateReplicState(), host: host, port: port}
 }

@@ -10,8 +10,12 @@ import (
 	"errors"
 )
 
-func Slave(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
-	s := replic.CreateSlave(logIdx, logOff, seq, client)
+func Slave(logIdx, logOff, seq int32, host string, port int, client *client.GtBaseClient, rs *replic.ReplicState) error {
+	s := replic.CreateSlave(logIdx, logOff, seq, nil)
+	err := s.InitClient(host, port)
+	if err != nil {
+		return err
+	}
 	exist := rs.AppendSlaveLock(s)
 	if !exist {
 		err := s.SendRedoLogToSlave()
@@ -69,7 +73,7 @@ func Heart(heartSeq int32, rs *replic.ReplicState) error {
 	return rs.GetMaster().HeartFromMaster(heartSeq)
 }
 
-func BecomeSlave(host string, port int, rs *replic.ReplicState) error {
+func BecomeSlave(host, hostSelf string, port, portSelf int, rs *replic.ReplicState) error {
 	fd, err := utils.Dial(host, port)
 	if err != nil {
 		return err
@@ -83,7 +87,7 @@ func BecomeSlave(host string, port int, rs *replic.ReplicState) error {
 
 	rs.SetMasterLock(replic.CreateMaster(idx, off, 0, c))
 
-	errs := client.Slave(c, idx, off, 0)
+	errs := client.Slave(c, idx, off, 0, hostSelf, portSelf)
 	if errs != nil {
 		return errs
 	}

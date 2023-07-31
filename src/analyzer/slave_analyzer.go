@@ -43,6 +43,22 @@ func (a *SlaveAnalyzer) getSeq(nowIdx int32, c *SlaveCommand) Command {
 		return CreateErrorArgCommand()
 	}
 	c.seq = utils.EncodeBytesSmallEndToint32(a.parts[nowIdx])
+	return a.getHost(nowIdx+1, c)
+}
+
+func (a *SlaveAnalyzer) getHost(nowIdx int32, c *SlaveCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.host = string(a.parts[nowIdx])
+	return a.getPort(nowIdx+1, c)
+}
+
+func (a *SlaveAnalyzer) getPort(nowIdx int32, c *SlaveCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.port = int(utils.EncodeBytesSmallEndToint32(a.parts[nowIdx]))
 	return c
 }
 
@@ -73,6 +89,8 @@ func CreateSlaveAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]
 }
 
 type SlaveCommand struct {
+	host   string
+	port   int
 	logIdx int32
 	logOff int32
 	seq    int32
@@ -82,12 +100,11 @@ type SlaveCommand struct {
 }
 
 func (c *SlaveCommand) Exec() object.Object {
-	command.Slave(c.logIdx, c.logOff, c.seq, c.c, c.rs)
-	return nil
+	return c.ExecWithOutRedoLog()
 }
 
 func (c *SlaveCommand) ExecWithOutRedoLog() object.Object {
-	command.Slave(c.logIdx, c.logOff, c.seq, c.c, c.rs)
+	command.Slave(c.logIdx, c.logOff, c.seq, c.host, c.port, c.c, c.rs)
 	return nil
 }
 

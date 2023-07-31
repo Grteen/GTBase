@@ -10,6 +10,7 @@ import (
 	"GtBase/utils"
 	"fmt"
 	"net"
+	"strconv"
 	"syscall"
 	"testing"
 	"time"
@@ -72,7 +73,7 @@ func TestSlave(t *testing.T) {
 	}
 	defer syscall.Close(listenSock)
 
-	addr := syscall.SockaddrInet4{Port: 7433}
+	addr := syscall.SockaddrInet4{Port: 7432}
 	copy(addr.Addr[:], net.ParseIP("127.0.0.1").To4())
 
 	err = syscall.Bind(listenSock, &addr)
@@ -89,15 +90,25 @@ func TestSlave(t *testing.T) {
 
 	ch := make(chan []byte)
 	go func(parts []byte) {
-		conn, err := net.Dial("tcp", "127.0.0.1:7433")
+		listener, err := net.Listen("tcp", "127.0.0.1:9988")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		conn, err := net.Dial("tcp", "127.0.0.1:7432")
 		if err != nil {
 			t.Errorf(err.Error())
 			return
 		}
 		defer conn.Close()
+
+		con, err := listener.Accept()
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		for {
 			buf := make([]byte, 1024)
-			n, err := conn.Read(buf)
+			n, err := con.Read(buf)
 			if err != nil {
 				t.Errorf(err.Error())
 			}
@@ -136,14 +147,16 @@ func TestSlave(t *testing.T) {
 	}
 
 	rs := replic.CreateReplicState()
-	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 0))
+	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 9988))
 
 	cmd := make([][]byte, 0)
 	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(1))
+	cmd = append(cmd, []byte("127.0.0.1"))
+	cmd = append(cmd, utils.Encodeint32ToBytesSmallEnd(9988))
 
-	args := analyzer.CreateCommandAssignArgs(c, rs)
+	args := analyzer.CreateCommandAssignArgs(c, rs, "127.0.0.1", 7432)
 
 	analyzer.CreateSlaveAnalyzer(cmd, nil, 0, args).Analyze().Exec()
 
@@ -215,6 +228,11 @@ func TestHeart(t *testing.T) {
 	ch := make(chan []byte)
 	h := make(chan struct{})
 	go func() {
+		listener, err := net.Listen("tcp", "127.0.0.1:9977")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
 		parts := make([]byte, 0)
 		conn, err := net.Dial("tcp", "127.0.0.1:4877")
 		if err != nil {
@@ -222,9 +240,14 @@ func TestHeart(t *testing.T) {
 			return
 		}
 		defer conn.Close()
+
+		con, err := listener.Accept()
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		for {
 			buf := make([]byte, 1024)
-			n, err := conn.Read(buf)
+			n, err := con.Read(buf)
 			if err != nil {
 				t.Errorf(err.Error())
 			}
@@ -271,15 +294,16 @@ func TestHeart(t *testing.T) {
 	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(0))
 	cmd2 = append(cmd2, utils.Encodeint32ToBytesSmallEnd(2))
 
-	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 0))
+	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 9977))
 	s := replic.CreateSlave(0, 0, 1, c)
+	s.InitClient("127.0.0.1", 9977)
 	rs := replic.CreateReplicState()
 	rs.AppendSlaveLock(s)
 
 	s.SendHeartToSlave()
 	<-h
 	s.SetSyncStateLock(constants.SlaveSync)
-	args := analyzer.CreateCommandAssignArgs(c, rs)
+	args := analyzer.CreateCommandAssignArgs(c, rs, "127.0.0.1", 4877)
 
 	analyzer.CreateGetHeartAnalyzer(cmd2, nil, -1, args).Analyze().Exec()
 
@@ -345,7 +369,7 @@ func TestHeartAnalyzer(t *testing.T) {
 		rs := replic.CreateReplicState()
 		rs.SetMasterLock(m)
 
-		args := analyzer.CreateCommandAssignArgs(c, rs)
+		args := analyzer.CreateCommandAssignArgs(c, rs, "127.0.0.1", 7432)
 
 		analyzer.CreateHeartAnalyzer(nil, nil, -1, args).Analyze().Exec()
 	}()
@@ -373,7 +397,7 @@ func TestHeartAnalyzer(t *testing.T) {
 	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(5000))
 	parts = append(parts, utils.Encodeint32ToBytesSmallEnd(1))
 
-	analyzer.CreateGetHeartAnalyzer(parts, nil, 1, analyzer.CreateCommandAssignArgs(c, rs)).Analyze().Exec()
+	analyzer.CreateGetHeartAnalyzer(parts, nil, 1, analyzer.CreateCommandAssignArgs(c, rs, "127.0.0.1", port)).Analyze().Exec()
 
 	logIdx, logOff := s.GetLogInfo()
 	if logIdx != 10 || logOff != 5000 {
@@ -425,7 +449,7 @@ func TestRedoAnalyzer(t *testing.T) {
 		parts = append(parts, seqBts)
 		parts = append(parts, result)
 
-		analyzer.CreateRedoAnalyzer(parts, nil, -1, analyzer.CreateCommandAssignArgs(c, rs)).Analyze().Exec()
+		analyzer.CreateRedoAnalyzer(parts, nil, -1, analyzer.CreateCommandAssignArgs(c, rs, "127.0.0.1", port)).Analyze().Exec()
 		ch <- struct{}{}
 	}()
 
@@ -456,13 +480,12 @@ func TestRedoAnalyzer(t *testing.T) {
 
 func TestBecomeSlaveAnalyzer(t *testing.T) {
 	portm := 1777
+	ports := 9744
 	go func() {
-
-		err := server.CreateGtBaseServer().Run(portm)
+		err := server.CreateGtBaseServer("127.0.0.1", portm).Run()
 		if err != nil {
 			t.Errorf(err.Error())
 		}
-
 	}()
 
 	cmd := make([][]byte, 0)
@@ -472,7 +495,7 @@ func TestBecomeSlaveAnalyzer(t *testing.T) {
 	rs := replic.CreateReplicState()
 
 	time.Sleep(1 * time.Second)
-	analyzer.CreateBecomeSlaveAnalyzer(cmd, nil, -1, analyzer.CreateCommandAssignArgs(c, rs)).Analyze().Exec()
+	analyzer.CreateBecomeSlaveAnalyzer(cmd, nil, -1, analyzer.CreateCommandAssignArgs(c, rs, "127.0.0.1", ports)).Analyze().Exec()
 
 	result := make([]byte, 0)
 	result = append(result, []byte(constants.HeartCommand)...)
@@ -480,15 +503,25 @@ func TestBecomeSlaveAnalyzer(t *testing.T) {
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(0)...)
 	result = append(result, []byte(constants.CommandSep)...)
 
-	fd := rs.GetMaster().GetClient().GetFd()
+	listener, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(ports))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	con, err := listener.Accept()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	for i := 0; i < 2; i++ {
-		res, err := utils.ReadFd(fd)
+		res := make([]byte, 1024)
+		n, err := con.Read(res)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
 		if i >= 1 {
-			if !utils.EqualByteSlice(res, result) {
+			if !utils.EqualByteSlice(res[:n], result) {
 				t.Errorf("should get %v but got %v", result, res)
 			}
 		}

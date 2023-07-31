@@ -12,8 +12,8 @@ func main() {
 	flag.IntVar(&port, "p", 9877, "port")
 	flag.Parse()
 
-	s := server.CreateGtBaseServer()
-	err := s.Run(port)
+	s := server.CreateGtBaseServer("127.0.0.1", port)
+	err := s.Run()
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -5,6 +5,7 @@ import (
 	"GtBase/pkg/glog"
 	"GtBase/src/client"
 	"GtBase/src/page"
+	"GtBase/utils"
 	"os"
 	"sync"
 	"time"
@@ -88,6 +89,12 @@ func (s *Slave) SetSyncStateLock(state int32) {
 
 func (s *Slave) GetClient() *client.GtBaseClient {
 	return s.client
+}
+
+func (s *Slave) InitClient(host string, port int) error {
+	fd, err := utils.Dial(host, port)
+	s.client = client.CreateGtBaseClient(fd, client.CreateAddress(host, port))
+	return err
 }
 
 func (s *Slave) GetLogInfo() (int32, int32) {
@@ -267,5 +274,5 @@ loop:
 }
 
 func CreateSlave(logIdx, logOff, seq int32, client *client.GtBaseClient) *Slave {
-	return &Slave{client: client, logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq), syncState: constants.SlaveFullSync, hf: CreateHeartInfo()}
+	return &Slave{logIdx: logIdx, logOff: logOff, nextSeq: CreateNextSeq(seq), syncState: constants.SlaveFullSync, hf: CreateHeartInfo(), client: client}
 }

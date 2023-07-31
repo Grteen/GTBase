@@ -39,11 +39,6 @@ func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq int32) error {
 }
 
 func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
-	_, errd := client.Dial()
-	if errd != nil {
-		return errd
-	}
-
 	result := make([]byte, 0)
 	result = append(result, []byte(constants.RedoCommand)...)
 	result = append(result, []byte(" ")...)
@@ -80,7 +75,7 @@ func GetRedo(client *GtBaseClient, logIdx, logOff, seq int32) error {
 	return nil
 }
 
-func Slave(client *GtBaseClient, logIdx, logOff, seq int32) error {
+func Slave(client *GtBaseClient, logIdx, logOff, seq int32, host string, port int) error {
 	result := make([]byte, 0)
 	result = append(result, []byte(constants.SlaveCommand)...)
 	result = append(result, []byte(" ")...)
@@ -90,6 +85,9 @@ func Slave(client *GtBaseClient, logIdx, logOff, seq int32) error {
 	result = append(result, []byte(" ")...)
 	result = append(result, utils.Encodeint32ToBytesSmallEnd(seq)...)
 	result = append(result, []byte(" ")...)
+	result = append(result, []byte(host)...)
+	result = append(result, []byte(" ")...)
+	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(port))...)
 	result = append(result, []byte(constants.CommandSep)...)
 
 	err := client.Write(result)

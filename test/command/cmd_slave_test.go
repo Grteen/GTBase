@@ -38,15 +38,23 @@ func TestSlaveCommnd(t *testing.T) {
 
 	ch := make(chan []byte)
 	go func(result []byte) {
+		listner, err := net.Listen("tcp", "127.0.0.1:9677")
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		conn, err := net.Dial("tcp", "127.0.0.1:8888")
 		if err != nil {
 			t.Errorf(err.Error())
 			return
 		}
+		con, err := listner.Accept()
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 		defer conn.Close()
 		for {
 			buf := make([]byte, 1024)
-			n, err := conn.Read(buf)
+			n, err := con.Read(buf)
 			if err != nil {
 				t.Errorf(err.Error())
 			}
@@ -85,8 +93,8 @@ func TestSlaveCommnd(t *testing.T) {
 	}
 
 	rs := replic.CreateReplicState()
-	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 0))
-	command.Slave(0, 0, 1, c, rs)
+	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 9677))
+	command.Slave(0, 0, 1, "127.0.0.1", 9677, c, rs)
 
 	seqbts := <-ch
 	seq := utils.EncodeBytesSmallEndToint32(seqbts)

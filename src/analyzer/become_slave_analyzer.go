@@ -12,11 +12,13 @@ import (
 type BecomeSlaveAnalyzer struct {
 	parts [][]byte
 
-	rs *replic.ReplicState
+	hostSelf string
+	portSelf int
+	rs       *replic.ReplicState
 }
 
 func (a *BecomeSlaveAnalyzer) Analyze() Command {
-	cmd := CreateBecomeSlaveCommand(a.rs)
+	cmd := CreateBecomeSlaveCommand(a.hostSelf, a.portSelf, a.rs)
 	return a.getHost(0, cmd)
 }
 
@@ -36,8 +38,8 @@ func (a *BecomeSlaveAnalyzer) getPort(nowIdx int32, c *BecomeSlaveCommand) Comma
 	return c
 }
 
-func createBecomeSlaveAnalyzer(parts [][]byte, rs *replic.ReplicState) Analyzer {
-	return &BecomeSlaveAnalyzer{parts: parts, rs: rs}
+func createBecomeSlaveAnalyzer(parts [][]byte, hostSelf string, portSelf int, rs *replic.ReplicState) Analyzer {
+	return &BecomeSlaveAnalyzer{parts: parts, rs: rs, hostSelf: hostSelf, portSelf: portSelf}
 }
 
 func CreateBecomeSlaveAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
@@ -50,12 +52,32 @@ func CreateBecomeSlaveAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[s
 		return nil
 	}
 
-	return createBecomeSlaveAnalyzer(parts, rs)
+	hostItf, ok := args[constants.AssignArgHostSelf]
+	if !ok {
+		return nil
+	}
+	host, ok := hostItf.(string)
+	if !ok {
+		return nil
+	}
+
+	portItf, ok := args[constants.AssignArgPortSelf]
+	if !ok {
+		return nil
+	}
+	port, ok := portItf.(int)
+	if !ok {
+		return nil
+	}
+
+	return createBecomeSlaveAnalyzer(parts, host, port, rs)
 }
 
 type BecomeSlaveCommand struct {
-	host string
-	port int
+	host     string
+	port     int
+	hostSelf string
+	portSelf int
 
 	rs *replic.ReplicState
 }
@@ -65,7 +87,7 @@ func (c *BecomeSlaveCommand) Exec() object.Object {
 }
 
 func (c *BecomeSlaveCommand) ExecWithOutRedoLog() object.Object {
-	err := command.BecomeSlave(c.host, c.port, c.rs)
+	err := command.BecomeSlave(c.host, c.hostSelf, c.port, c.portSelf, c.rs)
 	if err != nil {
 		return object.CreateGtString(err.Error())
 	}
@@ -73,6 +95,6 @@ func (c *BecomeSlaveCommand) ExecWithOutRedoLog() object.Object {
 	return object.CreateGtString(constants.ServerOkReturn)
 }
 
-func CreateBecomeSlaveCommand(rs *replic.ReplicState) *BecomeSlaveCommand {
-	return &BecomeSlaveCommand{rs: rs}
+func CreateBecomeSlaveCommand(hostSelf string, portSelf int, rs *replic.ReplicState) *BecomeSlaveCommand {
+	return &BecomeSlaveCommand{rs: rs, hostSelf: hostSelf, portSelf: portSelf}
 }

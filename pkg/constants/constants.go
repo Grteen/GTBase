@@ -1,11 +1,11 @@
 package constants
 
 const (
-	PageFilePathToDo       string = "./gt.pf"
-	BucketPageFilePathToDo string = "./gt.bf"
-	RedoLogToDo            string = "./redo.log"
-	CMNPathToDo            string = "./gt.cmn"
-	CheckPointPathToDo     string = "./gt.cp"
+	PageFilePathToDo       string = "/root/GtBase/temp/gt.pf"
+	BucketPageFilePathToDo string = "/root/GtBase/temp/gt.bf"
+	RedoLogToDo            string = "/root/GtBase/temp/redo.log"
+	CMNPathToDo            string = "/root/GtBase/temp/gt.cmn"
+	CheckPointPathToDo     string = "/root/GtBase/temp/gt.cp"
 	PageSize               int64  = 16384
 
 	BucketByteLength     int32 = 8
@@ -62,6 +62,8 @@ const (
 
 	AssignArgClient      string = "AssignClient"
 	AssignArgReplicState string = "AssignReplicState"
+	AssignArgHostSelf    string = "AssignHostSelf"
+	AssignArgPortSelf    string = "AssignPortSelf"
 
 	HeartCountLimit int32 = 10
 	HeartSeqSize    int32 = 4

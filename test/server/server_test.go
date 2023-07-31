@@ -27,15 +27,15 @@ func TestServer(t *testing.T) {
 	}
 
 	go func() {
-		s := server.CreateGtBaseServer()
-		err := s.Run(1235)
+		s := server.CreateGtBaseServer("127.0.0.1", 4444)
+		err := s.Run()
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 	}()
 
 	time.Sleep(1 * time.Second)
-	conn, err := net.Dial("tcp", "127.0.0.1:1235")
+	conn, err := net.Dial("tcp", "127.0.0.1:4444")
 	if err != nil {
 		t.Errorf(err.Error())
 		return
