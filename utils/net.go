@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"GtBase/pkg/glog"
 	"net"
 	"syscall"
 )
@@ -54,16 +55,10 @@ func LocalDial(port int) (int, error) {
 func Dial(host string, port int) (int, error) {
 	sockfd, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
 	if err != nil {
-		return -1, err
+		return -1, glog.Error(err.Error())
 	}
 
-	ipAddr, errr := net.ResolveIPAddr("ip", host)
-	if errr != nil {
-		return -1, errr
-	}
-
-	ip := ipAddr.IP.To4()
-
+	ip := net.ParseIP(host)
 	serverAddr := syscall.SockaddrInet4{
 		Port: port,
 		Addr: [4]byte(ip),
@@ -71,7 +66,7 @@ func Dial(host string, port int) (int, error) {
 
 	errc := syscall.Connect(sockfd, &serverAddr)
 	if errc != nil {
-		return -1, errc
+		return -1, glog.Error(errc.Error())
 	}
 
 	return sockfd, nil
@@ -85,6 +80,10 @@ func ReadFd(fd int) ([]byte, error) {
 	}
 
 	return buf[:n], nil
+}
+
+func WriteFd(fd int, req []byte) (int, error) {
+	return syscall.Write(fd, req)
 }
 
 func CloseFd(fd int) {

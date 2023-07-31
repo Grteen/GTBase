@@ -10,13 +10,18 @@ import (
 	"errors"
 )
 
-func Slave(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) {
+func Slave(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
 	s := replic.CreateSlave(logIdx, logOff, seq, client)
 	exist := rs.AppendSlaveLock(s)
 	if !exist {
-		s.SendRedoLogToSlave()
+		err := s.SendRedoLogToSlave()
+		if err != nil {
+			return err
+		}
 		go s.HeartBeat(rs)
 	}
+
+	return nil
 }
 
 // if slave is satisfy the FullSyncState then Send Next RedoLog

@@ -16,7 +16,7 @@ type BecomeSlaveAnalyzer struct {
 }
 
 func (a *BecomeSlaveAnalyzer) Analyze() Command {
-	cmd := CreateBecomeCommand(a.rs)
+	cmd := CreateBecomeSlaveCommand(a.rs)
 	return a.getHost(0, cmd)
 }
 
@@ -73,6 +73,6 @@ func (c *BecomeSlaveCommand) ExecWithOutRedoLog() object.Object {
 	return object.CreateGtString(constants.ServerOkReturn)
 }
 
-func CreateBecomeCommand(rs *replic.ReplicState) *BecomeSlaveCommand {
+func CreateBecomeSlaveCommand(rs *replic.ReplicState) *BecomeSlaveCommand {
 	return &BecomeSlaveCommand{rs: rs}
 }

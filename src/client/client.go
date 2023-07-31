@@ -2,6 +2,7 @@ package client
 
 import (
 	"GtBase/pkg/constants"
+	"GtBase/utils"
 	"bytes"
 	"errors"
 	"syscall"
@@ -9,6 +10,7 @@ import (
 
 type GtBaseClient struct {
 	fd         int
+	sendFd     int
 	readBuffer []byte
 	addr       *Address
 }
@@ -59,6 +61,19 @@ func (c *GtBaseClient) Write(data []byte) error {
 	}
 
 	return nil
+}
+
+func (c *GtBaseClient) Dial() (int, error) {
+	if c.sendFd != 0 {
+		return -1, nil
+	}
+	sendFd, err := utils.Dial(c.addr.host, c.addr.port)
+	c.sendFd = sendFd
+	if err != nil {
+		return -1, err
+	}
+
+	return sendFd, nil
 }
 
 func (c *GtBaseClient) GenerateKey() string {

@@ -39,6 +39,11 @@ func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq int32) error {
 }
 
 func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
+	_, errd := client.Dial()
+	if errd != nil {
+		return errd
+	}
+
 	result := make([]byte, 0)
 	result = append(result, []byte(constants.RedoCommand)...)
 	result = append(result, []byte(" ")...)
