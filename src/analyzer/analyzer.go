@@ -1,10 +1,13 @@
 package analyzer
 
-import "GtBase/src/object"
+import (
+	"GtBase/src/object"
+	"GtBase/utils"
+)
 
 type Command interface {
-	Exec() object.Object
-	ExecWithOutRedoLog() object.Object
+	Exec() (object.Object, *utils.Message)
+	ExecWithOutRedoLog() (object.Object, *utils.Message)
 }
 
 type Analyzer interface {

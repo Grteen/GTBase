@@ -36,8 +36,8 @@ func TestRedoLog(t *testing.T) {
 		}
 
 		cmd := utils.EncodeFieldsToGtBasePacket(temp)
-		ok := analyzer.CreateCommandAssign([]byte(cmd), cmn, nil).Assign().Analyze().Exec().ToString()
-		if ok != constants.ServerOkReturn {
+		ok, _ := analyzer.CreateCommandAssign([]byte(cmd)[:len(cmd)-2], cmn, nil).Assign().Analyze().Exec()
+		if ok.ToString() != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
 		}
 
@@ -79,8 +79,8 @@ func TestReadRedo(t *testing.T) {
 		}
 
 		cmd := utils.EncodeFieldsToGtBasePacket(temp)
-		ok := analyzer.CreateCommandAssign([]byte(cmd), cmn, nil).Assign().Analyze().Exec().ToString()
-		if ok != constants.ServerOkReturn {
+		ok, _ := analyzer.CreateCommandAssign([]byte(cmd)[:len(cmd)-2], cmn, nil).Assign().Analyze().Exec()
+		if ok.ToString() != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
 		}
 

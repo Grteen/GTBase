@@ -33,8 +33,8 @@ func TestAnalyzer(t *testing.T) {
 		cmd = append(cmd, []byte(d.val))
 
 		a := analyzer.CreateSetAnalyzer(cmd, []byte(""), -1, nil)
-		res := a.Analyze().Exec().ToString()
-		if res != constants.ServerOkReturn {
+		res, _ := a.Analyze().Exec()
+		if res.ToString() != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, res)
 		}
 	}
@@ -44,9 +44,9 @@ func TestAnalyzer(t *testing.T) {
 		cmd = append(cmd, []byte(d.key))
 
 		a := analyzer.CreateGetAnalyzer(cmd, []byte(""), -1, nil)
-		res := a.Analyze().Exec().ToString()
-		if res != d.val {
-			t.Errorf("Exec should get %v but got %v", d.val, res)
+		res, _ := a.Analyze().Exec()
+		if res.ToString() != d.val {
+			t.Errorf("Exec should get %v but got %v", d.val, res.ToString())
 		}
 	}
 
@@ -54,15 +54,15 @@ func TestAnalyzer(t *testing.T) {
 	cmd = append(cmd, []byte(data[1].key))
 
 	a := analyzer.CreateDelAnalyzer(cmd, []byte(""), -1, nil)
-	res := a.Analyze().Exec().ToString()
-	if res != constants.ServerOkReturn {
-		t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, res)
+	res, _ := a.Analyze().Exec()
+	if res.ToString() != constants.ServerOkReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, res.ToString())
 	}
 
 	a2 := analyzer.CreateGetAnalyzer(cmd, []byte(""), -1, nil)
-	res = a2.Analyze().Exec().ToString()
-	if res != constants.ServerGetNilReturn {
-		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res)
+	res, _ = a2.Analyze().Exec()
+	if res.ToString() != constants.ServerGetNilReturn {
+		t.Errorf("Exec should get %v but got %v", constants.ServerGetNilReturn, res.ToString())
 	}
 }
 

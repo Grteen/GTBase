@@ -3,6 +3,7 @@ package analyzer
 import (
 	"GtBase/pkg/constants"
 	"GtBase/src/object"
+	"GtBase/utils"
 	"fmt"
 )
 
@@ -22,14 +23,14 @@ type UnknownCommandCommand struct {
 	cmd []byte
 }
 
-func (c *UnknownCommandCommand) Exec() object.Object {
+func (c *UnknownCommandCommand) Exec() (object.Object, *utils.Message) {
 	response := fmt.Sprintf(constants.ServerUnknownCommandFormat, string(c.cmd))
-	return object.CreateGtString(response)
+	return object.CreateGtString(response), nil
 }
 
-func (c *UnknownCommandCommand) ExecWithOutRedoLog() object.Object {
+func (c *UnknownCommandCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	response := fmt.Sprintf(constants.ServerUnknownCommandFormat, string(c.cmd))
-	return object.CreateGtString(response)
+	return object.CreateGtString(response), nil
 }
 
 func CreateUnknownCommandCommand(cmd []byte) *UnknownCommandCommand {
@@ -40,12 +41,12 @@ type ErrorArgCommand struct {
 	// cmd []byte
 }
 
-func (c *ErrorArgCommand) Exec() object.Object {
-	return object.CreateGtString(constants.ServerErrorArg)
+func (c *ErrorArgCommand) Exec() (object.Object, *utils.Message) {
+	return object.CreateGtString(constants.ServerErrorArg), nil
 }
 
-func (c *ErrorArgCommand) ExecWithOutRedoLog() object.Object {
-	return object.CreateGtString(constants.ServerErrorArg)
+func (c *ErrorArgCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
+	return object.CreateGtString(constants.ServerErrorArg), nil
 }
 
 func CreateErrorArgCommand() *ErrorArgCommand {

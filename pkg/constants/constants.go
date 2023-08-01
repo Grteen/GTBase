@@ -69,4 +69,6 @@ const (
 	HeartSeqSize    int32 = 4
 
 	GtBasePacketLengthSize int32 = 4
+
+	MessageNeedRedo int = 1
 )

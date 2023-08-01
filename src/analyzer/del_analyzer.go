@@ -5,6 +5,7 @@ import (
 	"GtBase/src/command"
 	"GtBase/src/object"
 	"GtBase/src/redo"
+	"GtBase/utils"
 )
 
 // GET [KEY]
@@ -37,19 +38,19 @@ type DelCommand struct {
 	cmn int32
 }
 
-func (c *DelCommand) Exec() object.Object {
+func (c *DelCommand) Exec() (object.Object, *utils.Message) {
 	redo.WriteRedoLog(c.cmn, c.cmd)
 
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *DelCommand) ExecWithOutRedoLog() object.Object {
+func (c *DelCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	err := command.Del(c.key, c.cmn)
 	if err != nil {
-		return object.CreateGtString(err.Error())
+		return object.CreateGtString(err.Error()), nil
 	}
 
-	return object.CreateGtString(constants.ServerOkReturn)
+	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
 func CreateDelCommand(cmd []byte, cmn int32) *DelCommand {

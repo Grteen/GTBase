@@ -89,14 +89,14 @@ type GetHeartCommand struct {
 	rs *replic.ReplicState
 }
 
-func (c *GetHeartCommand) Exec() object.Object {
+func (c *GetHeartCommand) Exec() (object.Object, *utils.Message) {
 	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.c, c.rs)
-	return nil
+	return nil, nil
 }
 
-func (c *GetHeartCommand) ExecWithOutRedoLog() object.Object {
+func (c *GetHeartCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.c, c.rs)
-	return nil
+	return nil, nil
 }
 
 func CreateGetHeartCommand(c *client.GtBaseClient, rs *replic.ReplicState) *GetHeartCommand {

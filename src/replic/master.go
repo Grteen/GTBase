@@ -4,6 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/client"
 	"GtBase/src/page"
+	"GtBase/utils"
 	"sync"
 )
 
@@ -52,19 +53,18 @@ func (m *Master) sendGetRedoToMaster() error {
 	return client.GetRedo(m.client, m.logIdx, m.logOff, m.seq)
 }
 
-func (m *Master) RedoFromMaster(seq int32, redoLog []byte) error {
+func (m *Master) RedoFromMaster(seq int32, redoLog []byte) (*utils.Message, error) {
 	if seq != m.seq {
-		return nil
+		return nil, nil
 	}
 
 	err := page.WriteRedoLogFromReplic(m.logIdx, m.logOff, redoLog)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	m.updateLogIdxAndOff(int32(len(redoLog)))
 	m.SetSeqLock(seq + 1)
-	return m.sendGetRedoToMaster()
+	return utils.CreateMessage(constants.MessageNeedRedo), m.sendGetRedoToMaster()
 }
 
 func (m *Master) updateLogIdxAndOff(redoLogLen int32) {

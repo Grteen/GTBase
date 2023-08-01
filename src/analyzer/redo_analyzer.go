@@ -60,16 +60,16 @@ type RedoCommand struct {
 	rs *replic.ReplicState
 }
 
-func (c *RedoCommand) Exec() object.Object {
+func (c *RedoCommand) Exec() (object.Object, *utils.Message) {
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *RedoCommand) ExecWithOutRedoLog() object.Object {
-	err := command.Redo(c.seq, c.redoLog, c.rs)
+func (c *RedoCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
+	msg, err := command.Redo(c.seq, c.redoLog, c.rs)
 	if err != nil {
 		log.Println(err)
 	}
-	return nil
+	return nil, msg
 }
 
 func CreateRedoCommand(rs *replic.ReplicState) *RedoCommand {

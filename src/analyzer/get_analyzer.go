@@ -4,6 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/command"
 	"GtBase/src/object"
+	"GtBase/utils"
 )
 
 // GET [KEY]
@@ -34,20 +35,20 @@ type GetCommand struct {
 	key object.Object
 }
 
-func (c *GetCommand) Exec() object.Object {
+func (c *GetCommand) Exec() (object.Object, *utils.Message) {
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *GetCommand) ExecWithOutRedoLog() object.Object {
+func (c *GetCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	result, err := command.Get(c.key)
 	if err != nil {
-		return object.CreateGtString(err.Error())
+		return object.CreateGtString(err.Error()), nil
 	}
 	if result == nil {
-		return object.CreateGtString(constants.ServerGetNilReturn)
+		return object.CreateGtString(constants.ServerGetNilReturn), nil
 	}
 
-	return result
+	return result, nil
 }
 
 func CreateGetCommand() *GetCommand {

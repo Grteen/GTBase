@@ -14,12 +14,7 @@ func Get(parts []string, c *GtBaseClient) object.Object {
 		return object.CreateGtString(constants.ServerErrorArg)
 	}
 
-	req := make([]byte, 0)
-	req = append(req, []byte(parts[0])...)
-	req = append(req, []byte(" ")...)
-	req = append(req, []byte(parts[1])...)
-	req = append(req, []byte(constants.CommandSep)...)
-
+	req := utils.EncodeFieldsToGtBasePacket(utils.ChangeStringSliceToByteSlic(parts))
 	return WriteAndRead(req, c)
 }
 
@@ -28,13 +23,7 @@ func Set(parts []string, c *GtBaseClient) object.Object {
 		return object.CreateGtString(constants.ServerErrorArg)
 	}
 
-	req := make([]byte, 0)
-	req = append(req, []byte(parts[0])...)
-	req = append(req, []byte(" ")...)
-	req = append(req, []byte(parts[1])...)
-	req = append(req, []byte(" ")...)
-	req = append(req, []byte(parts[2])...)
-	req = append(req, []byte(constants.CommandSep)...)
+	req := utils.EncodeFieldsToGtBasePacket(utils.ChangeStringSliceToByteSlic(parts))
 
 	return WriteAndRead(req, c)
 }
@@ -44,11 +33,7 @@ func Del(parts []string, c *GtBaseClient) object.Object {
 		return object.CreateGtString(constants.ServerErrorArg)
 	}
 
-	req := make([]byte, 0)
-	req = append(req, []byte(parts[0])...)
-	req = append(req, []byte(" ")...)
-	req = append(req, []byte(parts[1])...)
-	req = append(req, []byte(constants.CommandSep)...)
+	req := utils.EncodeFieldsToGtBasePacket(utils.ChangeStringSliceToByteSlic(parts))
 
 	return WriteAndRead(req, c)
 }
@@ -65,17 +50,17 @@ func BecomeSlave(parts []string, c *GtBaseClient) object.Object {
 		return object.CreateGtString(constants.ServerErrorArg)
 	}
 
-	req := make([]byte, 0)
-	req = append(req, []byte(parts[0])...)
-	req = append(req, []byte(" ")...)
-	req = append(req, []byte(parts[1])...)
-	req = append(req, []byte(" ")...)
+	fields := make([][]byte, 0)
+	fields = append(fields, []byte(parts[0]))
+	fields = append(fields, []byte(parts[1]))
+
 	p, erra := strconv.Atoi(parts[2])
 	if erra != nil {
 		return object.CreateGtString(erra.Error())
 	}
-	req = append(req, utils.Encodeint32ToBytesSmallEnd(int32(p))...)
-	req = append(req, []byte(constants.CommandSep)...)
+
+	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(int32(p)))
+	req := utils.EncodeFieldsToGtBasePacket(fields)
 
 	return WriteAndRead(req, c)
 }

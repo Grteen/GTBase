@@ -49,17 +49,17 @@ type HeartCommand struct {
 	rs       *replic.ReplicState
 }
 
-func (c *HeartCommand) Exec() object.Object {
+func (c *HeartCommand) Exec() (object.Object, *utils.Message) {
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *HeartCommand) ExecWithOutRedoLog() object.Object {
+func (c *HeartCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	err := command.Heart(c.heartSeq, c.rs)
 	if err != nil {
 		log.Println(err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 func CreateHeartCommand(rs *replic.ReplicState) *HeartCommand {

@@ -82,17 +82,17 @@ type BecomeSlaveCommand struct {
 	rs *replic.ReplicState
 }
 
-func (c *BecomeSlaveCommand) Exec() object.Object {
+func (c *BecomeSlaveCommand) Exec() (object.Object, *utils.Message) {
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *BecomeSlaveCommand) ExecWithOutRedoLog() object.Object {
+func (c *BecomeSlaveCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	err := command.BecomeSlave(c.host, c.hostSelf, c.port, c.portSelf, c.rs)
 	if err != nil {
-		return object.CreateGtString(err.Error())
+		return object.CreateGtString(err.Error()), nil
 	}
 
-	return object.CreateGtString(constants.ServerOkReturn)
+	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
 func CreateBecomeSlaveCommand(hostSelf string, portSelf int, rs *replic.ReplicState) *BecomeSlaveCommand {

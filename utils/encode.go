@@ -57,3 +57,12 @@ func DecodeGtBasePacket(x []byte) [][]byte {
 
 	return result
 }
+
+func ChangeStringSliceToByteSlic(x []string) [][]byte {
+	result := make([][]byte, 0, len(x))
+	for _, s := range x {
+		result = append(result, []byte(s))
+	}
+
+	return result
+}

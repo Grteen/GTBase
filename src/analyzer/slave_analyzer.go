@@ -99,13 +99,13 @@ type SlaveCommand struct {
 	rs *replic.ReplicState
 }
 
-func (c *SlaveCommand) Exec() object.Object {
+func (c *SlaveCommand) Exec() (object.Object, *utils.Message) {
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *SlaveCommand) ExecWithOutRedoLog() object.Object {
+func (c *SlaveCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	command.Slave(c.logIdx, c.logOff, c.seq, c.host, c.port, c.c, c.rs)
-	return nil
+	return nil, nil
 }
 
 func CreateSlaveCommand(c *client.GtBaseClient, rs *replic.ReplicState) *SlaveCommand {

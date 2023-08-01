@@ -55,8 +55,8 @@ func TestRedoLog(t *testing.T) {
 	}
 
 	for _, d := range data {
-		res := analyzer.CreateCommandAssign(d.cmd, -1, nil).Assign().Analyze().Exec().ToString()
-		if res != d.res {
+		res, _ := analyzer.CreateCommandAssign(d.cmd, -1, nil).Assign().Analyze().Exec()
+		if res.ToString() != d.res {
 			t.Errorf("Exec should get %v but got %v", d.res, res)
 		}
 	}

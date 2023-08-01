@@ -112,12 +112,16 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 	}
 
 	args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port)
-	result := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
+	result, msg := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
 	if result != nil {
 		errw := client.Write(result.ToByte())
 		if errw != nil {
 			return errw
 		}
+	}
+
+	if msg != nil {
+
 	}
 
 	return nil

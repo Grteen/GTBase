@@ -50,7 +50,7 @@ func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.
 	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
-func Redo(seq int32, redoLog []byte, rs *replic.ReplicState) error {
+func Redo(seq int32, redoLog []byte, rs *replic.ReplicState) (*utils.Message, error) {
 	return rs.GetMaster().RedoFromMaster(seq, redoLog)
 }
 

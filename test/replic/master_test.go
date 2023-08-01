@@ -116,7 +116,7 @@ func TestRedo(t *testing.T) {
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
 		m := replic.CreateMaster(0, int32(len(slaveRedo)), 1, c)
 
-		errg := m.RedoFromMaster(utils.EncodeBytesSmallEndToint32(seqBts), result[len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)+1:])
+		_, errg := m.RedoFromMaster(utils.EncodeBytesSmallEndToint32(seqBts), result[len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)+1:])
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}

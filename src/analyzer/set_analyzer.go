@@ -5,6 +5,8 @@ import (
 	"GtBase/src/command"
 	"GtBase/src/object"
 	"GtBase/src/redo"
+	"GtBase/utils"
+	"fmt"
 )
 
 // SET [KEY] [VAL]
@@ -46,19 +48,20 @@ type SetCommand struct {
 	cmn int32
 }
 
-func (c *SetCommand) Exec() object.Object {
+func (c *SetCommand) Exec() (object.Object, *utils.Message) {
+	fmt.Println(len(c.cmd), c.cmd)
 	redo.WriteRedoLog(c.cmn, c.cmd)
 
 	return c.ExecWithOutRedoLog()
 }
 
-func (c *SetCommand) ExecWithOutRedoLog() object.Object {
+func (c *SetCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 	err := command.Set(c.key, c.val, c.cmn)
 	if err != nil {
-		return object.CreateGtString(err.Error())
+		return object.CreateGtString(err.Error()), nil
 	}
 
-	return object.CreateGtString(constants.ServerOkReturn)
+	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
 func CreateSetCommand(cmd []byte, cmn int32) *SetCommand {
