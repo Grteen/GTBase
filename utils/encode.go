@@ -41,6 +41,10 @@ func DecodeGtBasePacket(x []byte) [][]byte {
 
 	result := make([][]byte, 0)
 
+	if EqualByteSlice(packet[len(packet)-2:], []byte(constants.CommandSep)) {
+		packet = packet[:len(packet)-2]
+	}
+
 	i := 0
 	for i < len(packet) {
 		length := EncodeBytesSmallEndToint32(packet[i : i+int(constants.GtBasePacketLengthSize)])

@@ -17,12 +17,12 @@ func TestRedoLog(t *testing.T) {
 	page.InitRedoLog()
 
 	data := []struct {
-		cmd string
+		cmd []string
 		res []byte
 	}{
-		{"Set key val", []byte{1, 0, 0, 0, 11, 0, 0, 0, 83, 101, 116, 32, 107, 101, 121, 32, 118, 97, 108}},
-		{"Del key", []byte{1, 0, 0, 0, 11, 0, 0, 0, 83, 101, 116, 32, 107, 101, 121, 32, 118, 97, 108,
-			2, 0, 0, 0, 7, 0, 0, 0, 68, 101, 108, 32, 107, 101, 121}},
+		{[]string{"Set", "key", "val"}, []byte{1, 0, 0, 0, 21, 0, 0, 0, 3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 107, 101, 121, 3, 0, 0, 0, 118, 97, 108}},
+		{[]string{"Del", "key"}, []byte{1, 0, 0, 0, 21, 0, 0, 0, 3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 107, 101, 121, 3, 0, 0, 0, 118, 97, 108,
+			2, 0, 0, 0, 14, 0, 0, 0, 3, 0, 0, 0, 68, 101, 108, 3, 0, 0, 0, 107, 101, 121}},
 	}
 
 	for _, d := range data {
@@ -30,8 +30,13 @@ func TestRedoLog(t *testing.T) {
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}
+		temp := make([][]byte, 0)
+		for i := 0; i < len(d.cmd); i++ {
+			temp = append(temp, []byte(d.cmd[i]))
+		}
 
-		ok := analyzer.CreateCommandAssign([]byte(d.cmd), cmn, nil).Assign().Analyze().Exec().ToString()
+		cmd := utils.EncodeFieldsToGtBasePacket(temp)
+		ok := analyzer.CreateCommandAssign([]byte(cmd), cmn, nil).Assign().Analyze().Exec().ToString()
 		if ok != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
 		}
@@ -55,12 +60,12 @@ func TestReadRedo(t *testing.T) {
 	page.InitRedoLog()
 
 	data := []struct {
-		cmd string
+		cmd []string
 		len int32
 		res *redo.Redo
 	}{
-		{"Set key val", 0, redo.CreateRedo(1, 11, []byte{83, 101, 116, 32, 107, 101, 121, 32, 118, 97, 108})},
-		{"Del key", 19, redo.CreateRedo(2, 7, []byte{68, 101, 108, 32, 107, 101, 121})},
+		{[]string{"Set", "key", "val"}, 0, redo.CreateRedo(1, 21, []byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 107, 101, 121, 3, 0, 0, 0, 118, 97, 108})},
+		{[]string{"Del", "key"}, 29, redo.CreateRedo(2, 14, []byte{3, 0, 0, 0, 68, 101, 108, 3, 0, 0, 0, 107, 101, 121})},
 	}
 
 	for _, d := range data {
@@ -68,8 +73,13 @@ func TestReadRedo(t *testing.T) {
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}
+		temp := make([][]byte, 0)
+		for i := 0; i < len(d.cmd); i++ {
+			temp = append(temp, []byte(d.cmd[i]))
+		}
 
-		ok := analyzer.CreateCommandAssign([]byte(d.cmd), cmn, nil).Assign().Analyze().Exec().ToString()
+		cmd := utils.EncodeFieldsToGtBasePacket(temp)
+		ok := analyzer.CreateCommandAssign([]byte(cmd), cmn, nil).Assign().Analyze().Exec().ToString()
 		if ok != constants.ServerOkReturn {
 			t.Errorf("Exec should get %v but got %v", constants.ServerOkReturn, ok)
 		}

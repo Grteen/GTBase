@@ -31,9 +31,9 @@ func TestRedoLog(t *testing.T) {
 		cmn int32
 		cmd []byte
 	}{
-		{1, []byte("Set key val")},
-		{2, []byte("Set Hello World")},
-		{3, []byte("Del Hello World")},
+		{1, []byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 107, 101, 121, 3, 0, 0, 0, 118, 97, 108}},
+		{2, []byte{3, 0, 0, 0, 83, 101, 116, 5, 0, 0, 0, 72, 101, 108, 108, 111, 5, 0, 0, 0, 87, 111, 114, 108, 100}},
+		{3, []byte{3, 0, 0, 0, 68, 101, 108, 5, 0, 0, 0, 72, 101, 108, 108, 111}},
 	}
 
 	for _, d := range dataw {
@@ -50,8 +50,8 @@ func TestRedoLog(t *testing.T) {
 		cmd []byte
 		res string
 	}{
-		{[]byte("Get key"), "val"},
-		{[]byte("Get Hello"), constants.ServerGetNilReturn},
+		{[]byte{3, 0, 0, 0, 71, 101, 116, 3, 0, 0, 0, 107, 101, 121}, "val"},
+		{[]byte{3, 0, 0, 0, 71, 101, 116, 5, 0, 0, 0, 72, 101, 108, 108, 111}, constants.ServerGetNilReturn},
 	}
 
 	for _, d := range data {

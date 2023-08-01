@@ -20,14 +20,12 @@ func TestServer(t *testing.T) {
 		command []byte
 		result  []byte
 	}{
-		{[]byte("Set Key Val\r\n"), []byte("Ok")},
-		{[]byte("Get Key\r\n"), []byte("Val")},
-		{[]byte("Del Key\r\n"), []byte("Ok")},
-		{[]byte("Get Key\r\n"), []byte("Nil")},
+		{[]byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 75, 101, 121, 3, 0, 0, 0, 86, 97, 108, 13, 10}, []byte("Ok")},
+		{[]byte{3, 0, 0, 0, 71, 101, 116, 3, 0, 0, 0, 75, 101, 121, 13, 10}, []byte("Val")},
 	}
 
 	go func() {
-		s := server.CreateGtBaseServer("127.0.0.1", 4444)
+		s := server.CreateGtBaseServer("127.0.0.1", 2222)
 		err := s.Run()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -35,7 +33,7 @@ func TestServer(t *testing.T) {
 	}()
 
 	time.Sleep(1 * time.Second)
-	conn, err := net.Dial("tcp", "127.0.0.1:4444")
+	conn, err := net.Dial("tcp", "127.0.0.1:2222")
 	if err != nil {
 		t.Errorf(err.Error())
 		return

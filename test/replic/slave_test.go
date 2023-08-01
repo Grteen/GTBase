@@ -33,16 +33,15 @@ func TestSlaveSendRedoLog(t *testing.T) {
 	poller := &server.EPoller{}
 	poller.Run(listenSock)
 
-	result := make([]byte, 0)
-
-	ch := make(chan []byte)
-	go func(result []byte) {
+	ch := make(chan [][]byte)
+	go func() {
 		conn, err := net.Dial("tcp", "127.0.0.1:4398")
 		if err != nil {
 			t.Errorf(err.Error())
 			return
 		}
 		defer conn.Close()
+		result := make([]byte, 0)
 		for {
 			buf := make([]byte, 1024)
 			n, err := conn.Read(buf)
@@ -52,14 +51,12 @@ func TestSlaveSendRedoLog(t *testing.T) {
 
 			result = append(result, buf[0:n]...)
 			if utils.EqualByteSlice(result[len(result)-2:], []byte(constants.ReplicRedoLogEnd)) {
-				result = result[:len(result)-2]
-				ch <- result[len(constants.RedoCommand)+1 : len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)]
-				result = result[len(constants.RedoCommand)+int(constants.SendRedoLogSeqSize)+2:]
+				fileds := utils.DecodeGtBasePacket(result)
+				ch <- fileds
 				break
 			}
 		}
-		ch <- result
-	}(result)
+	}()
 
 	tasks, err := poller.Wait()
 	if err != nil {
@@ -86,12 +83,11 @@ func TestSlaveSendRedoLog(t *testing.T) {
 	s := replic.CreateSlave(0, 0, 1, client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 0)))
 	s.SendRedoLogToSlave()
 
-	seqbts := <-ch
-	seq := utils.EncodeBytesSmallEndToint32(seqbts)
+	fields := <-ch
+	seq := utils.EncodeBytesSmallEndToint32(fields[1])
 	if seq != 1 {
 		t.Errorf("seq should be %v but got %v", 1, seq)
 	}
-	result = <-ch
 
 	res := make([]byte, 0)
 	for i := 0; i < 10; i++ {
@@ -106,6 +102,8 @@ func TestSlaveSendRedoLog(t *testing.T) {
 
 		res = append(res, pg.Src()...)
 	}
+
+	result := fields[2]
 
 	if !utils.EqualByteSlice(res, result) {
 		t.Errorf("ReadRedoPage and SendRedoLog not same")

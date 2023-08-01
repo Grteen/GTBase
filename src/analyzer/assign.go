@@ -37,7 +37,7 @@ func (c *CommandAssign) Assign() Analyzer {
 		return CreateUnknownCommandAnalyzer(cmd)
 	}
 
-	return f(fileds[1:], c.bts, c.cmn, c.args)
+	return f(fileds[1:], c.bts[:len(c.bts)-len(constants.CommandSep)], c.cmn, c.args)
 }
 
 func CreateCommandAssignArgs(c *client.GtBaseClient, rs *replic.ReplicState, hostSelf string, portSelf int) map[string]interface{} {

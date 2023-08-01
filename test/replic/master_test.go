@@ -28,11 +28,11 @@ func TestMasterHeart(t *testing.T) {
 			t.Errorf(errr.Error())
 		}
 
-		com := make([]byte, 0)
-		com = append(com, []byte(constants.HeartCommand)...)
-		com = append(com, []byte(" ")...)
-		com = append(com, utils.Encodeint32ToBytesSmallEnd(0)...)
-		com = append(com, []byte(constants.CommandSep)...)
+		fields := make([][]byte, 0)
+		fields = append(fields, []byte(constants.HeartCommand))
+		fields = append(fields, utils.Encodeint32ToBytesSmallEnd(0))
+
+		com := utils.EncodeFieldsToGtBasePacket(fields)
 
 		if !utils.EqualByteSlice(result, com) {
 			t.Errorf("should read %v but got %v", com, result)
@@ -65,17 +65,16 @@ func TestMasterHeart(t *testing.T) {
 		t.Errorf(errr.Error())
 	}
 
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.GetHeartCommand)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(0)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(10)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(5000)...)
+	fields := make([][]byte, 0)
+	fields = append(fields, []byte(constants.GetHeartCommand))
+	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(0))
+	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(10))
+	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(5000))
+
+	result := utils.EncodeFieldsToGtBasePacket(fields)
 	// result = append(result, []byte(constants.CommandSep)...)
-	if !utils.EqualByteSlice(res, result) {
-		t.Errorf("should get %v but got %v", result, res)
+	if !utils.EqualByteSlice(res, result[:len(result)-2]) {
+		t.Errorf("should get %v but got %v", result[:len(result)-2], res)
 	}
 }
 
