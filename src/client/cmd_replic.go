@@ -6,11 +6,10 @@ import (
 )
 
 func Heart(client *GtBaseClient, heartSeq int32) error {
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.HeartCommand)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(heartSeq)...)
-	result = append(result, []byte(constants.CommandSep)...)
+	fileds := make([][]byte, 0)
+	fileds = append(fileds, []byte(constants.HeartCommand))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(heartSeq))
+	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)
 	if err != nil {
@@ -21,15 +20,13 @@ func Heart(client *GtBaseClient, heartSeq int32) error {
 }
 
 func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq int32) error {
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.GetHeartCommand)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(heartSeq)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(logIdx)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(logOff)...)
-	result = append(result, []byte(constants.CommandSep)...)
+	fileds := make([][]byte, 0)
+	fileds = append(fileds, []byte(constants.GetHeartCommand))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(heartSeq))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logIdx))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logOff))
+	result := utils.EncodeFieldsToGtBasePacket(fileds)
+
 	err := client.Write(result)
 	if err != nil {
 		return err
@@ -38,13 +35,12 @@ func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq int32) error {
 }
 
 func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.RedoCommand)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(seq)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, redoLog...)
-	result = append(result, []byte(constants.CommandSep)...)
+	fileds := make([][]byte, 0)
+	fileds = append(fileds, []byte(constants.RedoCommand))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
+	fileds = append(fileds, redoLog)
+	result := utils.EncodeFieldsToGtBasePacket(fileds)
+
 	err := client.Write(result)
 	if err != nil {
 		return err
@@ -54,16 +50,13 @@ func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
 }
 
 func GetRedo(client *GtBaseClient, logIdx, logOff, seq int32) error {
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.GetRedoCommand)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(logIdx)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(logOff)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(seq)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, []byte(constants.CommandSep)...)
+	fileds := make([][]byte, 0)
+	fileds = append(fileds, []byte(constants.GetRedoCommand))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logIdx))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logOff))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
+	fileds = append(fileds, []byte(constants.CommandSep))
+	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)
 	if err != nil {
@@ -74,19 +67,14 @@ func GetRedo(client *GtBaseClient, logIdx, logOff, seq int32) error {
 }
 
 func Slave(client *GtBaseClient, logIdx, logOff, seq int32, host string, port int) error {
-	result := make([]byte, 0)
-	result = append(result, []byte(constants.SlaveCommand)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(logIdx)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(logOff)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(seq)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, []byte(host)...)
-	result = append(result, []byte(" ")...)
-	result = append(result, utils.Encodeint32ToBytesSmallEnd(int32(port))...)
-	result = append(result, []byte(constants.CommandSep)...)
+	fileds := make([][]byte, 0)
+	fileds = append(fileds, []byte(constants.SlaveCommand))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logIdx))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logOff))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
+	fileds = append(fileds, []byte(host))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(int32(port)))
+	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)
 	if err != nil {

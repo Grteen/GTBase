@@ -67,4 +67,6 @@ const (
 
 	HeartCountLimit int32 = 10
 	HeartSeqSize    int32 = 4
+
+	GtBasePacketLengthSize int32 = 4
 )
