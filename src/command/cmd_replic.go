@@ -60,7 +60,6 @@ func GetHeart(logIdx, logOff, seq, heartSeq int32, client *client.GtBaseClient, 
 	if !ok {
 		return errors.New(constants.ServerSlaveNotExist)
 	}
-
 	err := s.GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq)
 	if err != nil {
 		return err

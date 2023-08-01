@@ -28,13 +28,10 @@ func TestEncodePacket(t *testing.T) {
 }
 
 func TestDecodePacket(t *testing.T) {
-	packet := []byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 107, 101, 121, 3, 0, 0, 0, 118, 97, 108, 13, 10}
+	packet := []byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 107, 101, 121, 3, 0, 0, 0, 118, 97, 108}
 	result := [][]byte{[]byte(constants.SetCommand), []byte("key"), []byte("val")}
 
-	res, err := utils.DecodeGtBasePacket(packet)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	res := utils.DecodeGtBasePacket(packet)
 
 	if len(res) != len(result) {
 		t.Errorf("should get %v but got %v", result, res)

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"GtBase/pkg/constants"
-	"GtBase/pkg/glog"
 	"encoding/binary"
 )
 
@@ -37,13 +36,9 @@ func EncodeFieldsToGtBasePacket(x [][]byte) []byte {
 	return result
 }
 
-func DecodeGtBasePacket(x []byte) ([][]byte, error) {
+func DecodeGtBasePacket(x []byte) [][]byte {
 	packet := x
-	if !EqualByteSlice(packet[len(packet)-2:], []byte(constants.CommandSep)) {
-		return nil, glog.Error("Invalid Packet: CommandSep Not Exist")
-	}
 
-	packet = packet[:len(packet)-2]
 	result := make([][]byte, 0)
 
 	i := 0
@@ -56,5 +51,5 @@ func DecodeGtBasePacket(x []byte) ([][]byte, error) {
 		result = append(result, field)
 	}
 
-	return result, nil
+	return result
 }

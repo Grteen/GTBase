@@ -55,7 +55,6 @@ func GetRedo(client *GtBaseClient, logIdx, logOff, seq int32) error {
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logIdx))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logOff))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
-	fileds = append(fileds, []byte(constants.CommandSep))
 	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)

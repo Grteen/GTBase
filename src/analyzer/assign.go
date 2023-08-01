@@ -4,7 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/src/client"
 	"GtBase/src/replic"
-	"bytes"
+	"GtBase/utils"
 )
 
 type CommandAssign struct {
@@ -28,20 +28,16 @@ func (c *CommandAssign) InitDict() {
 	}
 }
 
-func (c *CommandAssign) splitCommand() [][]byte {
-	return bytes.Fields(c.bts)
-}
-
 func (c *CommandAssign) Assign() Analyzer {
-	split := c.splitCommand()
-	cmd := split[0]
+	fileds := utils.DecodeGtBasePacket(c.bts)
+	cmd := fileds[0]
 
 	f, ok := c.dict[string(cmd)]
 	if !ok {
 		return CreateUnknownCommandAnalyzer(cmd)
 	}
 
-	return f(split[1:], c.bts, c.cmn, c.args)
+	return f(fileds[1:], c.bts, c.cmn, c.args)
 }
 
 func CreateCommandAssignArgs(c *client.GtBaseClient, rs *replic.ReplicState, hostSelf string, portSelf int) map[string]interface{} {
