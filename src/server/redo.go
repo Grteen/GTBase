@@ -6,10 +6,12 @@ import (
 	"GtBase/src/analyzer"
 	"GtBase/src/page"
 	"GtBase/src/redo"
+	"fmt"
 	"os"
 )
 
 func redoCmd(redo *redo.Redo) {
+	fmt.Println(redo.GetCmd())
 	analyzer.CreateCommandAssign(redo.GetCmd(), redo.GetCMN(), nil).Assign().Analyze().ExecWithOutRedoLog()
 }
 
@@ -46,11 +48,20 @@ func redoCmdInPage(idx, checkPoint int32) error {
 func redoLogTotalLen() (int32, error) {
 	fileInfo, err := os.Stat(constants.RedoLogToDo)
 	if err != nil {
-		return -1, glog.Error("InitNextWrite can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
+		return -1, glog.Error("redoLogTotalLen can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
 	}
 
 	fileSize := fileInfo.Size()
 	return int32(fileSize) / int32(constants.PageSize), nil
+}
+
+func redoLogTotalSize() (int64, error) {
+	fileInfo, err := os.Stat(constants.RedoLogToDo)
+	if err != nil {
+		return -1, glog.Error("redoLogTotalSize can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
+	}
+
+	return fileInfo.Size(), nil
 }
 
 func findFirstRedoPageToRedo(checkPoint, totalLen int32) (int32, error) {

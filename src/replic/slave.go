@@ -6,6 +6,7 @@ import (
 	"GtBase/src/client"
 	"GtBase/src/page"
 	"GtBase/utils"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -222,9 +223,12 @@ func (s *Slave) SendHeartToSlave() error {
 }
 
 func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32) error {
+	fmt.Println(heartSeq, s.hf.heartSeq)
 	if heartSeq != s.hf.heartSeq {
 		return nil
 	}
+
+	fmt.Println(seq, s.GetSeq(), s.syncState)
 
 	if seq <= s.GetSeq() {
 		reSend := s.GetSameSeq()

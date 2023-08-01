@@ -121,7 +121,11 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 	}
 
 	if msg != nil {
-
+		fmt.Println("redo ok")
+		err := DoMessage(msg)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

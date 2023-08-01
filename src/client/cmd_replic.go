@@ -19,12 +19,13 @@ func Heart(client *GtBaseClient, heartSeq int32) error {
 	return nil
 }
 
-func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq int32) error {
+func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq, seq int32) error {
 	fileds := make([][]byte, 0)
 	fileds = append(fileds, []byte(constants.GetHeartCommand))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(heartSeq))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logIdx))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logOff))
+	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
 	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)
