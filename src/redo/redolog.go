@@ -6,7 +6,6 @@ import (
 	"GtBase/src/page"
 	"GtBase/utils"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 )
@@ -53,7 +52,6 @@ func ReadRedo(pg *page.RedoPage, off int32) (*Redo, error) {
 		return nil, errors.New(constants.ReadNextRedoPageError)
 	}
 	cmn := pg.ReadCMN(temp)
-	fmt.Println(cmn)
 	if cmn == 0 {
 		return nil, nil
 	}
@@ -63,14 +61,12 @@ func ReadRedo(pg *page.RedoPage, off int32) (*Redo, error) {
 		return nil, errors.New(constants.ReadNextRedoPageError)
 	}
 	cmdLen := pg.ReadCmdLen(temp)
-	fmt.Println(cmdLen)
 	temp += constants.RedoLogCmdLenSize
 
 	if temp+cmdLen > int32(constants.PageSize) {
 		return nil, errors.New(constants.ReadNextRedoPageError)
 	}
 	cmd := pg.ReadCmd(temp, cmdLen)
-	fmt.Println(cmd)
 
 	return CreateRedo(cmn, cmdLen, cmd), nil
 }
