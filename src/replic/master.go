@@ -41,12 +41,12 @@ func (m *Master) SetSeqLock(seq int32) {
 	m.seq = seq
 }
 
-func (m *Master) HeartFromMaster(heartSeq int32) error {
-	return client.GetHeart(m.client, m.logIdx, m.logOff, heartSeq, m.seq)
+func (m *Master) HeartFromMaster(heartSeq int32, uuidSelf string) error {
+	return client.GetHeart(m.client, m.logIdx, m.logOff, heartSeq, m.seq, uuidSelf)
 }
 
-func (m *Master) sendGetRedoToMaster() error {
-	return client.GetRedo(m.client, m.logIdx, m.logOff, m.seq)
+func (m *Master) sendGetRedoToMaster(uuid string) error {
+	return client.GetRedo(m.client, m.logIdx, m.logOff, m.seq, uuid)
 }
 
 func (m *Master) RedoFromMaster(seq int32, redoLog []byte, uuid string) (*utils.Message, error) {
@@ -60,7 +60,7 @@ func (m *Master) RedoFromMaster(seq int32, redoLog []byte, uuid string) (*utils.
 	}
 	m.updateLogIdxAndOff(int32(len(redoLog)))
 	m.SetSeqLock(seq + 1)
-	return utils.CreateMessage(constants.MessageNeedRedo), m.sendGetRedoToMaster()
+	return utils.CreateMessage(constants.MessageNeedRedo), m.sendGetRedoToMaster(uuid)
 }
 
 func (m *Master) updateLogIdxAndOff(redoLogLen int32) {

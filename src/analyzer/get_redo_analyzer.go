@@ -43,6 +43,14 @@ func (a *GetRedoAnalyzer) getSeq(nowIdx int32, c *GetRedoCommand) Command {
 		return CreateErrorArgCommand()
 	}
 	c.seq = utils.EncodeBytesSmallEndToint32(a.parts[nowIdx])
+	return a.getUUID(nowIdx+1, c)
+}
+
+func (a *GetRedoAnalyzer) getUUID(nowIdx int32, c *GetRedoCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.uuid = string(a.parts[nowIdx])
 	return c
 }
 
@@ -76,18 +84,19 @@ type GetRedoCommand struct {
 	logIdx int32
 	logOff int32
 	seq    int32
+	uuid   string
 
 	c  *client.GtBaseClient
 	rs *replic.ReplicState
 }
 
 func (c *GetRedoCommand) Exec() (object.Object, *utils.Message) {
-	command.GetRedo(c.logIdx, c.logOff, c.seq, c.c, c.rs)
+	command.GetRedo(c.logIdx, c.logOff, c.seq, c.uuid, c.c, c.rs)
 	return nil, nil
 }
 
 func (c *GetRedoCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
-	command.GetRedo(c.logIdx, c.logOff, c.seq, c.c, c.rs)
+	command.GetRedo(c.logIdx, c.logOff, c.seq, c.uuid, c.c, c.rs)
 	return nil, nil
 }
 

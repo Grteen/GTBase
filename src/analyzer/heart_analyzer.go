@@ -11,7 +11,8 @@ import (
 
 type HeartAnalyzer struct {
 	parts [][]byte
-	rs    *replic.ReplicState
+
+	rs *replic.ReplicState
 }
 
 func (a *HeartAnalyzer) Analyze() Command {
@@ -24,6 +25,14 @@ func (a *HeartAnalyzer) getHeartSeq(nowIdx int32, c *HeartCommand) Command {
 		return CreateErrorArgCommand()
 	}
 	c.heartSeq = utils.EncodeBytesSmallEndToint32(a.parts[nowIdx])
+	return a.getUUID(nowIdx+1, c)
+}
+
+func (a *HeartAnalyzer) getUUID(nowIdx int32, c *HeartCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.uuid = string(a.parts[nowIdx])
 	return c
 }
 
@@ -46,7 +55,9 @@ func CreateHeartAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]
 
 type HeartCommand struct {
 	heartSeq int32
-	rs       *replic.ReplicState
+	uuid     string
+
+	rs *replic.ReplicState
 }
 
 func (c *HeartCommand) Exec() (object.Object, *utils.Message) {
@@ -54,7 +65,7 @@ func (c *HeartCommand) Exec() (object.Object, *utils.Message) {
 }
 
 func (c *HeartCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
-	err := command.Heart(c.heartSeq, c.rs)
+	err := command.Heart(c.heartSeq, c.uuid, c.rs)
 	if err != nil {
 		log.Println(err)
 	}

@@ -218,11 +218,11 @@ func (s *Slave) CheckFullSyncFinish() (int32, error) {
 	return s.syncState, nil
 }
 
-func (s *Slave) SendHeartToSlave() error {
-	return client.Heart(s.client, s.hf.heartSeq)
+func (s *Slave) SendHeartToSlave(uuid string) error {
+	return client.Heart(s.client, s.hf.heartSeq, uuid)
 }
 
-func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32, uuid string) error {
+func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32, uuid string, uuidSelf string) error {
 	fmt.Println(heartSeq, s.hf.heartSeq)
 	if heartSeq != s.hf.heartSeq {
 		return nil
@@ -236,7 +236,7 @@ func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32, uuid 
 			if s.syncState == constants.SlaveFullSync {
 				s.SetLogIdxAndOffLock(logIdx, logOff)
 				s.SetNextSeqLock(seq)
-				err := s.SendHeartToSlave()
+				err := s.SendHeartToSlave(uuidSelf)
 				if err != nil {
 					return err
 				}
@@ -263,7 +263,7 @@ func (s *Slave) HeartBeat(rs *ReplicState) {
 loop:
 	for {
 		time.Sleep(1 * time.Second)
-		s.SendHeartToSlave()
+		s.SendHeartToSlave(rs.GetUUID())
 		select {
 		case heartSeq := <-s.hf.heartChan:
 			if heartSeq == s.hf.heartSeq {

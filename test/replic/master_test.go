@@ -31,6 +31,7 @@ func TestMasterHeart(t *testing.T) {
 		fields := make([][]byte, 0)
 		fields = append(fields, []byte(constants.HeartCommand))
 		fields = append(fields, utils.Encodeint32ToBytesSmallEnd(0))
+		fields = append(fields, []byte("0"))
 
 		com := utils.EncodeFieldsToGtBasePacket(fields)
 
@@ -41,7 +42,7 @@ func TestMasterHeart(t *testing.T) {
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
 		m := replic.CreateMaster(10, 5000, -1, c)
 
-		errg := m.HeartFromMaster(0)
+		errg := m.HeartFromMaster(0, "0")
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}
@@ -55,7 +56,7 @@ func TestMasterHeart(t *testing.T) {
 	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", port))
 	s := replic.CreateSlave(0, 0, 1, c)
 
-	errh := s.SendHeartToSlave()
+	errh := s.SendHeartToSlave("0")
 	if errh != nil {
 		t.Errorf(errh.Error())
 	}
@@ -70,6 +71,8 @@ func TestMasterHeart(t *testing.T) {
 	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(0))
 	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(10))
 	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(5000))
+	fields = append(fields, utils.Encodeint32ToBytesSmallEnd(-1))
+	fields = append(fields, []byte("0"))
 
 	result := utils.EncodeFieldsToGtBasePacket(fields)
 	// result = append(result, []byte(constants.CommandSep)...)
@@ -116,7 +119,7 @@ func TestRedo(t *testing.T) {
 		c := client.CreateGtBaseClient(fd, client.CreateAddress("127.0.0.1", port))
 		m := replic.CreateMaster(0, int32(len(slaveRedo)), 1, c)
 
-		_, errg := m.RedoFromMaster(utils.EncodeBytesSmallEndToint32(seqBts), result[len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)+1:])
+		_, errg := m.RedoFromMaster(utils.EncodeBytesSmallEndToint32(seqBts), result[len(constants.RedoCommand)+1+int(constants.SendRedoLogSeqSize)+1:], "0")
 		if errg != nil {
 			t.Errorf(errg.Error())
 		}
@@ -131,7 +134,7 @@ func TestRedo(t *testing.T) {
 	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", port))
 	s := replic.CreateSlave(0, int32(len(slaveRedo)), 1, c)
 
-	errh := s.SendRedoLogToSlave()
+	errh := s.SendRedoLogToSlave("0")
 	if errh != nil {
 		t.Errorf(errh.Error())
 	}

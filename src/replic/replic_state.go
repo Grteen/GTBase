@@ -8,6 +8,7 @@ type ReplicState struct {
 	slaves map[string]*Slave
 	sLock  sync.Mutex
 	master *Master
+	uuid   string
 	mLock  sync.Mutex
 }
 
@@ -44,6 +45,10 @@ func (rs *ReplicState) GetMaster() *Master {
 	return rs.master
 }
 
+func (rs *ReplicState) GetUUID() string {
+	return rs.uuid
+}
+
 func CreateReplicState() *ReplicState {
-	return &ReplicState{slaves: make(map[string]*Slave)}
+	return &ReplicState{slaves: make(map[string]*Slave), uuid: "0"}
 }

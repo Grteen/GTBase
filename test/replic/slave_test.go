@@ -81,7 +81,7 @@ func TestSlaveSendRedoLog(t *testing.T) {
 	}
 
 	s := replic.CreateSlave(0, 0, 1, client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 0)))
-	s.SendRedoLogToSlave()
+	s.SendRedoLogToSlave("0")
 
 	fields := <-ch
 	seq := utils.EncodeBytesSmallEndToint32(fields[1])

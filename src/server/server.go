@@ -22,7 +22,6 @@ type GtBaseServer struct {
 
 	host string
 	port int
-	uuid string
 
 	rs *replic.ReplicState
 }
@@ -112,7 +111,7 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 		return errg
 	}
 
-	args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port, s.uuid)
+	args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port, s.rs.GetUUID())
 	result, msg := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
 	if result != nil {
 		errw := client.Write(result.ToByte())

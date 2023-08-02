@@ -91,7 +91,7 @@ func TestSlaveCommnd(t *testing.T) {
 
 	rs := replic.CreateReplicState()
 	c := client.CreateGtBaseClient(nfd, client.CreateAddress("127.0.0.1", 9677))
-	command.Slave(0, 0, 1, "127.0.0.1", 9677, c, rs)
+	command.Slave(0, 0, 1, "127.0.0.1", 9677, "0", c, rs)
 
 	fields := <-ch
 	seq := utils.EncodeBytesSmallEndToint32(fields[1])
@@ -122,9 +122,9 @@ func TestSlaveCommnd(t *testing.T) {
 
 	logIdx := int32(len(result)) / int32(constants.PageSize)
 	logOff := int32(len(result)) % int32(constants.PageSize)
-	command.GetRedo(logIdx, logOff, 2, c, rs)
+	command.GetRedo(logIdx, logOff, 2, "0", c, rs)
 
-	s, ok := rs.GetSlave(c.GenerateKey())
+	s, ok := rs.GetSlave("0")
 	if !ok {
 		t.Errorf("Should be Ok")
 	}

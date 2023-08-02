@@ -18,7 +18,7 @@ func Slave(logIdx, logOff, seq int32, host string, port int, uuid string, client
 	}
 	exist := rs.AppendSlaveLock(s, uuid)
 	if !exist {
-		err := s.SendRedoLogToSlave()
+		err := s.SendRedoLogToSlave(rs.GetUUID())
 		if err != nil {
 			return err
 		}
@@ -30,8 +30,8 @@ func Slave(logIdx, logOff, seq int32, host string, port int, uuid string, client
 
 // if slave is satisfy the FullSyncState then Send Next RedoLog
 // otherwise change slave's state to SyncState and don't send next redolog
-func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.ReplicState) (object.Object, error) {
-	key := client.GenerateKey()
+func GetRedo(logIdx, logOff, seq int32, uuid string, client *client.GtBaseClient, rs *replic.ReplicState) (object.Object, error) {
+	key := uuid
 	s, ok := rs.GetSlave(key)
 	if !ok {
 		return object.CreateGtString(constants.ServerSlaveNotExist), nil
@@ -44,7 +44,7 @@ func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.
 	}
 
 	if state == constants.SlaveFullSync {
-		s.SendRedoLogToSlave()
+		s.SendRedoLogToSlave(rs.GetUUID())
 	}
 
 	return object.CreateGtString(constants.ServerOkReturn), nil
@@ -54,13 +54,12 @@ func Redo(seq int32, redoLog []byte, uuid string, rs *replic.ReplicState) (*util
 	return rs.GetMaster().RedoFromMaster(seq, redoLog, uuid)
 }
 
-func GetHeart(logIdx, logOff, seq, heartSeq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
-	key := client.GenerateKey()
-	s, ok := rs.GetSlave(key)
+func GetHeart(logIdx, logOff, seq, heartSeq int32, uuid string, client *client.GtBaseClient, rs *replic.ReplicState) error {
+	s, ok := rs.GetSlave(uuid)
 	if !ok {
 		return errors.New(constants.ServerSlaveNotExist)
 	}
-	err := s.GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq)
+	err := s.GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq, uuid, rs.GetUUID())
 	if err != nil {
 		return err
 	}
@@ -68,8 +67,8 @@ func GetHeart(logIdx, logOff, seq, heartSeq int32, client *client.GtBaseClient, 
 	return nil
 }
 
-func Heart(heartSeq int32, rs *replic.ReplicState) error {
-	return rs.GetMaster().HeartFromMaster(heartSeq)
+func Heart(heartSeq int32, uuid string, rs *replic.ReplicState) error {
+	return rs.GetMaster().HeartFromMaster(heartSeq, rs.GetUUID())
 }
 
 func BecomeSlave(host, hostSelf string, port, portSelf int, uuidSelf string, rs *replic.ReplicState) error {

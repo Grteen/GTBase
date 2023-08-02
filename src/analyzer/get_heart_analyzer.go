@@ -50,6 +50,14 @@ func (a *GetHeartAnalyzer) getSeq(nowIdx int32, c *GetHeartCommand) Command {
 		return CreateErrorArgCommand()
 	}
 	c.seq = utils.EncodeBytesSmallEndToint32(a.parts[nowIdx])
+	return a.getUUID(nowIdx+1, c)
+}
+
+func (a *GetHeartAnalyzer) getUUID(nowIdx int32, c *GetHeartCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.uuid = string(a.parts[nowIdx])
 	return c
 }
 
@@ -84,18 +92,19 @@ type GetHeartCommand struct {
 	logOff   int32
 	seq      int32
 	heartSeq int32
+	uuid     string
 
 	c  *client.GtBaseClient
 	rs *replic.ReplicState
 }
 
 func (c *GetHeartCommand) Exec() (object.Object, *utils.Message) {
-	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.c, c.rs)
+	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.uuid, c.c, c.rs)
 	return nil, nil
 }
 
 func (c *GetHeartCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
-	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.c, c.rs)
+	command.GetHeart(c.logIdx, c.logOff, c.seq, c.heartSeq, c.uuid, c.c, c.rs)
 	return nil, nil
 }
 
