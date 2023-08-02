@@ -172,7 +172,7 @@ func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
 }
 
 // Redo seq redolog\r\n
-func (s *Slave) SendRedoLogToSlave() error {
+func (s *Slave) SendRedoLogToSlave(uuid string) error {
 	restPageLen, err := s.calRedoLogRestLen()
 	if err != nil {
 		return err
@@ -191,7 +191,7 @@ func (s *Slave) SendRedoLogToSlave() error {
 		return err
 	}
 
-	errw := client.Redo(s.client, redoLog, s.nextSeq.seq)
+	errw := client.Redo(s.client, redoLog, s.nextSeq.seq, uuid)
 	if errw != nil {
 		return errw
 	}
@@ -222,7 +222,7 @@ func (s *Slave) SendHeartToSlave() error {
 	return client.Heart(s.client, s.hf.heartSeq)
 }
 
-func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32) error {
+func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32, uuid string) error {
 	fmt.Println(heartSeq, s.hf.heartSeq)
 	if heartSeq != s.hf.heartSeq {
 		return nil
@@ -248,7 +248,7 @@ func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32) error
 	if s.syncState == constants.SlaveSync {
 		s.SetLogIdxAndOffLock(logIdx, logOff)
 		s.SetNextSeqLock(seq)
-		err := s.SendRedoLogToSlave()
+		err := s.SendRedoLogToSlave(uuid)
 		if err != nil {
 			return err
 		}

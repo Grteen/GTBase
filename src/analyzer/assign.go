@@ -40,12 +40,13 @@ func (c *CommandAssign) Assign() Analyzer {
 	return f(fileds[1:], c.bts, c.cmn, c.args)
 }
 
-func CreateCommandAssignArgs(c *client.GtBaseClient, rs *replic.ReplicState, hostSelf string, portSelf int) map[string]interface{} {
+func CreateCommandAssignArgs(c *client.GtBaseClient, rs *replic.ReplicState, hostSelf string, portSelf int, uuidSelf string) map[string]interface{} {
 	return map[string]interface{}{
 		constants.AssignArgClient:      c,
 		constants.AssignArgReplicState: rs,
 		constants.AssignArgHostSelf:    hostSelf,
 		constants.AssignArgPortSelf:    portSelf,
+		constants.AssignArgUUIDSelf:    uuidSelf,
 	}
 }
 

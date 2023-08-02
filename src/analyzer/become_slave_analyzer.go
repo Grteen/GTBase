@@ -14,11 +14,12 @@ type BecomeSlaveAnalyzer struct {
 
 	hostSelf string
 	portSelf int
+	uuidSelf string
 	rs       *replic.ReplicState
 }
 
 func (a *BecomeSlaveAnalyzer) Analyze() Command {
-	cmd := CreateBecomeSlaveCommand(a.hostSelf, a.portSelf, a.rs)
+	cmd := CreateBecomeSlaveCommand(a.hostSelf, a.portSelf, a.uuidSelf, a.rs)
 	return a.getHost(0, cmd)
 }
 
@@ -38,8 +39,8 @@ func (a *BecomeSlaveAnalyzer) getPort(nowIdx int32, c *BecomeSlaveCommand) Comma
 	return c
 }
 
-func createBecomeSlaveAnalyzer(parts [][]byte, hostSelf string, portSelf int, rs *replic.ReplicState) Analyzer {
-	return &BecomeSlaveAnalyzer{parts: parts, rs: rs, hostSelf: hostSelf, portSelf: portSelf}
+func createBecomeSlaveAnalyzer(parts [][]byte, hostSelf string, portSelf int, uuidSelf string, rs *replic.ReplicState) Analyzer {
+	return &BecomeSlaveAnalyzer{parts: parts, rs: rs, hostSelf: hostSelf, portSelf: portSelf, uuidSelf: uuidSelf}
 }
 
 func CreateBecomeSlaveAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]interface{}) Analyzer {
@@ -70,16 +71,25 @@ func CreateBecomeSlaveAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[s
 		return nil
 	}
 
-	return createBecomeSlaveAnalyzer(parts, host, port, rs)
+	uuidItf, ok := args[constants.AssignArgUUIDSelf]
+	if !ok {
+		return nil
+	}
+	uuid, ok := uuidItf.(string)
+	if !ok {
+		return nil
+	}
+	return createBecomeSlaveAnalyzer(parts, host, port, uuid, rs)
 }
 
 type BecomeSlaveCommand struct {
-	host     string
-	port     int
+	host string
+	port int
+
 	hostSelf string
 	portSelf int
-
-	rs *replic.ReplicState
+	uuidSelf string
+	rs       *replic.ReplicState
 }
 
 func (c *BecomeSlaveCommand) Exec() (object.Object, *utils.Message) {
@@ -87,7 +97,7 @@ func (c *BecomeSlaveCommand) Exec() (object.Object, *utils.Message) {
 }
 
 func (c *BecomeSlaveCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
-	err := command.BecomeSlave(c.host, c.hostSelf, c.port, c.portSelf, c.rs)
+	err := command.BecomeSlave(c.host, c.hostSelf, c.port, c.portSelf, c.uuidSelf, c.rs)
 	if err != nil {
 		return object.CreateGtString(err.Error()), nil
 	}
@@ -95,6 +105,6 @@ func (c *BecomeSlaveCommand) ExecWithOutRedoLog() (object.Object, *utils.Message
 	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
-func CreateBecomeSlaveCommand(hostSelf string, portSelf int, rs *replic.ReplicState) *BecomeSlaveCommand {
-	return &BecomeSlaveCommand{rs: rs, hostSelf: hostSelf, portSelf: portSelf}
+func CreateBecomeSlaveCommand(hostSelf string, portSelf int, uuidSelf string, rs *replic.ReplicState) *BecomeSlaveCommand {
+	return &BecomeSlaveCommand{rs: rs, hostSelf: hostSelf, portSelf: portSelf, uuidSelf: uuidSelf}
 }

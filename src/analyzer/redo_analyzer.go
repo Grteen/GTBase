@@ -33,6 +33,14 @@ func (a *RedoAnalyzer) getRedoLog(nowIdx int32, c *RedoCommand) Command {
 		return CreateErrorArgCommand()
 	}
 	c.redoLog = a.parts[nowIdx]
+	return a.getUUID(nowIdx+1, c)
+}
+
+func (a *RedoAnalyzer) getUUID(nowIdx int32, c *RedoCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.uuid = string(a.parts[nowIdx])
 	return c
 }
 
@@ -56,6 +64,7 @@ func CreateRedoAnalyzer(parts [][]byte, cmd []byte, cmn int32, args map[string]i
 type RedoCommand struct {
 	seq     int32
 	redoLog []byte
+	uuid    string
 
 	rs *replic.ReplicState
 }
@@ -65,7 +74,7 @@ func (c *RedoCommand) Exec() (object.Object, *utils.Message) {
 }
 
 func (c *RedoCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
-	msg, err := command.Redo(c.seq, c.redoLog, c.rs)
+	msg, err := command.Redo(c.seq, c.redoLog, c.uuid, c.rs)
 	if err != nil {
 		log.Println(err)
 	}

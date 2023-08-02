@@ -49,7 +49,7 @@ func (m *Master) sendGetRedoToMaster() error {
 	return client.GetRedo(m.client, m.logIdx, m.logOff, m.seq)
 }
 
-func (m *Master) RedoFromMaster(seq int32, redoLog []byte) (*utils.Message, error) {
+func (m *Master) RedoFromMaster(seq int32, redoLog []byte, uuid string) (*utils.Message, error) {
 	if seq != m.seq {
 		return nil, nil
 	}

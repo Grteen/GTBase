@@ -13,11 +13,11 @@ type ReplicState struct {
 
 // if Slave exists and connect return false
 // if not exists or disconnect return true
-func (rs *ReplicState) AppendSlaveLock(s *Slave) bool {
+func (rs *ReplicState) AppendSlaveLock(s *Slave, uuid string) bool {
 	rs.sLock.Lock()
 	defer rs.sLock.Unlock()
 
-	key := s.client.GenerateKey()
+	key := uuid
 
 	_, ok := rs.slaves[key]
 	if !ok {

@@ -10,13 +10,13 @@ import (
 	"errors"
 )
 
-func Slave(logIdx, logOff, seq int32, host string, port int, client *client.GtBaseClient, rs *replic.ReplicState) error {
+func Slave(logIdx, logOff, seq int32, host string, port int, uuid string, client *client.GtBaseClient, rs *replic.ReplicState) error {
 	s := replic.CreateSlave(logIdx, logOff, seq, nil)
 	err := s.InitClient(host, port)
 	if err != nil {
 		return err
 	}
-	exist := rs.AppendSlaveLock(s)
+	exist := rs.AppendSlaveLock(s, uuid)
 	if !exist {
 		err := s.SendRedoLogToSlave()
 		if err != nil {
@@ -50,8 +50,8 @@ func GetRedo(logIdx, logOff, seq int32, client *client.GtBaseClient, rs *replic.
 	return object.CreateGtString(constants.ServerOkReturn), nil
 }
 
-func Redo(seq int32, redoLog []byte, rs *replic.ReplicState) (*utils.Message, error) {
-	return rs.GetMaster().RedoFromMaster(seq, redoLog)
+func Redo(seq int32, redoLog []byte, uuid string, rs *replic.ReplicState) (*utils.Message, error) {
+	return rs.GetMaster().RedoFromMaster(seq, redoLog, uuid)
 }
 
 func GetHeart(logIdx, logOff, seq, heartSeq int32, client *client.GtBaseClient, rs *replic.ReplicState) error {
@@ -72,7 +72,7 @@ func Heart(heartSeq int32, rs *replic.ReplicState) error {
 	return rs.GetMaster().HeartFromMaster(heartSeq)
 }
 
-func BecomeSlave(host, hostSelf string, port, portSelf int, rs *replic.ReplicState) error {
+func BecomeSlave(host, hostSelf string, port, portSelf int, uuidSelf string, rs *replic.ReplicState) error {
 	fd, err := utils.Dial(host, port)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func BecomeSlave(host, hostSelf string, port, portSelf int, rs *replic.ReplicSta
 
 	rs.SetMasterLock(replic.CreateMaster(idx, off, 0, c))
 
-	errs := client.Slave(c, idx, off, 0, hostSelf, portSelf)
+	errs := client.Slave(c, idx, off, 0, hostSelf, portSelf, uuidSelf)
 	if errs != nil {
 		return errs
 	}

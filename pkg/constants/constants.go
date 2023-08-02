@@ -64,6 +64,7 @@ const (
 	AssignArgReplicState string = "AssignReplicState"
 	AssignArgHostSelf    string = "AssignHostSelf"
 	AssignArgPortSelf    string = "AssignPortSelf"
+	AssignArgUUIDSelf    string = "AssignUUIDSelf"
 
 	HeartCountLimit int32 = 10
 	HeartSeqSize    int32 = 4

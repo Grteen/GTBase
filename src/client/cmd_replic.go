@@ -35,11 +35,12 @@ func GetHeart(client *GtBaseClient, logIdx, logOff, heartSeq, seq int32) error {
 	return nil
 }
 
-func Redo(client *GtBaseClient, redoLog []byte, seq int32) error {
+func Redo(client *GtBaseClient, redoLog []byte, seq int32, uuid string) error {
 	fileds := make([][]byte, 0)
 	fileds = append(fileds, []byte(constants.RedoCommand))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
 	fileds = append(fileds, redoLog)
+	fileds = append(fileds, []byte(uuid))
 	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)
@@ -66,7 +67,7 @@ func GetRedo(client *GtBaseClient, logIdx, logOff, seq int32) error {
 	return nil
 }
 
-func Slave(client *GtBaseClient, logIdx, logOff, seq int32, host string, port int) error {
+func Slave(client *GtBaseClient, logIdx, logOff, seq int32, host string, port int, uuid string) error {
 	fileds := make([][]byte, 0)
 	fileds = append(fileds, []byte(constants.SlaveCommand))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(logIdx))
@@ -74,6 +75,7 @@ func Slave(client *GtBaseClient, logIdx, logOff, seq int32, host string, port in
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(seq))
 	fileds = append(fileds, []byte(host))
 	fileds = append(fileds, utils.Encodeint32ToBytesSmallEnd(int32(port)))
+	fileds = append(fileds, []byte(uuid))
 	result := utils.EncodeFieldsToGtBasePacket(fileds)
 
 	err := client.Write(result)

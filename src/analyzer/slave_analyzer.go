@@ -59,6 +59,14 @@ func (a *SlaveAnalyzer) getPort(nowIdx int32, c *SlaveCommand) Command {
 		return CreateErrorArgCommand()
 	}
 	c.port = int(utils.EncodeBytesSmallEndToint32(a.parts[nowIdx]))
+	return a.getUUID(nowIdx+1, c)
+}
+
+func (a *SlaveAnalyzer) getUUID(nowIdx int32, c *SlaveCommand) Command {
+	if len(a.parts) <= int(nowIdx) {
+		return CreateErrorArgCommand()
+	}
+	c.uuid = string(a.parts[nowIdx])
 	return c
 }
 
@@ -94,6 +102,7 @@ type SlaveCommand struct {
 	logIdx int32
 	logOff int32
 	seq    int32
+	uuid   string
 
 	c  *client.GtBaseClient
 	rs *replic.ReplicState
@@ -104,7 +113,7 @@ func (c *SlaveCommand) Exec() (object.Object, *utils.Message) {
 }
 
 func (c *SlaveCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
-	command.Slave(c.logIdx, c.logOff, c.seq, c.host, c.port, c.c, c.rs)
+	command.Slave(c.logIdx, c.logOff, c.seq, c.host, c.port, c.uuid, c.c, c.rs)
 	return nil, nil
 }
 
