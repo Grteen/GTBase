@@ -6,12 +6,10 @@ import (
 	"GtBase/src/analyzer"
 	"GtBase/src/page"
 	"GtBase/src/redo"
-	"fmt"
 	"os"
 )
 
 func redoCmd(redo *redo.Redo) {
-	fmt.Println(redo.GetCmd())
 	analyzer.CreateCommandAssign(redo.GetCmd(), redo.GetCMN(), nil).Assign().Analyze().ExecWithOutRedoLog()
 }
 
@@ -40,6 +38,28 @@ func redoCmdInPage(idx, checkPoint int32) error {
 		}
 
 		off += r.GetCmdLen() + constants.RedoLogCMNSize + constants.RedoLogCmdLenSize
+	}
+
+	return nil
+}
+
+func RedoCmdInReplic(redoLog []byte) error {
+	pg := page.CreateRedoPage(-1, redoLog, "Nil")
+	off := 0
+
+	for int(off) < len(pg.Src()) {
+		r, err := redo.ReadRedo(pg, int32(off))
+		if err != nil {
+			return err
+		}
+
+		if r == nil {
+			break
+		}
+
+		redoCmd(r)
+
+		off += int(r.GetCmdLen() + constants.RedoLogCMNSize + constants.RedoLogCmdLenSize)
 	}
 
 	return nil

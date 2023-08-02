@@ -2,11 +2,11 @@ package server
 
 import (
 	"GtBase/pkg/constants"
+	"GtBase/pkg/glog"
 	"GtBase/utils"
-	"time"
 )
 
-var typeDict map[int]func() error = map[int]func() error{
+var typeDict map[int]func(interface{}) error = map[int]func(interface{}) error{
 	constants.MessageNeedRedo: needRedoMessage,
 }
 
@@ -16,29 +16,15 @@ func DoMessage(msg *utils.Message) error {
 		return nil
 	}
 
-	go f()
+	go f(msg.Msg)
 	return nil
 }
 
-func needRedoMessage() error {
-	old, err := redoLogTotalSize()
-	if err != nil {
-		return err
+func needRedoMessage(msg interface{}) error {
+	redoLog, ok := msg.([]byte)
+	if !ok {
+		return glog.Error("Invalid Type")
 	}
 
-	for {
-		off, err := redoLogTotalSize()
-		if err != nil {
-			return err
-		}
-
-		if off > old {
-			errr := RedoLog()
-			if errr != nil {
-				return errr
-			}
-			old = off
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
+	return RedoCmdInReplic(redoLog)
 }

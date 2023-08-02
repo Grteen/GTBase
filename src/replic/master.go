@@ -60,7 +60,7 @@ func (m *Master) RedoFromMaster(seq int32, redoLog []byte, uuid string) (*utils.
 	}
 	m.updateLogIdxAndOff(int32(len(redoLog)))
 	m.SetSeqLock(seq + 1)
-	return utils.CreateMessage(constants.MessageNeedRedo), m.sendGetRedoToMaster(uuid)
+	return utils.CreateMessage(constants.MessageNeedRedo, redoLog), m.sendGetRedoToMaster(uuid)
 }
 
 func (m *Master) updateLogIdxAndOff(redoLogLen int32) {

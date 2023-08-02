@@ -1,11 +1,11 @@
 package constants
 
 const (
-	PageFilePathToDo       string = "/root/GtBase/temp/gt.pf"
-	BucketPageFilePathToDo string = "/root/GtBase/temp/gt.bf"
-	RedoLogToDo            string = "/root/GtBase/temp/redo.log"
-	CMNPathToDo            string = "/root/GtBase/temp/gt.cmn"
-	CheckPointPathToDo     string = "/root/GtBase/temp/gt.cp"
+	PageFilePathToDo       string = "./gt.pf"
+	BucketPageFilePathToDo string = "./gt.bf"
+	RedoLogToDo            string = "./redo.log"
+	CMNPathToDo            string = "./gt.cmn"
+	CheckPointPathToDo     string = "./gt.cp"
 	PageSize               int64  = 16384
 
 	BucketByteLength     int32 = 8
@@ -52,9 +52,9 @@ const (
 	CommandSep       string = "\r\n"
 	ReplicRedoLogEnd string = "\r\n"
 
-	MaxRedoLogPagesToSendOnce int32 = 100
+	MaxRedoLogToSendOnceint32       = 100 * PageSize
 	SendRedoLogSeqSize        int32 = 4
-	SlaveFullSyncThreshold    int32 = 1
+	SlaveFullSyncThreshold    int64 = PageSize
 
 	SlaveFullSync   int32 = 1
 	SlaveSync       int32 = 2

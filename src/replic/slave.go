@@ -2,13 +2,11 @@ package replic
 
 import (
 	"GtBase/pkg/constants"
-	"GtBase/pkg/glog"
 	"GtBase/src/client"
+	"GtBase/src/nextwrite"
 	"GtBase/src/page"
 	"GtBase/utils"
-	"fmt"
 	"log"
-	"os"
 	"sync"
 	"time"
 )
@@ -133,39 +131,57 @@ func (s *Slave) GetSeq() int32 {
 	return s.nextSeq.seq
 }
 
-// return how many redo page can be send according to s.logIdx (not included s.logIdx page)
-func (s *Slave) calRedoLogRestLen() (int32, error) {
-	fileInfo, err := os.Stat(constants.RedoLogToDo)
+func (s *Slave) calRedoLogRestLen() (int64, error) {
+	nw, err := nextwrite.GetRedoNextWriteAndIncreaseIt(0)
 	if err != nil {
-		return -1, glog.Error("CalRedoLogRestLen can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
+		return -1, err
 	}
 
-	fileSize := fileInfo.Size()
-	totalLen := int32(fileSize) / int32(constants.PageSize)
+	nwidx, nwoff := nw.NextWriteInfo()
 
-	restPage := totalLen - s.logIdx - 1
-	return restPage, nil
+	result := (int64(nwidx)*constants.PageSize + int64(nwoff)) - (int64(s.logIdx)*constants.PageSize + int64(s.logOff))
+	if result > constants.MaxRedoLogToSendOnceint32 {
+		return constants.MaxRedoLogToSendOnceint32, nil
+	}
+
+	return result, nil
 }
 
-func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
-	if restPageLen == -1 {
-		return make([]byte, 0), nil
+func (s *Slave) readRedoLogToSend() ([]byte, error) {
+	restLen, errc := s.calRedoLogRestLen()
+	if errc != nil {
+		return nil, errc
 	}
+
 	firstPg, err := page.ReadRedoPage(s.logIdx)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]byte, 0, (restPageLen+1)*int32(constants.PageSize))
-	result = append(result, firstPg.SrcSlice(s.logOff, int32(constants.PageSize))...)
+	if restLen+int64(s.logOff) < constants.PageSize {
+		return firstPg.SrcSliceLength(s.logOff, int32(restLen)), nil
+	}
 
-	for i := 1; i <= int(restPageLen); i++ {
-		pg, err := page.ReadRedoPage(s.logIdx + int32(i))
+	rest := restLen
+	result := make([]byte, 0)
+	result = append(result, firstPg.SrcSlice(s.logOff, int32(constants.PageSize))...)
+	rest -= (constants.PageSize - int64(s.logOff))
+	tempIdx := s.logIdx
+	tempIdx += 1
+	for {
+		pg, err := page.ReadRedoPage(tempIdx)
 		if err != nil {
 			return nil, err
 		}
 
-		result = append(result, pg.Src()...)
+		if rest >= constants.PageSize {
+			result = append(result, pg.Src()...)
+			tempIdx += 1
+			rest -= constants.PageSize
+		} else {
+			result = append(result, pg.SrcSliceLength(0, int32(restLen))...)
+			break
+		}
 	}
 
 	return result, nil
@@ -173,21 +189,8 @@ func (s *Slave) readRedoLogToSend(restPageLen int32) ([]byte, error) {
 
 // Redo seq redolog\r\n
 func (s *Slave) SendRedoLogToSlave(uuid string) error {
-	restPageLen, err := s.calRedoLogRestLen()
+	redoLog, err := s.readRedoLogToSend()
 	if err != nil {
-		return err
-	}
-
-	pageToSendLen := restPageLen
-	if pageToSendLen >= constants.MaxRedoLogPagesToSendOnce {
-		pageToSendLen = constants.MaxRedoLogPagesToSendOnce
-	}
-	if pageToSendLen < -1 {
-		pageToSendLen = -1
-	}
-
-	redoLog, errr := s.readRedoLogToSend(pageToSendLen)
-	if errr != nil {
 		return err
 	}
 
@@ -206,12 +209,12 @@ func (s *Slave) GetSendRedoLogResponseFromSlave(logIdx, logOff, seq int32) {
 
 // return Slave's syncState and error
 func (s *Slave) CheckFullSyncFinish() (int32, error) {
-	restPageLen, err := s.calRedoLogRestLen()
+	restLen, err := s.calRedoLogRestLen()
 	if err != nil {
 		return -1, err
 	}
 
-	if restPageLen <= constants.SlaveFullSyncThreshold {
+	if restLen <= constants.SlaveFullSyncThreshold {
 		s.SetSyncStateLock(constants.SlaveSync)
 	}
 
@@ -223,12 +226,9 @@ func (s *Slave) SendHeartToSlave(uuid string) error {
 }
 
 func (s *Slave) GetHeartRespFromSlave(logIdx, logOff, seq, heartSeq int32, uuid string, uuidSelf string) error {
-	fmt.Println(heartSeq, s.hf.heartSeq)
 	if heartSeq != s.hf.heartSeq {
 		return nil
 	}
-
-	fmt.Println(seq, s.GetSeq(), s.syncState)
 
 	if seq <= s.GetSeq() {
 		reSend := s.GetSameSeq()

@@ -6,7 +6,6 @@ import (
 	"GtBase/src/object"
 	"GtBase/src/redo"
 	"GtBase/utils"
-	"fmt"
 )
 
 // SET [KEY] [VAL]
@@ -49,7 +48,6 @@ type SetCommand struct {
 }
 
 func (c *SetCommand) Exec() (object.Object, *utils.Message) {
-	fmt.Println(len(c.cmd), c.cmd)
 	redo.WriteRedoLog(c.cmn, c.cmd)
 
 	return c.ExecWithOutRedoLog()
