@@ -114,7 +114,7 @@ func (s *GtBaseServer) handleCommand(client *client.GtBaseClient) error {
 	args := analyzer.CreateCommandAssignArgs(client, s.rs, s.host, s.port, s.rs.GetUUID())
 	result, msg := analyzer.CreateCommandAssign(bts, cmn, args).Assign().Analyze().Exec()
 	if result != nil {
-		errw := client.Write(result.ToByte())
+		errw := client.WriteResp(result.ToByte())
 		if errw != nil {
 			return errw
 		}

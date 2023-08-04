@@ -45,7 +45,7 @@ func CreateRedoPage(idx int32, src []byte, flushPath string) *RedoPage {
 }
 
 func ReadRedoPage(idx int32) (*RedoPage, error) {
-	return readRedoPage(idx, constants.PageFilePathToDo)
+	return readRedoPage(idx, constants.RedoLogToDo)
 }
 
 func readRedoPage(idx int32, filePath string) (*RedoPage, error) {

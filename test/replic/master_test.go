@@ -3,6 +3,7 @@ package replic
 import (
 	"GtBase/pkg/constants"
 	"GtBase/src/client"
+	"GtBase/src/nextwrite"
 	"GtBase/src/page"
 	"GtBase/src/replic"
 	"GtBase/utils"
@@ -82,6 +83,7 @@ func TestMasterHeart(t *testing.T) {
 }
 
 func TestRedo(t *testing.T) {
+	nextwrite.InitNextWrite()
 	port := 6544
 	lfd, err := utils.BindAndListen(port)
 	if err != nil {

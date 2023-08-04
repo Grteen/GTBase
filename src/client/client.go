@@ -63,6 +63,15 @@ func (c *GtBaseClient) Write(data []byte) error {
 	return nil
 }
 
+func (c *GtBaseClient) WriteResp(data []byte) error {
+	resp := make([]byte, 0, len(data)+4)
+	resp = append(resp, utils.Encodeint32ToBytesSmallEnd(int32(len(data)))...)
+	resp = append(resp, data...)
+	resp = append(resp, []byte(constants.CommandSep)...)
+
+	return c.Write(resp)
+}
+
 func (c *GtBaseClient) Dial() (int, error) {
 	if c.sendFd != 0 {
 		return -1, nil

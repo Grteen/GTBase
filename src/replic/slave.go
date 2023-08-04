@@ -144,6 +144,10 @@ func (s *Slave) calRedoLogRestLen() (int64, error) {
 		return constants.MaxRedoLogToSendOnceint32, nil
 	}
 
+	if result < 0 {
+		result = 0
+	}
+
 	return result, nil
 }
 
@@ -157,7 +161,6 @@ func (s *Slave) readRedoLogToSend() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	if restLen+int64(s.logOff) < constants.PageSize {
 		return firstPg.SrcSliceLength(s.logOff, int32(restLen)), nil
 	}
