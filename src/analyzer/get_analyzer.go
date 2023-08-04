@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"GtBase/pkg/constants"
 	"GtBase/src/command"
 	"GtBase/src/object"
 	"GtBase/utils"
@@ -45,7 +44,7 @@ func (c *GetCommand) ExecWithOutRedoLog() (object.Object, *utils.Message) {
 		return object.CreateGtString(err.Error()), nil
 	}
 	if result == nil {
-		return object.CreateGtString(constants.ServerGetNilReturn), nil
+		return object.CreateGtNil(), nil
 	}
 
 	return result, nil
