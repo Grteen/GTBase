@@ -3,6 +3,7 @@ package page
 import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
+	"GtBase/src/option"
 	"os"
 )
 
@@ -39,6 +40,9 @@ func readBucketPage(idx int32, filePath string) (*BucketPage, error) {
 func readBucketPageFromCache(idx int32) *BucketPage {
 	p, ok := GetPagePool().GetBucketPage(idx)
 	if !ok {
+		if option.IsCache() {
+			GetPagePool().CacheBucketPage(CreateBucketPage(idx, make([]byte, constants.PageSize), ""))
+		}
 		return nil
 	}
 

@@ -75,14 +75,14 @@ func redoLogTotalLen() (int32, error) {
 	return int32(fileSize) / int32(constants.PageSize), nil
 }
 
-func redoLogTotalSize() (int64, error) {
-	fileInfo, err := os.Stat(constants.RedoLogToDo)
-	if err != nil {
-		return -1, glog.Error("redoLogTotalSize can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
-	}
+// func redoLogTotalSize() (int64, error) {
+// 	fileInfo, err := os.Stat(constants.RedoLogToDo)
+// 	if err != nil {
+// 		return -1, glog.Error("redoLogTotalSize can't Stat file %v becasuse %v", constants.RedoLogToDo, err)
+// 	}
 
-	return fileInfo.Size(), nil
-}
+// 	return fileInfo.Size(), nil
+// }
 
 func findFirstRedoPageToRedo(checkPoint, totalLen int32) (int32, error) {
 	if totalLen == 0 {

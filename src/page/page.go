@@ -3,6 +3,7 @@ package page
 import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
+	"GtBase/src/option"
 	"log"
 	"math"
 	"os"
@@ -132,10 +133,11 @@ func (p *Page) writePageLock() error {
 }
 
 // also clean the page
+// if option IsCache return true this method will do nothing and return nil
 func (p *Page) FlushPageLock() error {
-	// if !p.Dirty() {
-	// 	return glog.Error("FlushPage don't need to flush because page%v not dirty", p.GetIndex())
-	// }
+	if option.IsCache() {
+		return nil
+	}
 	return p.writePageLock()
 }
 

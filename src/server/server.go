@@ -5,6 +5,7 @@ import (
 	"GtBase/src/analyzer"
 	"GtBase/src/client"
 	"GtBase/src/nextwrite"
+	"GtBase/src/option"
 	"GtBase/src/page"
 	"GtBase/src/replic"
 	"context"
@@ -45,14 +46,20 @@ func (s *GtBaseServer) getClient(fd int) *client.GtBaseClient {
 
 func (s *GtBaseServer) Run() error {
 	initFile()
-	errr := RedoLog()
-	if errr != nil {
-		return errr
+	if option.NeedRedo() {
+		errr := RedoLog()
+		if errr != nil {
+			return errr
+		}
 	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go page.FlushDirtyList(ctx)
 	go page.FlushRedoDirtyList(ctx)
+
+	if option.IsCache() {
+		go page.FlushDirtyList(ctx)
+	}
 
 	listenFd, err := listenAndGetFd(s.port)
 	if err != nil {

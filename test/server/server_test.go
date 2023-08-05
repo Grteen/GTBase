@@ -20,12 +20,12 @@ func TestServer(t *testing.T) {
 		command []byte
 		result  []byte
 	}{
-		{[]byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 75, 101, 121, 3, 0, 0, 0, 86, 97, 108, 13, 10}, []byte("Ok")},
-		{[]byte{3, 0, 0, 0, 71, 101, 116, 3, 0, 0, 0, 75, 101, 121, 13, 10}, []byte("Val")},
+		{[]byte{3, 0, 0, 0, 83, 101, 116, 3, 0, 0, 0, 75, 101, 121, 3, 0, 0, 0, 86, 97, 108, 13, 10}, []byte{2, 0, 0, 0, 79, 107, 13, 10}},
+		{[]byte{3, 0, 0, 0, 71, 101, 116, 3, 0, 0, 0, 75, 101, 121, 13, 10}, []byte{3, 0, 0, 0, 86, 97, 108, 13, 10}},
 	}
 
 	go func() {
-		s := server.CreateGtBaseServer("127.0.0.1", 3333)
+		s := server.CreateGtBaseServer("127.0.0.1", 5555)
 		err := s.Run()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -33,7 +33,7 @@ func TestServer(t *testing.T) {
 	}()
 
 	time.Sleep(1 * time.Second)
-	conn, err := net.Dial("tcp", "127.0.0.1:3333")
+	conn, err := net.Dial("tcp", "127.0.0.1:5555")
 	if err != nil {
 		t.Errorf(err.Error())
 		return
@@ -46,12 +46,12 @@ func TestServer(t *testing.T) {
 		}
 
 		buf := make([]byte, 1024)
-		_, err = conn.Read(buf)
+		n, err := conn.Read(buf)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		if !utils.EqualByteSliceOnlyInMinLen(buf, d.result) {
+		if !utils.EqualByteSliceOnlyInMinLen(buf[:n], d.result) {
 			t.Errorf("Read should get %v but got %v", d.result, buf)
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"GtBase/pkg/constants"
 	"GtBase/pkg/glog"
 	"GtBase/src/object"
+	"GtBase/src/option"
 	"GtBase/utils"
 	"os"
 )
@@ -67,6 +68,9 @@ func readPairPage(idx int32, filePath string) (*PairPage, error) {
 func readPairPageFromCache(idx int32) *PairPage {
 	p, ok := GetPagePool().GetPairPage(idx)
 	if !ok {
+		if option.IsCache() {
+			GetPagePool().CachePairPage(CreatePairPage(idx, make([]byte, constants.PageSize), ""))
+		}
 		return nil
 	}
 
